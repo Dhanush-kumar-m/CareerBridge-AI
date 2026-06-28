@@ -1,0 +1,60 @@
+const challenges = [
+  {
+    id: 1,
+    title: "Solve 5 Aptitude Questions",
+    description: "Complete any 5 aptitude questions.",
+    reward: 50,
+    type: "Daily",
+    icon: "🧠",
+  },
+  {
+    id: 2,
+    title: "Solve 2 Coding Problems",
+    description: "Successfully solve 2 coding challenges.",
+    reward: 100,
+    type: "Daily",
+    icon: "💻",
+  },
+  {
+    id: 3,
+    title: "Improve Resume Score",
+    description: "Increase ATS score by at least 5%.",
+    reward: 75,
+    type: "Daily",
+    icon: "📄",
+  },
+  {
+    id: 4,
+    title: "Complete Mock Interview",
+    description: "Finish one HR or Technical interview.",
+    reward: 120,
+    type: "Daily",
+    icon: "🎤",
+  },
+  {
+    id: 5,
+    title: "Earn 500 XP",
+    description: "Gain 500 XP through activities.",
+    reward: 150,
+    type: "Weekly",
+    icon: "🔥",
+  },
+  {
+    id: 6,
+    title: "Complete Company Track",
+    description: "Finish one company preparation module.",
+    reward: 200,
+    type: "Weekly",
+    icon: "🏢",
+  },
+  {
+    id: 7,
+    title: "7-Day Streak",
+    description: "Practice every day for 7 days.",
+    reward: 300,
+    type: "Special",
+    icon: "🚀",
+  },
+];
+
+export default challenges;
