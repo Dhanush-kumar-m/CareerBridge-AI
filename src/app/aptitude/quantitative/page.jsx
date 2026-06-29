@@ -15,9 +15,16 @@ export default function QuantitativePage() {
   const [popupMessage, setPopupMessage] = useState("");
   const [hasAnswered, setHasAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [moduleId, setModuleId] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const mod = params.get("module");
+      if (mod) {
+        setModuleId(parseInt(mod));
+      }
+
       const saved = localStorage.getItem("careerbridge_solved_aptitude");
       let list = [];
       if (saved) {
@@ -91,15 +98,35 @@ export default function QuantitativePage() {
         }
       }
 
-      setPopupMessage("🎸 Keep rocking!");
-      
+      setPopupMessage("Now I will give the simple explanation to solve this question with formula 💡🚀");
+      setTimeout(() => {
+        setPopupMessage("");
+      }, 2500);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setPopupMessage("Moving to next question... 🚀");
       setTimeout(() => {
         setPopupMessage("");
         setHasAnswered(false);
-        if (currentQuestionIndex < totalQuestions - 1) {
-          setCurrentQuestionIndex((prev) => prev + 1);
-        } else {
-          // All solved in this level! Move to next level automatically
+        setCurrentQuestionIndex((prev) => prev + 1);
+      }, 2000);
+    } else {
+      if (moduleId) {
+        setPopupMessage(`Thanks for completing Module ${moduleId} 🥳`);
+        setTimeout(() => {
+          setPopupMessage("");
+          setHasAnswered(false);
+          router.push(`/aptitude?completedModule=${moduleId}`);
+        }, 2500);
+      } else {
+        setPopupMessage("Correct! Level Completed! 🎉");
+        setTimeout(() => {
+          setPopupMessage("");
+          setHasAnswered(false);
+          let updatedList = [...solvedList];
           if (level === "Easy") {
             const nextLvl = "Medium";
             setLevel(nextLvl);
@@ -125,40 +152,7 @@ export default function QuantitativePage() {
           } else {
             router.push("/aptitude/verbal");
           }
-        }
-      }, 1500);
-    }
-  };
-
-  const handleNextQuestion = () => {
-    setHasAnswered(false);
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      if (level === "Easy") {
-        const nextLvl = "Medium";
-        setLevel(nextLvl);
-        setCurrentQuestionIndex(0);
-        const questionsOfLevel = aptitudeData.quantitative.filter(
-          (q) => q.difficulty.toLowerCase() === nextLvl.toLowerCase()
-        );
-        const unsolved = questionsOfLevel.filter(
-          (q) => !solvedList.includes(`quantitative_${q.id}`)
-        );
-        setSessionQuestions(unsolved);
-      } else if (level === "Medium") {
-        const nextLvl = "Hard";
-        setLevel(nextLvl);
-        setCurrentQuestionIndex(0);
-        const questionsOfLevel = aptitudeData.quantitative.filter(
-          (q) => q.difficulty.toLowerCase() === nextLvl.toLowerCase()
-        );
-        const unsolved = questionsOfLevel.filter(
-          (q) => !solvedList.includes(`quantitative_${q.id}`)
-        );
-        setSessionQuestions(unsolved);
-      } else {
-        router.push("/aptitude/verbal");
+        }, 2500);
       }
     }
   };

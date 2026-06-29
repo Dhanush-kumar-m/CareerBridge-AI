@@ -1,16 +1,48 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  FiBell,
+  FiPlus,
+  FiTrash2,
+  FiEdit,
+  FiEye,
+  FiDownload,
+  FiCheckCircle,
+  FiUsers,
+  FiBookOpen,
+  FiCode,
+  FiCpu,
+  FiSettings,
+  FiActivity,
+  FiClock,
+  FiPlay,
+  FiCheck,
+  FiAlertTriangle,
+  FiMail,
+  FiMessageSquare,
+  FiSend
+} from "react-icons/fi";
 
-export default function NotificationsPage() {
+const COLORS = ["#6366f1", "#10b981", "#fbbf24", "#ef4444", "#a78bfa", "#06b6d4"];
+
+export default function AdminNotificationsPage() {
+  const [activeTab, setActiveTab] = useState("history");
   const [notifications, setNotifications] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newContent, setNewContent] = useState("");
-  const [newGroup, setNewGroup] = useState("All Students");
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Load notifications from localStorage or fallback to defaults
+  // Form States
+  const [newNotif, setNewNotif] = useState({
+    title: "",
+    message: "",
+    category: "Placement Drive",
+    priority: "Medium",
+    target: "All Students",
+    method: "In-App Notification",
+    schedule: "Immediately"
+  });
+
+  // Load from localStorage or defaults
   useEffect(() => {
     const stored = localStorage.getItem("system_notifications");
     if (stored) {
@@ -19,28 +51,40 @@ export default function NotificationsPage() {
       const defaultNotifs = [
         {
           id: 1,
-          title: "TCS Placement Drive",
-          content: "TCS is conducting a placement drive for engineering graduates. Register by 30th June.",
-          date: "22 June 2026",
+          title: "TCS Placement Drive registration",
+          message: "TCS is conducting a placement drive for engineering graduates. Register by 30th June.",
+          date: "2026-06-22",
           status: "Sent",
-          target: "All Students"
+          category: "Placement Drive",
+          target: "All Students",
+          method: "Email & In-App",
+          recipients: 1200,
+          readCount: 850
         },
         {
           id: 2,
           title: "Resume Submission Reminder",
-          content: "Please upload your updated resume to the ATS analyzer to clear internal placement audits.",
-          date: "20 June 2026",
+          message: "Please upload your updated resume to the ATS analyzer to clear internal placement audits.",
+          date: "2026-06-20",
           status: "Sent",
-          target: "All Students"
+          category: "Resume Review",
+          target: "All Students",
+          method: "In-App",
+          recipients: 1200,
+          readCount: 940
         },
         {
           id: 3,
-          title: "Mock Interview Schedule",
-          content: "HR mock interview slots are now open. Choose your timing in the mock interview tab.",
-          date: "18 June 2026",
+          title: "Mock Interview slots open",
+          message: "HR mock interview slots are now open. Choose your timing in the mock interview tab.",
+          date: "2026-06-18",
           status: "Sent",
-          target: "All Students"
-        },
+          category: "Mock Interview",
+          target: "All Students",
+          method: "Email",
+          recipients: 500,
+          readCount: 420
+        }
       ];
       localStorage.setItem("system_notifications", JSON.stringify(defaultNotifs));
       setNotifications(defaultNotifs);
@@ -49,225 +93,304 @@ export default function NotificationsPage() {
 
   const handleSendNotification = (e) => {
     e.preventDefault();
-    if (!newTitle.trim() || !newContent.trim()) return;
+    if (!newNotif.title || !newNotif.message) return;
 
-    const formattedDate = new Date().toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const formattedDate = new Date().toISOString().split("T")[0];
 
-    const newNotification = {
+    const added = {
       id: Date.now(),
-      title: newTitle,
-      content: newContent,
+      title: newNotif.title,
+      message: newNotif.message,
       date: formattedDate,
-      status: "Sent",
-      target: newGroup,
+      status: newNotif.schedule === "Immediately" ? "Sent" : "Scheduled",
+      category: newNotif.category,
+      target: newNotif.target,
+      method: newNotif.method,
+      recipients: newNotif.target === "All Students" ? 1200 : 350,
+      readCount: 0
     };
 
-    const updated = [newNotification, ...notifications];
+    const updated = [added, ...notifications];
     setNotifications(updated);
     localStorage.setItem("system_notifications", JSON.stringify(updated));
-    
-    // Also trigger custom event so other open tabs or listeners know (in React SPA)
     window.dispatchEvent(new Event("notifications_updated"));
 
-    // Reset form
-    setNewTitle("");
-    setNewContent("");
-    setShowModal(false);
+    // Reset Form
+    setNewNotif({
+      title: "",
+      message: "",
+      category: "Placement Drive",
+      priority: "Medium",
+      target: "All Students",
+      method: "In-App Notification",
+      schedule: "Immediately"
+    });
+    setShowAddForm(false);
+  };
+
+  const handleDeleteNotif = (id) => {
+    if (confirm("Are you sure you want to delete this notification record?")) {
+      const updated = notifications.filter(n => n.id !== id);
+      setNotifications(updated);
+      localStorage.setItem("system_notifications", JSON.stringify(updated));
+      window.dispatchEvent(new Event("notifications_updated"));
+    }
   };
 
   return (
-    <div className="notifications-page">
-      <div className="page-header">
-        <h1>🔔 Notifications Center</h1>
-        <p>
-          Manage announcements, placement updates and student notifications.
-        </p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "25px", animation: "fadeIn 0.5s ease" }}>
+      
+      {/* Header Banner */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "15px",
+        background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        padding: "20px 30px",
+        borderRadius: "16px"
+      }}>
+        <div>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: "800", margin: 0, color: "#ffffff", display: "flex", alignItems: "center", gap: "10px" }}>
+            <FiBell style={{ color: "var(--primary)" }} />
+            <span>Notification & Broadcasts</span>
+          </h1>
+          <p style={{ margin: "5px 0 0", fontSize: "0.86rem", color: "var(--text-secondary)" }}>
+            Push email alerts, In-App placement drive alerts, and automate interview reminders.
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={() => { setActiveTab("history"); setShowAddForm(true); }} className="start-practice-badge-btn" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <FiPlus />
+            <span>Create New Announcement</span>
+          </button>
+        </div>
       </div>
 
-      <div className="notification-stats">
-        <div className="notification-stat-card">
-          <h2>{notifications.length}</h2>
-          <p>Total Notifications</p>
+      {/* Dashboard quick stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "20px" }}>
+        <div className="stat-pill" style={{ padding: "18px" }}>
+          <span className="stat-label">Total Pushed</span>
+          <span className="stat-value">{notifications.length} Broadcasts</span>
         </div>
-        <div className="notification-stat-card">
-          <h2>{notifications.filter(n => n.date.includes("2026")).length}</h2>
-          <p>Sent Recently</p>
+        <div className="stat-pill" style={{ padding: "18px" }}>
+          <span className="stat-label">Sent Today</span>
+          <span className="stat-value">2 Broadcasts</span>
         </div>
-        <div className="notification-stat-card">
-          <h2>5200</h2>
-          <p>Students Reached</p>
+        <div className="stat-pill" style={{ padding: "18px" }}>
+          <span className="stat-label">Active Audience</span>
+          <span className="stat-value">1,420 Students</span>
+        </div>
+        <div className="stat-pill" style={{ padding: "18px" }}>
+          <span className="stat-label">Delivery Success</span>
+          <span className="stat-value">100% Rate</span>
         </div>
       </div>
 
-      <div className="notification-actions" style={{ marginBottom: "30px" }}>
-        <button className="admin-btn" onClick={() => setShowModal(true)}>
-          ➕ Send Notification
+      {/* Tabs Navigation */}
+      <nav className="aptitude-tab-nav" style={{ marginBottom: "5px" }}>
+        <button onClick={() => setActiveTab("history")} className={`tab-link ${activeTab === "history" ? "active" : ""}`}>
+          <FiClock />
+          <span>Notification History</span>
         </button>
-      </div>
+        <button onClick={() => setActiveTab("templates")} className={`tab-link ${activeTab === "templates" ? "active" : ""}`}>
+          <FiBookOpen />
+          <span>Broadcast Templates</span>
+        </button>
+        <button onClick={() => setActiveTab("automation")} className={`tab-link ${activeTab === "automation" ? "active" : ""}`}>
+          <FiSettings />
+          <span>Automation Rules</span>
+        </button>
+      </nav>
 
-      <div className="notifications-list">
-        <h2>Recent Notifications</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "15px" }}>
-          {notifications.map((notification) => (
-            <div key={notification.id || notification.title} className="notification-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "12px" }}>
-              <div style={{ flex: 1, marginRight: "20px" }}>
-                <h3 style={{ margin: "0 0 5px", fontSize: "1.1rem" }}>{notification.title}</h3>
-                <p style={{ margin: "0 0 10px", fontSize: "0.9rem", color: "var(--text-secondary)" }}>{notification.content}</p>
-                <div style={{ display: "flex", gap: "15px", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                  <span>📅 {notification.date}</span>
-                  <span>👥 Target: {notification.target || "All Students"}</span>
+      {/* Tabs Content */}
+      <main className="aptitude-tab-content">
+        
+        {/* Tab 1: Broadcast History */}
+        {activeTab === "history" && (
+          <section className="tab-pane fade-in" style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+            
+            {/* Create Announcement Form */}
+            {showAddForm && (
+              <form onSubmit={handleSendNotification} style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", padding: "24px", borderRadius: "16px", display: "flex", flexDirection: "column", gap: "15px" }}>
+                <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: 0 }}>Create New Broadcast</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "15px" }}>
+                  <input 
+                    type="text" 
+                    placeholder="Notification Title" 
+                    value={newNotif.title} 
+                    onChange={e => setNewNotif({...newNotif, title: e.target.value})}
+                    style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", padding: "10px", borderRadius: "8px" }}
+                  />
+                  <select 
+                    value={newNotif.category} 
+                    onChange={e => setNewNotif({...newNotif, category: e.target.value})}
+                    style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", padding: "10px", borderRadius: "8px" }}
+                  >
+                    <option value="Placement Drive">Placement Drive</option>
+                    <option value="Resume Review">Resume Review</option>
+                    <option value="Coding Contest">Coding Contest</option>
+                    <option value="Mock Interview">Mock Interview</option>
+                    <option value="System Update">System Update</option>
+                  </select>
+                  <select 
+                    value={newNotif.target} 
+                    onChange={e => setNewNotif({...newNotif, target: e.target.value})}
+                    style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", padding: "10px", borderRadius: "8px" }}
+                  >
+                    <option value="All Students">All Students</option>
+                    <option value="CSE Department">CSE Department</option>
+                    <option value="ECE Department">ECE Department</option>
+                    <option value="Batch 2026">Batch 2026</option>
+                  </select>
+                  <select 
+                    value={newNotif.method} 
+                    onChange={e => setNewNotif({...newNotif, method: e.target.value})}
+                    style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", padding: "10px", borderRadius: "8px" }}
+                  >
+                    <option value="In-App Notification">In-App Notification</option>
+                    <option value="Email Broadcast">Email Broadcast</option>
+                    <option value="Push Notification">Push Notification</option>
+                  </select>
+                </div>
+                <textarea 
+                  placeholder="Notification Message Content" 
+                  value={newNotif.message} 
+                  onChange={e => setNewNotif({...newNotif, message: e.target.value})}
+                  rows={4}
+                  style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", padding: "10px", borderRadius: "8px", resize: "none" }}
+                />
+                <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                  <button type="submit" className="solve-btn" style={{ padding: "8px 20px" }}>Send Immediately</button>
+                  <button type="button" onClick={() => setShowAddForm(false)} className="solve-btn" style={{ background: "rgba(255,255,255,0.05)", color: "#ffffff", padding: "8px 20px" }}>Cancel</button>
+                </div>
+              </form>
+            )}
+
+            {/* History Table */}
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "20px" }}>
+              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0" }}>Broadcast History Logs</h3>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)", textAlign: "left" }}>
+                      <th style={{ padding: "12px" }}>Broadcast Title</th>
+                      <th style={{ padding: "12px" }}>Category</th>
+                      <th style={{ padding: "12px" }}>Target Audience</th>
+                      <th style={{ padding: "12px" }}>Channel</th>
+                      <th style={{ padding: "12px" }}>Date</th>
+                      <th style={{ padding: "12px" }}>Delivery Status</th>
+                      <th style={{ padding: "12px" }}>Recipients</th>
+                      <th style={{ padding: "12px" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notifications.map((n) => (
+                      <tr key={n.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                        <td style={{ padding: "12px" }}><strong style={{ color: "#ffffff" }}>{n.title}</strong></td>
+                        <td style={{ padding: "12px" }}>{n.category}</td>
+                        <td style={{ padding: "12px" }}>{n.target}</td>
+                        <td style={{ padding: "12px" }}>{n.method}</td>
+                        <td style={{ padding: "12px" }}>{n.date}</td>
+                        <td style={{ padding: "12px" }}>
+                          <span style={{
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontSize: "0.75rem",
+                            background: n.status === "Sent" ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.12)",
+                            color: n.status === "Sent" ? "#10b981" : "#f59e0b",
+                            fontWeight: "700"
+                          }}>{n.status}</span>
+                        </td>
+                        <td style={{ padding: "12px", color: "#60a5fa" }}>{n.recipients} Students</td>
+                        <td style={{ padding: "12px" }}>
+                          <button onClick={() => handleDeleteNotif(n.id)} style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer" }}><FiTrash2 size={16} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </section>
+        )}
+
+        {/* Tab 2: Broadcast Templates */}
+        {activeTab === "templates" && (
+          <section className="tab-pane fade-in" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
+            {[
+              { name: "New Placement Campaign Template", desc: "Push notification alert telling students that recruiter registration is open.", method: "In-App & Email" },
+              { name: "Mock Test Scheduled Reminder", desc: "Fires 24 hours before a mock assessment to advise students to test compiler setups.", method: "Email & SMS" },
+              { name: "ATS Resume Check Pending Review", desc: "Notification alert warning student that changes are requested to pass filters.", method: "In-App Only" },
+              { name: "General Exam Announcement Template", desc: "Standard header and body formatting for academic schedules.", method: "All Channels" }
+            ].map((t, i) => (
+              <div key={i} style={{ padding: "20px", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px" }}>
+                <strong style={{ color: "#ffffff", fontSize: "0.95rem", display: "block", marginBottom: "8px" }}>{t.name}</strong>
+                <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: "0 0 15px 0", lineHeight: "1.4" }}>{t.desc}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.78rem", color: "#6366f1" }}>Channel: {t.method}</span>
+                  <button className="solve-btn" style={{ padding: "4px 10px", fontSize: "0.76rem" }}>Use Template</button>
                 </div>
               </div>
-              <span className="notification-status" style={{ background: "rgba(16, 185, 129, 0.1)", color: "#10b981", padding: "4px 10px", borderRadius: "20px", fontSize: "0.8rem", fontWeight: "bold" }}>
-                {notification.status}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </section>
+        )}
 
-      {/* Modal for creating a new notification - High Visibility Design */}
-      {showModal && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(8, 12, 24, 0.85)",
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1000
-        }}>
-          <form onSubmit={handleSendNotification} style={{
-            background: "linear-gradient(145deg, #1e293b, #0f172a)",
-            color: "#f8fafc",
-            padding: "25px",
-            borderRadius: "14px",
-            border: "1.5px solid #3b82f6",
-            width: "90%",
-            maxWidth: "480px",
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.6), 0 0 12px rgba(59, 130, 246, 0.2)"
-          }}>
-            <h2 style={{ marginBottom: "15px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "10px", fontSize: "1.25rem", color: "#ffffff" }}>
-              <span>🔔 Send New Notification</span>
-              <button 
-                type="button"
-                onClick={() => setShowModal(false)}
-                style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1 }}
-              >
-                &times;
-              </button>
-            </h2>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "0.88rem", fontWeight: "600", color: "#cbd5e1" }}>Notification Title</label>
-                <input 
-                  type="text" 
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. TCS Placement Drive" 
-                  required
-                  style={{
-                    padding: "10px",
-                    background: "rgba(0, 0, 0, 0.2)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    borderRadius: "8px",
-                    color: "#ffffff",
-                    fontSize: "0.9rem"
-                  }}
-                />
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "0.88rem", fontWeight: "600", color: "#cbd5e1" }}>Notification Content</label>
-                <textarea 
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  placeholder="Provide details about the placement announcement..." 
-                  required
-                  rows={4}
-                  style={{
-                    padding: "10px",
-                    background: "rgba(0, 0, 0, 0.2)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    borderRadius: "8px",
-                    color: "#ffffff",
-                    fontSize: "0.9rem",
-                    resize: "none"
-                  }}
-                />
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontSize: "0.88rem", fontWeight: "600", color: "#cbd5e1" }}>Target Group</label>
-                <select 
-                  value={newGroup}
-                  onChange={(e) => setNewGroup(e.target.value)}
-                  style={{
-                    padding: "10px",
-                    background: "#0f172a",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    borderRadius: "8px",
-                    color: "#ffffff",
-                    fontSize: "0.9rem",
-                    cursor: "pointer"
-                  }}
-                >
-                  <option>All Students</option>
-                  <option>Final Year Students</option>
-                  <option>Third Year Students</option>
-                  <option>Aptitude Only Students</option>
-                </select>
+        {/* Tab 3: Automation Rules */}
+        {activeTab === "automation" && (
+          <section className="tab-pane fade-in" style={{ display: "grid", gridTemplateColumns: "1.5fr 1.5fr", gap: "25px", alignItems: "start" }}>
+            
+            {/* Auto Rules Toggles */}
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "20px" }}>
+              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", marginBottom: "15px" }}>Auto Broadcast Rules</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                {[
+                  { label: "Announce when new company registration opens", status: "Active" },
+                  { label: "Alert when resume review status is updated", status: "Active" },
+                  { label: "Push email reminders for scheduled mock interviews", status: "Active" },
+                  { label: "Push login alerts for new student device connections", status: "Inactive" }
+                ].map((rule, idx) => (
+                  <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "rgba(255,255,255,0.02)", borderRadius: "8px" }}>
+                    <span style={{ fontSize: "0.88rem", color: "#ffffff" }}>{rule.label}</span>
+                    <span style={{
+                      fontSize: "0.75rem",
+                      padding: "2px 8px",
+                      borderRadius: "4px",
+                      background: rule.status === "Active" ? "rgba(16, 185, 129, 0.12)" : "rgba(255,255,255,0.08)",
+                      color: rule.status === "Active" ? "#10b981" : "var(--text-secondary)",
+                      fontWeight: "700"
+                    }}>{rule.status}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-              <button 
-                type="button" 
-                onClick={() => setShowModal(false)}
-                style={{ 
-                  padding: "10px 18px", 
-                  background: "rgba(255,255,255,0.05)", 
-                  border: "1px solid rgba(255,255,255,0.15)", 
-                  borderRadius: "8px", 
-                  color: "#ffffff",
-                  fontWeight: "600",
-                  fontSize: "0.88rem",
-                  cursor: "pointer"
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                style={{ 
-                  padding: "10px 18px", 
-                  background: "#3b82f6", 
-                  border: "none", 
-                  borderRadius: "8px", 
-                  color: "#ffffff",
-                  fontWeight: "700",
-                  fontSize: "0.88rem",
-                  cursor: "pointer"
-                }}
-              >
-                Send Notification
-              </button>
+            {/* Email server configs */}
+            <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "20px" }}>
+              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", marginBottom: "15px" }}>SMTP & Channel Configurations</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.85rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <span style={{ color: "var(--text-secondary)" }}>SMTP Server Host</span>
+                  <strong>smtp.careerbridge.ai</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <span style={{ color: "var(--text-secondary)" }}>SMS Gateway Provider</span>
+                  <strong>Twilio API Service</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
+                  <span style={{ color: "var(--text-secondary)" }}>Push Service Gateway</span>
+                  <strong>Firebase Cloud Messaging</strong>
+                </div>
+              </div>
             </div>
-          </form>
-        </div>
-      )}
+
+          </section>
+        )}
+
+      </main>
     </div>
   );
 }
-
-
