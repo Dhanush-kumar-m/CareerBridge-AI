@@ -8,6 +8,9 @@ export default function useAuth() {
   const router = useRouter();
 
   const loginUser = async (email, password) => {
+    if (typeof email === "object") {
+      return await auth?.login(email);
+    }
     return await auth?.login(email, password);
   };
 

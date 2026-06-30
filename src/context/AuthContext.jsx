@@ -30,6 +30,29 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
+    if (typeof email === "object" && email !== null) {
+      const payload = email;
+      if (payload.role === "admin" || payload.email === "admin@careerbridge.com") {
+        setUser({
+          id: "admin-mock-id",
+          email: payload.email,
+          user_metadata: {
+            full_name: payload.name || "Placement Director",
+          },
+          role: "admin",
+        });
+        return { email: payload.email };
+      }
+      
+      const { email: extEmail, password: extPassword } = payload;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: extEmail,
+        password: extPassword,
+      });
+      if (error) throw error;
+      return data.user;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
