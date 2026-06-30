@@ -178,6 +178,14 @@ create policy "Users can view relevant notifications"
   on public.notifications for select
   using (user_id is null or user_id = auth.uid());
 
+create policy "Allow all users to insert notifications"
+  on public.notifications for insert
+  with check (true);
+
+create policy "Allow all users to delete notifications"
+  on public.notifications for delete
+  using (true);
+
 
 -- 8. Create Read Notifications junction table (for read states)
 create table if not exists public.read_notifications (

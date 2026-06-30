@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "../../../lib/supabase";
 import {
   FiBell,
   FiPlus,
@@ -42,70 +43,115 @@ export default function AdminNotificationsPage() {
     schedule: "Immediately"
   });
 
-  // Load from localStorage or defaults
+  // Load from Supabase notifications table
   useEffect(() => {
-    const stored = localStorage.getItem("system_notifications");
-    if (stored) {
-      setNotifications(JSON.parse(stored));
-    } else {
-      const defaultNotifs = [
-        {
-          id: 1,
-          title: "TCS Placement Drive registration",
-          message: "TCS is conducting a placement drive for engineering graduates. Register by 30th June.",
-          date: "2026-06-22",
+    async function loadAnnouncements() {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error loading notifications from Supabase:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const formatted = data.map(n => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          date: new Date(n.created_at).toISOString().split("T")[0],
           status: "Sent",
-          category: "Placement Drive",
+          category: n.type || "System Update",
           target: "All Students",
-          method: "Email & In-App",
+          method: n.link || "In-App Notification",
           recipients: 1200,
-          readCount: 850
-        },
-        {
-          id: 2,
-          title: "Resume Submission Reminder",
-          message: "Please upload your updated resume to the ATS analyzer to clear internal placement audits.",
-          date: "2026-06-20",
-          status: "Sent",
-          category: "Resume Review",
-          target: "All Students",
-          method: "In-App",
-          recipients: 1200,
-          readCount: 940
-        },
-        {
-          id: 3,
-          title: "Mock Interview slots open",
-          message: "HR mock interview slots are now open. Choose your timing in the mock interview tab.",
-          date: "2026-06-18",
-          status: "Sent",
-          category: "Mock Interview",
-          target: "All Students",
-          method: "Email",
-          recipients: 500,
-          readCount: 420
+          readCount: 0
+        }));
+        setNotifications(formatted);
+        localStorage.setItem("system_notifications", JSON.stringify(formatted));
+      } else {
+        // Fallback or seed database if empty
+        const defaultNotifs = [
+          {
+            title: "TCS Placement Drive registration",
+            message: "TCS is conducting a placement drive for engineering graduates. Register by 30th June.",
+            type: "Placement Drive",
+            link: "In-App Notification"
+          },
+          {
+            title: "Resume Submission Reminder",
+            message: "Please upload your updated resume to the ATS analyzer to clear internal placement audits.",
+            type: "Resume Review",
+            link: "In-App Notification"
+          },
+          {
+            title: "Mock Interview slots open",
+            message: "HR mock interview slots are now open. Choose your timing in the mock interview tab.",
+            type: "Mock Interview",
+            link: "In-App Notification"
+          }
+        ];
+
+        // Seed
+        const { data: seeded, error: seedError } = await supabase
+          .from("notifications")
+          .insert(defaultNotifs)
+          .select();
+
+        if (!seedError && seeded) {
+          const formatted = seeded.map(n => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            date: new Date(n.created_at).toISOString().split("T")[0],
+            status: "Sent",
+            category: n.type,
+            target: "All Students",
+            method: n.link,
+            recipients: 1200,
+            readCount: 0
+          }));
+          setNotifications(formatted);
+          localStorage.setItem("system_notifications", JSON.stringify(formatted));
         }
-      ];
-      localStorage.setItem("system_notifications", JSON.stringify(defaultNotifs));
-      setNotifications(defaultNotifs);
+      }
     }
+
+    loadAnnouncements();
   }, []);
 
-  const handleSendNotification = (e) => {
+  const handleSendNotification = async (e) => {
     e.preventDefault();
     if (!newNotif.title || !newNotif.message) return;
 
-    const formattedDate = new Date().toISOString().split("T")[0];
+    // Send/Insert announcement to Supabase table (which propagates to all student bells)
+    const { data, error } = await supabase
+      .from("notifications")
+      .insert({
+        title: newNotif.title,
+        message: newNotif.message,
+        type: newNotif.category,
+        link: newNotif.method
+      })
+      .select()
+      .single();
+
+    if (error) {
+      alert("Error creating announcement in Supabase: " + error.message);
+      return;
+    }
 
     const added = {
-      id: Date.now(),
-      title: newNotif.title,
-      message: newNotif.message,
-      date: formattedDate,
-      status: newNotif.schedule === "Immediately" ? "Sent" : "Scheduled",
-      category: newNotif.category,
+      id: data.id,
+      title: data.title,
+      message: data.message,
+      date: new Date(data.created_at).toISOString().split("T")[0],
+      status: "Sent",
+      category: data.type,
       target: newNotif.target,
-      method: newNotif.method,
+      method: data.link,
       recipients: newNotif.target === "All Students" ? 1200 : 350,
       readCount: 0
     };
@@ -128,8 +174,18 @@ export default function AdminNotificationsPage() {
     setShowAddForm(false);
   };
 
-  const handleDeleteNotif = (id) => {
+  const handleDeleteNotif = async (id) => {
     if (confirm("Are you sure you want to delete this notification record?")) {
+      const { error } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert("Error deleting announcement from Supabase: " + error.message);
+        return;
+      }
+
       const updated = notifications.filter(n => n.id !== id);
       setNotifications(updated);
       localStorage.setItem("system_notifications", JSON.stringify(updated));
