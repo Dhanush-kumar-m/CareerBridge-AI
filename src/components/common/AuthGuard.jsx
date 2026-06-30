@@ -18,6 +18,12 @@ export default function AuthGuard({ children }) {
   const isPublicRoute = isStudentPublic || isAdminPublic;
 
   useEffect(() => {
+    // Intercept and auto-fix any malformed object URL pathnames permanently
+    if (pathname && (pathname.includes("[object") || pathname.includes("%5Bobject"))) {
+      router.replace("/");
+      return;
+    }
+
     // Only execute redirects once both loading is complete and the real pathname is resolved
     if (!loading && pathname && pathname !== "") {
       if (!isAuthenticated) {

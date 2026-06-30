@@ -26,6 +26,12 @@ export default function AdminLayout({ children }) {
   const isAdminLogin = pathname.startsWith("/admin/login");
 
   useEffect(() => {
+    // Intercept and auto-fix any malformed object URL pathnames permanently
+    if (pathname && (pathname.includes("[object") || pathname.includes("%5Bobject"))) {
+      router.replace("/admin/login");
+      return;
+    }
+
     if (!loading && !isAdminLogin) {
       if (!isAuthenticated || user?.role !== "admin") {
         router.push("/");
