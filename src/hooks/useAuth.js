@@ -18,6 +18,10 @@ export default function useAuth() {
     return await auth?.signup(email, password, name);
   };
 
+  const loginWithGoogle = async () => {
+    return await auth?.loginWithGoogle();
+  };
+
   const logoutUser = async (redirectPath = "/login") => {
     await auth?.logout(redirectPath);
   };
@@ -36,6 +40,7 @@ export default function useAuth() {
     isAuthenticated: !!auth?.user,
     loginUser,
     signupUser,
+    loginWithGoogle,
     logoutUser,
     goToDashboard,
     goToLogin,
