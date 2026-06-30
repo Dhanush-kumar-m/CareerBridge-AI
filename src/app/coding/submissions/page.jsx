@@ -1,59 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useCodingProgress from "../../../hooks/useCodingProgress";
 
 export default function SubmissionsPage() {
-  const [submissions, setSubmissions] = useState([]);
+  const { submissions, loading } = useCodingProgress();
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("careerbridge_coding_submissions");
-      if (saved) {
-        try {
-          setSubmissions(JSON.parse(saved));
-        } catch (e) {
-          console.error("Failed to parse submissions history:", e);
-        }
-      } else {
-        // Fallback mock submissions
-        const mock = [
-          {
-            id: "mock-1",
-            title: "Two Sum",
-            language: "Java",
-            status: "Accepted",
-            difficulty: "Easy",
-            runtime: "42 ms",
-            date: "2026-06-26 14:35",
-            code: `public class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Two sum O(N) HashMap solution\n        java.util.Map<Integer, Integer> map = new java.util.HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) {\n                return new int[] { map.get(complement), i };\n            }\n            map.put(nums[i], i);\n        }\n        return null;\n    }\n}`
-          },
-          {
-            id: "mock-2",
-            title: "Reverse String",
-            language: "Python",
-            status: "Accepted",
-            difficulty: "Easy",
-            runtime: "12 ms",
-            date: "2026-06-25 18:20",
-            code: `def reverseString(str):\n    # Python slice reverse\n    return str[::-1]`
-          },
-          {
-            id: "mock-3",
-            title: "Valid Parentheses",
-            language: "JavaScript",
-            status: "Wrong Answer",
-            difficulty: "Medium",
-            runtime: "-",
-            date: "2026-06-24 10:12",
-            code: `function isValid(str) {\n    // Incorrect logic: only checks length\n    return str.length % 2 === 0;\n}`
-          }
-        ];
-        localStorage.setItem("careerbridge_coding_submissions", JSON.stringify(mock));
-        setSubmissions(mock);
-      }
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="submissions-page" style={{ padding: "40px", textShadow: "none" }}>
+        <h2>Loading submissions...</h2>
+      </div>
+    );
+  }
 
   const acceptedCount = submissions.filter(
     (s) => s.status === "Accepted"

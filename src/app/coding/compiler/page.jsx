@@ -9,6 +9,7 @@ import OutputPanel from "../../../components/coding/OutputPanel";
 import TestCases from "../../../components/coding/TestCases";
 import SubmissionResult from "../../../components/coding/SubmissionResult";
 import ConfettiSuccess from "../../../components/coding/ConfettiSuccess";
+import useCodingProgress from "../../../hooks/useCodingProgress";
 
 // Helper functions for code execution
 const parseInput = (input, questionId) => {
@@ -667,7 +668,7 @@ const runCompilerTestCases = (code, language, question) => {
 export default function CompilerPage() {
   const router = useRouter();
   const [level, setLevel] = useState("Easy");
-  const [solvedIds, setSolvedIds] = useState([]);
+  const { solvedIds, markAsSolved, addSubmission } = useCodingProgress();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
   const [language, setLanguage] = useState("Java");
@@ -697,18 +698,9 @@ export default function CompilerPage() {
 
   const question = questionsOfLevel[currentQuestionIndex] || questionsOfLevel[0] || codingQuestions[0];
 
-  // Load question ID from URL if provided and load solved IDs
+  // Load question ID from URL if provided
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedSolved = localStorage.getItem("careerbridge_solved_coding");
-      if (savedSolved) {
-        try {
-          setSolvedIds(JSON.parse(savedSolved));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-
       const params = new URLSearchParams(window.location.search);
       const idParam = params.get("id");
       if (idParam) {
@@ -718,8 +710,11 @@ export default function CompilerPage() {
           const diff = q.difficulty; // e.g. "Easy", "Medium", "Hard"
           setLevel(diff);
           
-          const filtered = codingQuestions.filter(x => x.difficulty.toLowerCase() === diff.toLowerCase());
-          const idx = filtered.findIndex(x => x.id === id);
+          // Find question index within that level
+          const lvlQuestions = codingQuestions.filter(
+            (item) => item.difficulty.toLowerCase() === diff.toLowerCase()
+          );
+          const idx = lvlQuestions.findIndex((item) => item.id === id);
           if (idx !== -1) {
             setCurrentQuestionIndex(idx);
           }
@@ -883,38 +878,17 @@ export default function CompilerPage() {
       setTotalCount(evaluation.totalCount);
       setHasSubmitted(true);
 
-      // Record Submission History in localStorage
-      let updatedSubmissionsList = [];
-      if (typeof window !== "undefined") {
-        const savedSubmissions = localStorage.getItem("careerbridge_coding_submissions");
-        if (savedSubmissions) {
-          try {
-            updatedSubmissionsList = JSON.parse(savedSubmissions);
-          } catch (e) {
-            console.error("Failed to parse submissions history:", e);
-          }
-        }
-        
-        const now = new Date();
-        const dateStr = now.getFullYear() + "-" + 
-                        String(now.getMonth() + 1).padStart(2, "0") + "-" + 
-                        String(now.getDate()).padStart(2, "0") + " " + 
-                        String(now.getHours()).padStart(2, "0") + ":" + 
-                        String(now.getMinutes()).padStart(2, "0");
-
-        const newSub = {
-          id: Date.now().toString(),
-          title: question.title,
-          language: language,
-          status: evaluation.error ? "Compilation Error" : (evaluation.success ? "Accepted" : "Wrong Answer"),
-          difficulty: question.difficulty,
-          runtime: evaluation.success ? `${Math.floor(Math.random() * 40) + 10} ms` : "-",
-          date: dateStr,
-          code: userCode
-        };
-        updatedSubmissionsList.unshift(newSub); // Add newest first
-        localStorage.setItem("careerbridge_coding_submissions", JSON.stringify(updatedSubmissionsList));
-      }
+      // Record Submission History in Supabase/localStorage
+      addSubmission({
+        questionId: question.id,
+        questionTitle: question.title,
+        code: userCode,
+        language: language,
+        status: evaluation.error ? "Compilation Error" : (evaluation.success ? "Accepted" : "Wrong Answer"),
+        difficulty: question.difficulty,
+        passedCount: evaluation.passedCount || 0,
+        totalCount: evaluation.totalCount || question.testCases.length
+      });
 
       if (evaluation.error && !evaluation.success) {
         setErrorDetails(evaluation.error);
@@ -925,15 +899,9 @@ export default function CompilerPage() {
           setOutput(`✅ Solution Accepted!\nPassed all ${evaluation.passedCount} test cases.`);
           setShowCorrectPopup(true); // Large rocking success overlay popup
           
-          // Save solved question ID to localStorage
-          let updatedSolvedList = [...solvedIds];
-          if (!updatedSolvedList.includes(question.id)) {
-            updatedSolvedList.push(question.id);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("careerbridge_solved_coding", JSON.stringify(updatedSolvedList));
-            }
-            setSolvedIds(updatedSolvedList);
-          }
+          // Save solved question ID to Supabase/localStorage
+          const updatedSolvedList = solvedIds.includes(question.id) ? solvedIds : [...solvedIds, question.id];
+          markAsSolved(question.id, question.difficulty);
 
           // Auto-route to next session/question after 2.5 seconds
           setTimeout(() => {

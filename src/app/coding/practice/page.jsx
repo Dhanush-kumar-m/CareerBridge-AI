@@ -1,29 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useXP } from "../../../context/XPContext";
 import useProgress from "../../../hooks/useProgress";
 import codingQuestions from "../../../data/codingQuestions";
 import Link from "next/link";
+import useCodingProgress from "../../../hooks/useCodingProgress";
 
 export default function CodingPracticePage() {
   const { xp } = useXP();
   const { progress } = useProgress();
   const [difficulty, setDifficulty] = useState("All");
-  const [solvedIds, setSolvedIds] = useState([]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("careerbridge_solved_coding");
-      if (saved) {
-        try {
-          setSolvedIds(JSON.parse(saved));
-        } catch (e) {
-          console.error("Failed to parse solved coding questions:", e);
-        }
-      }
-    }
-  }, []);
+  const { solvedIds } = useCodingProgress();
 
   const questions = codingQuestions.map((q) => ({
     ...q,
