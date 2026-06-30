@@ -25,6 +25,7 @@ export default function QuantitativePage() {
   
   const [isModuleCompleted, setIsModuleCompleted] = useState(false);
   const redirectTimeoutRef = useRef(null);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   // Sync state with URL Query params reactively
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function QuantitativePage() {
     }
     setCurrentQuestionIndex(0);
     setHasAnswered(false);
+    setReloadTrigger(prev => prev + 1);
   }, [moduleParam, difficultyParam]);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function QuantitativePage() {
     };
   }, []);
 
-  // Update session questions when solvedList or difficulty level changes
+  // Update session questions when difficulty level or reloadTrigger changes (not on solvedList changes during active session)
   useEffect(() => {
     if (!loadingProgress) {
       const questionsOfLevel = aptitudeData.quantitative.filter(
@@ -58,12 +60,13 @@ export default function QuantitativePage() {
       setSessionQuestions(unsolved);
       setLoading(false);
     }
-  }, [solvedList, loadingProgress, level]);
+  }, [loadingProgress, level, reloadTrigger]);
 
   const handleLevelChange = (lvl) => {
     setLevel(lvl);
     setCurrentQuestionIndex(0);
     setHasAnswered(false);
+    setReloadTrigger(prev => prev + 1);
   };
 
   const handleResetLevel = (category) => {
@@ -74,6 +77,7 @@ export default function QuantitativePage() {
     resetCategoryProgress(keysToRemove);
     setCurrentQuestionIndex(0);
     setHasAnswered(false);
+    setReloadTrigger(prev => prev + 1);
   };
 
   const totalQuestions = sessionQuestions.length;
