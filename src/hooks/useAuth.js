@@ -23,7 +23,8 @@ export default function useAuth() {
   };
 
   const logoutUser = async (redirectPath = "/login") => {
-    await auth?.logout(redirectPath);
+    const target = (typeof redirectPath === "string") ? redirectPath : "/login";
+    await auth?.logout(target);
   };
 
   const goToDashboard = () => {

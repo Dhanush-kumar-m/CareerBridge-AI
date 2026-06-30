@@ -88,8 +88,9 @@ export function AuthProvider({ children }) {
   const logout = async (redirectPath = "/login") => {
     await supabase.auth.signOut();
     setUser(null);
-    if (redirectPath) {
-      window.location.href = redirectPath;
+    const targetPath = (typeof redirectPath === "string") ? redirectPath : "/login";
+    if (targetPath) {
+      window.location.href = targetPath;
     }
   };
 
