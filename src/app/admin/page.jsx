@@ -103,6 +103,90 @@ export default function AdminDashboard() {
     setCompanies(prev => prev.filter(c => c.name !== name));
   };
 
+  const handleExportPDF = () => {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Institutional Placement Report</title>
+          <style>
+            body { font-family: sans-serif; padding: 40px; color: #333; }
+            h1 { color: #4f46e5; margin-bottom: 5px; }
+            p { color: #666; margin-bottom: 30px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #f3f4f6; color: #374151; font-weight: bold; }
+            tr:nth-child(even) { background-color: #f9fafb; }
+          </style>
+        </head>
+        <body>
+          <h1>CareerBridge AI - Institutional Placement Report</h1>
+          <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Dept</th>
+                <th>Solved</th>
+                <th>Aptitude Acc.</th>
+                <th>Resume ATS</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map(s => `
+                <tr>
+                  <td>#${s.id}</td>
+                  <td><b>${s.name}</b></td>
+                  <td>${s.email}</td>
+                  <td>${s.dept}</td>
+                  <td>${s.solved} Qs</td>
+                  <td>${s.accuracy}%</td>
+                  <td>${s.ats}%</td>
+                  <td>${s.status}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.close();
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleExportExcel = () => {
+    const headers = ["Candidate ID", "Name", "Email", "Dept", "Problems Solved", "Aptitude Accuracy", "Resume ATS", "Status"];
+    const rows = students.map(s => [
+      `#${s.id}`,
+      s.name,
+      s.email,
+      s.dept,
+      `${s.solved} Qs`,
+      `${s.accuracy}%`,
+      `${s.ats}%`,
+      s.status
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.map(val => `"${val}"`).join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Institutional_Placement_Report_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "25px", animation: "fadeIn 0.5s ease" }}>
       
@@ -206,8 +290,8 @@ export default function AdminDashboard() {
                 <h3 style={{ fontSize: "1.1rem", fontWeight: "700", color: "#ffffff", marginBottom: "12px" }}>Institutional Reports downloads</h3>
                 <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "20px" }}>Generate compiled academic excel sheets of placement eligibilities.</p>
                 <div style={{ display: "flex", gap: "10px" }}>
-                  <button className="solve-btn" style={{ display: "flex", alignItems: "center", gap: "6px" }}><FiDownload /> <span>Export PDF</span></button>
-                  <button className="solve-btn" style={{ display: "flex", alignItems: "center", gap: "6px", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)" }}><FiDownload /> <span>Export Excel</span></button>
+                  <button onClick={handleExportPDF} className="solve-btn" style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}><FiDownload /> <span>Export PDF</span></button>
+                  <button onClick={handleExportExcel} className="solve-btn" style={{ display: "flex", alignItems: "center", gap: "6px", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", cursor: "pointer" }}><FiDownload /> <span>Export Excel</span></button>
                 </div>
               </div>
 
