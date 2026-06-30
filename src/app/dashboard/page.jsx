@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import Link from "next/link";
+import useAptitudeProgress from "../../hooks/useAptitudeProgress";
+import useCodingProgress from "../../hooks/useCodingProgress";
+import useCompanyInteractions from "../../hooks/useCompanyInteractions";
+import useResumeAnalysis from "../../hooks/useResumeAnalysis";
 import {
   LineChart,
   Line,
@@ -59,7 +63,7 @@ export default function Dashboard() {
     lastLogin: "Today, 10:45 AM"
   };
 
-  // State values sync with LocalStorage
+  // State values sync with Supabase Hooks
   const [xp, setXp] = useState(2450);
   const [solvedCount, setSolvedCount] = useState(245);
   const [aptitudeCount, setAptitudeCount] = useState(520);
@@ -68,24 +72,28 @@ export default function Dashboard() {
   const [savedCompaniesCount, setSavedCompaniesCount] = useState(3);
   const [appliedDrivesCount, setAppliedDrivesCount] = useState(2);
 
+  const { solvedList } = useAptitudeProgress();
+  const { solvedIds } = useCodingProgress();
+  const { getSavedAndAppliedCounts } = useCompanyInteractions();
+  const { latestAnalysis } = useResumeAnalysis();
+  const { savedCount, appliedCount } = getSavedAndAppliedCounts();
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const solvedList = JSON.parse(localStorage.getItem("careerbridge_solved_coding") || "[]");
-      if (solvedList.length > 0) setSolvedCount(solvedList.length);
+    if (solvedIds.length > 0) setSolvedCount(solvedIds.length);
+  }, [solvedIds]);
 
-      const solvedApt = JSON.parse(localStorage.getItem("careerbridge_solved_aptitude") || "[]");
-      if (solvedApt.length > 0) setAptitudeCount(solvedApt.length);
+  useEffect(() => {
+    if (solvedList.length > 0) setAptitudeCount(solvedList.length);
+  }, [solvedList]);
 
-      const savedResume = JSON.parse(localStorage.getItem("low_score_resume_analysis") || "null");
-      if (savedResume && savedResume.score) setAtsScore(savedResume.score);
+  useEffect(() => {
+    if (latestAnalysis && latestAnalysis.score) setAtsScore(latestAnalysis.score);
+  }, [latestAnalysis]);
 
-      const savedList = JSON.parse(localStorage.getItem("careerbridge_saved_companies") || "[]");
-      setSavedCompaniesCount(savedList.length || 3);
-
-      const appliedList = JSON.parse(localStorage.getItem("careerbridge_applied_companies") || "[]");
-      setAppliedDrivesCount(appliedList.length || 2);
-    }
-  }, []);
+  useEffect(() => {
+    setSavedCompaniesCount(savedCount || 3);
+    setAppliedDrivesCount(appliedCount || 2);
+  }, [savedCount, appliedCount]);
 
   // Performance datasets for graphs
   const weeklyProgress = [

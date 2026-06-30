@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useResumeAnalysis from "../../../hooks/useResumeAnalysis";
 import {
   FiEdit3,
   FiCheckCircle,
@@ -27,19 +28,14 @@ export default function ResumeBuilderPage() {
     education: "",
   });
 
-  const [atsFeedback, setAtsFeedback] = useState(null);
+  const { latestAnalysis: atsFeedback, clearAnalysis, loading: loadingAnalysis } = useResumeAnalysis();
   const [selectedTemplate, setSelectedTemplate] = useState("careerbridge"); // Defaulting to the premium CareerBridge template
 
   useEffect(() => {
-    // Read low score feedback from localStorage if redirected
-    const rawAnalysis = localStorage.getItem("low_score_resume_analysis");
-    if (rawAnalysis) {
+    if (atsFeedback) {
       try {
-        const analysis = JSON.parse(rawAnalysis);
-        setAtsFeedback(analysis);
-        
         // Try to parse values from previous text to pre-fill form
-        const text = analysis.parsedText || "";
+        const text = atsFeedback.parsedText || "";
         const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}/);
         const phoneMatch = text.match(/[\+]?\d{10,12}/) || text.match(/phone\s*:\s*\d+/i) || text.match(/mobile\s*:\s*\d+/i);
         
@@ -53,23 +49,21 @@ export default function ResumeBuilderPage() {
           extractedSummary = text.substring(index, index + 300).replace(/profile/i, "").trim();
         }
 
-        setForm({
+        setForm((prevForm) => ({
+          ...prevForm,
           name: "Dhanush Kumar", // Default or user name
-          email: emailMatch ? emailMatch[0] : "dhanush@example.com",
-          phone: phoneMatch ? phoneMatch[0] : "+91 8637431104",
-          summary: extractedSummary || "Enthusiastic Software Engineering student with experience developing full-stack web applications and core algorithms.",
-          skills: analysis.detectedSkills && analysis.detectedSkills.length > 0 
-            ? analysis.detectedSkills.join(", ") 
-            : "Java, React, JavaScript, MySQL, HTML, CSS",
-          experience: "Software Development Intern - CareerBridge AI\n- Implemented client-side text extraction for PDF and DOCX files.\n- Optimized applicant tracking filters and keyword matching scores by 40%.",
-          projects: "Smart Placement Training Portal\n- Built an AI-powered aptitude and DSA training portal with Next.js.\n- Developed circular progress indicators and responsive dashboards.",
-          education: "Bachelor of Technology in Computer Science & Engineering\nGraduation: 2026",
-        });
+          email: emailMatch ? emailMatch[0] : prevForm.email,
+          phone: phoneMatch ? phoneMatch[0] : prevForm.phone,
+          summary: extractedSummary || prevForm.summary,
+          skills: atsFeedback.detectedSkills && atsFeedback.detectedSkills.length > 0 
+            ? atsFeedback.detectedSkills.join(", ") 
+            : prevForm.skills,
+        }));
       } catch (err) {
         console.error("Error parsing resume prefill state:", err);
       }
     }
-  }, []);
+  }, [atsFeedback]);
 
   const handleChange = (e) => {
     setForm({
@@ -79,8 +73,7 @@ export default function ResumeBuilderPage() {
   };
 
   const clearAnalysisCache = () => {
-    localStorage.removeItem("low_score_resume_analysis");
-    setAtsFeedback(null);
+    clearAnalysis();
   };
 
   const downloadCompiledResume = () => {

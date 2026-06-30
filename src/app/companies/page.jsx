@@ -18,24 +18,16 @@ import {
   FiChevronRight
 } from "react-icons/fi";
 
+import useCompanyInteractions from "../../hooks/useCompanyInteractions";
+
 export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLocation, setSelectedLocation] = useState("All");
   const [selectedWorkMode, setSelectedWorkMode] = useState("All");
 
-  const [savedCount, setSavedCount] = useState(0);
-  const [appliedCount, setAppliedCount] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = JSON.parse(localStorage.getItem("careerbridge_saved_companies") || "[]");
-      setSavedCount(saved.length);
-
-      const applied = JSON.parse(localStorage.getItem("careerbridge_applied_companies") || "[]");
-      setAppliedCount(applied.length);
-    }
-  }, []);
+  const { getSavedAndAppliedCounts } = useCompanyInteractions();
+  const { savedCount, appliedCount } = getSavedAndAppliedCounts();
 
   // Unique categories, locations, work modes for filter options
   const categoriesList = ["All", "Product-Based", "Service-Based", "Startup", "Banking & Finance", "Consulting Companies", "Automobile Companies"];

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import companies from "../../../data/companies";
+import useCompanyInteractions from "../../../hooks/useCompanyInteractions";
 import {
   FiBriefcase,
   FiGlobe,
@@ -35,25 +36,12 @@ export default function DynamicCompanyProfilePage() {
   const company = companies.find((c) => c.slug === companySlug);
 
   const [activePrepTab, setActivePrepTab] = useState("overview");
-  const [isSaved, setIsSaved] = useState(false);
-  const [isApplied, setIsApplied] = useState(false);
-  const [checkedSteps, setCheckedSteps] = useState([]);
+  const { getInteraction, toggleSave: apiToggleSave, toggleApply: apiToggleApply, toggleStep: apiToggleStep } = useCompanyInteractions();
+  const { is_saved: isSaved, is_applied: isApplied, prep_steps: checkedSteps } = company ? getInteraction(company.slug) : { is_saved: false, is_applied: false, prep_steps: [] };
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (!company) return;
-
-    // Load initial states from localStorage
-    if (typeof window !== "undefined") {
-      const savedList = JSON.parse(localStorage.getItem("careerbridge_saved_companies") || "[]");
-      setIsSaved(savedList.includes(company.slug));
-
-      const appliedList = JSON.parse(localStorage.getItem("careerbridge_applied_companies") || "[]");
-      setIsApplied(appliedList.includes(company.slug));
-
-      const steps = JSON.parse(localStorage.getItem(`cb_prep_steps_${company.slug}`) || "[]");
-      setCheckedSteps(steps);
-    }
 
     // Set up mock notification drive alert
     setNotifications([
@@ -75,41 +63,15 @@ export default function DynamicCompanyProfilePage() {
   }
 
   const toggleSave = () => {
-    if (typeof window !== "undefined") {
-      const savedList = JSON.parse(localStorage.getItem("careerbridge_saved_companies") || "[]");
-      let updated = [];
-      if (isSaved) {
-        updated = savedList.filter((s) => s !== company.slug);
-      } else {
-        updated = [...savedList, company.slug];
-      }
-      localStorage.setItem("careerbridge_saved_companies", JSON.stringify(updated));
-      setIsSaved(!isSaved);
-    }
+    apiToggleSave(company.slug);
   };
 
   const toggleApply = () => {
-    if (typeof window !== "undefined") {
-      const appliedList = JSON.parse(localStorage.getItem("careerbridge_applied_companies") || "[]");
-      let updated = [];
-      if (isApplied) {
-        updated = appliedList.filter((s) => s !== company.slug);
-      } else {
-        updated = [...appliedList, company.slug];
-      }
-      localStorage.setItem("careerbridge_applied_companies", JSON.stringify(updated));
-      setIsApplied(!isApplied);
-    }
+    apiToggleApply(company.slug);
   };
 
   const toggleStep = (step) => {
-    const updated = checkedSteps.includes(step)
-      ? checkedSteps.filter((s) => s !== step)
-      : [...checkedSteps, step];
-    setCheckedSteps(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`cb_prep_steps_${company.slug}`, JSON.stringify(updated));
-    }
+    apiToggleStep(company.slug, step);
   };
 
   // Derived readiness score based on checklist completion

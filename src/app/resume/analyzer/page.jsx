@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import useResumeAnalysis from "../../../hooks/useResumeAnalysis";
 import {
   FiUploadCloud,
   FiCheckCircle,
@@ -139,6 +140,7 @@ const companyRequirements = {
 
 export default function ResumeAnalyzerPage() {
   const router = useRouter();
+  const { saveAnalysis } = useResumeAnalysis();
   const [fileName, setFileName] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
@@ -417,19 +419,21 @@ export default function ResumeAnalyzerPage() {
           achievements: textLower.includes("achievement") || textLower.includes("award")
         });
 
+        const analysisData = {
+          fileName: file.name,
+          detectedSkills: foundSkills,
+          missingKeywords: missing,
+          parsedText: text,
+          summaryNeeded: !hasSummary,
+          projectsNeeded: !hasProjectsSec,
+          certsNeeded: !hasCertificate,
+          sectionsMissing: missingList
+        };
+
+        saveAnalysis(score, analysisData);
+
         if (score < 60) {
           setError("Rebuild your resume my friend! 🥺🛠️📄");
-          localStorage.setItem("low_score_resume_analysis", JSON.stringify({
-            score: score,
-            fileName: file.name,
-            detectedSkills: foundSkills,
-            missingKeywords: missing,
-            parsedText: text,
-            summaryNeeded: !hasSummary,
-            projectsNeeded: !hasProjectsSec,
-            certsNeeded: !hasCertificate,
-            sectionsMissing: missingList
-          }));
           setTimeout(() => {
             router.push("/resume/builder");
           }, 2500);

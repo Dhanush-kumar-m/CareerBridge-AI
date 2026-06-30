@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MobileMenu from "./MobileMenu";
 import useAuth from "../../hooks/useAuth";
+import useNotifications from "../../hooks/useNotifications";
 import { FiUser, FiLogOut, FiBriefcase, FiBell } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 
@@ -11,69 +12,19 @@ export default function Navbar() {
   const pathname = usePathname() || "";
   const { isAuthenticated, logoutUser } = useAuth();
 
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  const loadNotifications = () => {
-    const stored = localStorage.getItem("system_notifications");
-    let list = [];
-    if (stored) {
-      list = JSON.parse(stored);
-    } else {
-      list = [
-        {
-          id: 1,
-          title: "TCS Placement Drive",
-          content: "TCS is conducting a placement drive for engineering graduates. Register by 30th June.",
-          date: "22 June 2026",
-          status: "Sent"
-        },
-        {
-          id: 2,
-          title: "Resume Submission Reminder",
-          content: "Please upload your updated resume to the ATS analyzer to clear internal placement audits.",
-          date: "20 June 2026",
-          status: "Sent"
-        },
-        {
-          id: 3,
-          title: "Mock Interview Schedule",
-          content: "HR mock interview slots are now open. Choose your timing in the mock interview tab.",
-          date: "18 June 2026",
-          status: "Sent"
-        }
-      ];
-      localStorage.setItem("system_notifications", JSON.stringify(list));
-    }
-    setNotifications(list);
-
-    const readIds = JSON.parse(localStorage.getItem("read_notifications") || "[]");
-    const unread = list.filter(n => !readIds.includes(n.id)).length;
-    setUnreadCount(unread);
-  };
-
   useEffect(() => {
-    loadNotifications();
-
-    const handleUpdate = () => {
-      loadNotifications();
-    };
-
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
 
-    window.addEventListener("notifications_updated", handleUpdate);
-    window.addEventListener("storage", handleUpdate);
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
-      window.removeEventListener("notifications_updated", handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -81,9 +32,7 @@ export default function Navbar() {
   const handleBellClick = () => {
     setShowDropdown(!showDropdown);
     if (!showDropdown) {
-      const ids = notifications.map(n => n.id);
-      localStorage.setItem("read_notifications", JSON.stringify(ids));
-      setUnreadCount(0);
+      markAllAsRead();
     }
   };
 
