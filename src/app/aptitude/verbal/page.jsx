@@ -1,14 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import aptitudeData from "../../../data/aptitude";
 import QuestionCard from "../../../components/aptitude/QuestionCard";
 import Timer from "../../../components/aptitude/Timer";
 import useAptitudeProgress from "../../../hooks/useAptitudeProgress";
+import { modules } from "../../../data/aptitudeCurriculum";
 
 export default function VerbalPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const moduleParam = searchParams.get("module");
+  const difficultyParam = searchParams.get("difficulty") || "Easy";
+
   const [level, setLevel] = useState("Easy");
   const { solvedList, loading: loadingProgress, markAsSolved, resetCategoryProgress } = useAptitudeProgress();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -18,15 +23,17 @@ export default function VerbalPage() {
   const [loading, setLoading] = useState(true);
   const [moduleId, setModuleId] = useState(null);
 
+  // Sync state with URL Query params reactively
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const mod = params.get("module");
-      if (mod) {
-        setModuleId(parseInt(mod));
-      }
+    if (moduleParam) {
+      setModuleId(parseInt(moduleParam, 10));
     }
-  }, []);
+    if (difficultyParam) {
+      setLevel(difficultyParam);
+    }
+    setCurrentQuestionIndex(0);
+    setHasAnswered(false);
+  }, [moduleParam, difficultyParam]);
 
   // Update session questions when solvedList or difficulty level changes
   useEffect(() => {
@@ -63,36 +70,45 @@ export default function VerbalPage() {
 
   const handleAnswerSubmit = (isCorrect) => {
     setHasAnswered(true);
-    if (isCorrect) {
-      // Mark as solved
-      if (currentQuestion) {
-        const key = `verbal_${currentQuestion.id}`;
-        markAsSolved(key);
-      }
-
-      setPopupMessage("Now I will give the simple explanation to solve this question with formula 💡🚀");
-      setTimeout(() => {
-        setPopupMessage("");
-      }, 2500);
+    if (isCorrect && currentQuestion) {
+      const key = `verbal_${currentQuestion.id}`;
+      markAsSolved(key);
     }
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
-      setPopupMessage("Moving to next question... 🚀");
-      setTimeout(() => {
-        setPopupMessage("");
-        setHasAnswered(false);
-        setCurrentQuestionIndex((prev) => prev + 1);
-      }, 2000);
+      setHasAnswered(false);
+      setCurrentQuestionIndex((prev) => prev + 1);
     } else {
       if (moduleId) {
-        setPopupMessage(`Thanks for completing Module ${moduleId} 🥳`);
-        setTimeout(() => {
-          setPopupMessage("");
-          setHasAnswered(false);
-          router.push(`/aptitude?completedModule=${moduleId}`);
-        }, 2500);
+        const nextModuleId = parseInt(moduleId, 10) + 1;
+        const nextModule = modules.find((m) => m.id === nextModuleId);
+        if (nextModule) {
+          const categoryPath = nextModule.category === "Quantitative" 
+            ? "quantitative" 
+            : nextModule.category === "Reasoning" 
+            ? "reasoning" 
+            : nextModule.category === "Verbal" 
+            ? "verbal" 
+            : nextModule.category === "Data Interpretation" 
+            ? "data-interpretation" 
+            : "abstract-reasoning";
+            
+          setPopupMessage(`Thanks for completing Module ${moduleId}! Starting Module ${nextModuleId}: ${nextModule.title.split(": ")[1] || ""}... 🚀`);
+          setTimeout(() => {
+            setPopupMessage("");
+            setHasAnswered(false);
+            router.push(`/aptitude/${categoryPath}?difficulty=Easy&module=${nextModuleId}`);
+          }, 3000);
+        } else {
+          setPopupMessage(`Thanks for completing Module ${moduleId}! All verbal practice complete! 🥳`);
+          setTimeout(() => {
+            setPopupMessage("");
+            setHasAnswered(false);
+            router.push("/aptitude");
+          }, 3000);
+        }
       } else {
         setPopupMessage("Correct! Level Completed! 🎉");
         setTimeout(() => {
