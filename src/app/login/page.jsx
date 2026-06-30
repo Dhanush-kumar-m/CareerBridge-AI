@@ -18,36 +18,15 @@ export default function LoginPage() {
   const [error, setError] =
     useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (
-      email === "student@careerbridge.com" &&
-      password === "123456"
-    ) {
-      loginUser({
-        email,
-        name: "Dhanush Kumar",
-        role: "student",
-      });
-
+    try {
+      await loginUser(email, password);
       router.push("/");
-      return;
-    }
-
-    const registered = JSON.parse(localStorage.getItem("registered_users") || "[]");
-    const user = registered.find((u) => u.email === email && u.password === password);
-
-    if (user) {
-      loginUser({
-        email: user.email,
-        name: user.name,
-        role: "student",
-      });
-
-      router.push("/");
-    } else {
-      setError("Invalid Email or Password");
+    } catch (err) {
+      setError(err.message || "Invalid Email or Password");
     }
   };
 

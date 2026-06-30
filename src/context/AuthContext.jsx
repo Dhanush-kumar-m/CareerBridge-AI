@@ -1,62 +1,60 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
-const AuthContext =
-  createContext();
+const AuthContext = createContext();
 
-export function AuthProvider({
-  children,
-}) {
-  const [user, setUser] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser =
-      localStorage.getItem("user");
+    // 1. Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-    if (storedUser) {
-      setUser(
-        JSON.parse(storedUser)
-      );
-    }
+    // 2. Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
 
-    setLoading(false);
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(userData)
-    );
-
-    localStorage.setItem(
-      "isLoggedIn",
-      "true"
-    );
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data.user;
   };
 
-  const logout = (redirectPath = "/login") => {
+  const signup = async (email, password, name) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    });
+    if (error) throw error;
+    return data.user;
+  };
+
+  const logout = async (redirectPath = "/login") => {
+    await supabase.auth.signOut();
     setUser(null);
-
-    localStorage.removeItem(
-      "user"
-    );
-
-    localStorage.removeItem(
-      "isLoggedIn"
-    );
-
     if (redirectPath) {
       window.location.href = redirectPath;
     }
@@ -67,6 +65,7 @@ export function AuthProvider({
       value={{
         user,
         login,
+        signup,
         logout,
         loading,
       }}
@@ -76,5 +75,4 @@ export function AuthProvider({
   );
 }
 
-export const useAuth = () =>
-  useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);

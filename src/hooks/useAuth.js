@@ -7,12 +7,16 @@ export default function useAuth() {
   const auth = useAuthContext();
   const router = useRouter();
 
-  const loginUser = (userData) => {
-    auth?.login(userData);
+  const loginUser = async (email, password) => {
+    return await auth?.login(email, password);
   };
 
-  const logoutUser = (redirectPath = "/login") => {
-    auth?.logout(redirectPath);
+  const signupUser = async (email, password, name) => {
+    return await auth?.signup(email, password, name);
+  };
+
+  const logoutUser = async (redirectPath = "/login") => {
+    await auth?.logout(redirectPath);
   };
 
   const goToDashboard = () => {
@@ -28,6 +32,7 @@ export default function useAuth() {
     loading: auth?.loading || false,
     isAuthenticated: !!auth?.user,
     loginUser,
+    signupUser,
     logoutUser,
     goToDashboard,
     goToLogin,

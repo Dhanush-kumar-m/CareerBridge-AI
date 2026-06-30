@@ -27,42 +27,22 @@ export default function RegisterPage() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (
-      formData.password !==
-      formData.confirmPassword
-    ) {
-      setError(
-        "Passwords do not match"
-      );
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
       return;
     }
 
-    const registered = JSON.parse(localStorage.getItem("registered_users") || "[]");
-    const exists = registered.some((u) => u.email === formData.email);
-    if (exists) {
-      setError("Email is already registered");
-      return;
+    try {
+      await signupUser(formData.email, formData.password, formData.name);
+      alert("Account created successfully! Check email (if confirmation enabled) or continue.");
+      router.push("/");
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
     }
-
-    const newUser = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    };
-    registered.push(newUser);
-    localStorage.setItem("registered_users", JSON.stringify(registered));
-
-    loginUser({
-      name: formData.name,
-      email: formData.email,
-      role: "student",
-    });
-
-    alert("Account created and logged in successfully!");
-    router.push("/");
   };
 
   return (
