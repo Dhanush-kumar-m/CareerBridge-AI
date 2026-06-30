@@ -6,7 +6,7 @@ import useAuth from "../../hooks/useAuth";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { loginUser } = useAuth();
+  const { signupUser } = useAuth();
 
   const [formData, setFormData] =
     useState({
