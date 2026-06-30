@@ -12,7 +12,7 @@ export default function AuthGuard({ children }) {
   const isStudentRoute = !pathname.startsWith("/admin");
   const isAdminRoute = pathname.startsWith("/admin");
 
-  const isStudentPublic = pathname.startsWith("/login") || pathname.startsWith("/register");
+  const isStudentPublic = pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/register");
   const isAdminPublic = pathname.startsWith("/admin/login");
 
   const isPublicRoute = isStudentPublic || isAdminPublic;

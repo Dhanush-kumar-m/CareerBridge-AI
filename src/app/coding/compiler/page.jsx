@@ -112,10 +112,12 @@ const transpileToJS = (code, language) => {
   let jsCode = code;
   
   if (lang === "python") {
-    const lines = code.split("\n");
+    // Normalize tabs to 4 spaces to prevent indentation errors
+    const normalizedCode = code.replace(/\t/g, "    ");
+    const lines = normalizedCode.split("\n");
     let indentLevels = [];
     let resultLines = [];
-    const hasClass = /\bclass\b/.test(code);
+    const hasClass = /\bclass\b/.test(normalizedCode);
     
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
