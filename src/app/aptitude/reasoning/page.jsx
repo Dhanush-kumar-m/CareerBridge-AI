@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import aptitudeData from "../../../data/aptitude";
 import QuestionCard from "../../../components/aptitude/QuestionCard";
 import Timer from "../../../components/aptitude/Timer";
+import useAptitudeProgress from "../../../hooks/useAptitudeProgress";
 
 export default function ReasoningPage() {
   const router = useRouter();
   const [level, setLevel] = useState("Easy");
-  const [solvedList, setSolvedList] = useState([]);
+  const { solvedList, loading: loadingProgress, markAsSolved, resetCategoryProgress } = useAptitudeProgress();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sessionQuestions, setSessionQuestions] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
@@ -24,59 +25,37 @@ export default function ReasoningPage() {
       if (mod) {
         setModuleId(parseInt(mod));
       }
+    }
+  }, []);
 
-      const saved = localStorage.getItem("careerbridge_solved_aptitude");
-      let list = [];
-      if (saved) {
-        try {
-          list = JSON.parse(saved);
-          setSolvedList(list);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      
-      // Filter questions for the initial difficulty level (Easy)
+  // Update session questions when solvedList or difficulty level changes
+  useEffect(() => {
+    if (!loadingProgress) {
       const questionsOfLevel = aptitudeData.reasoning.filter(
-        (q) => q.difficulty.toLowerCase() === "easy"
+        (q) => q.difficulty.toLowerCase() === level.toLowerCase()
       );
-      // Filter out questions that are solved
       const unsolved = questionsOfLevel.filter(
-        (q) => !list.includes(`reasoning_${q.id}`)
+        (q) => !solvedList.includes(`reasoning_${q.id}`)
       );
       setSessionQuestions(unsolved);
       setLoading(false);
     }
-  }, []);
+  }, [solvedList, loadingProgress, level]);
 
   const handleLevelChange = (lvl) => {
     setLevel(lvl);
     setCurrentQuestionIndex(0);
     setHasAnswered(false);
-
-    const questionsOfLevel = aptitudeData.reasoning.filter(
-      (q) => q.difficulty.toLowerCase() === lvl.toLowerCase()
-    );
-    const unsolved = questionsOfLevel.filter(
-      (q) => !solvedList.includes(`reasoning_${q.id}`)
-    );
-    setSessionQuestions(unsolved);
   };
 
   const handleResetLevel = (category) => {
-    if (typeof window !== "undefined") {
-      const questionsOfLevel = aptitudeData.reasoning.filter(
-        (q) => q.difficulty.toLowerCase() === level.toLowerCase()
-      );
-      const keysToRemove = questionsOfLevel.map((q) => `${category}_${q.id}`);
-      const updatedList = solvedList.filter((item) => !keysToRemove.includes(item));
-      localStorage.setItem("careerbridge_solved_aptitude", JSON.stringify(updatedList));
-      setSolvedList(updatedList);
-      
-      setSessionQuestions(questionsOfLevel);
-      setCurrentQuestionIndex(0);
-      setHasAnswered(false);
-    }
+    const questionsOfLevel = aptitudeData.reasoning.filter(
+      (q) => q.difficulty.toLowerCase() === level.toLowerCase()
+    );
+    const keysToRemove = questionsOfLevel.map((q) => `${category}_${q.id}`);
+    resetCategoryProgress(keysToRemove);
+    setCurrentQuestionIndex(0);
+    setHasAnswered(false);
   };
 
   const totalQuestions = sessionQuestions.length;
@@ -86,16 +65,9 @@ export default function ReasoningPage() {
     setHasAnswered(true);
     if (isCorrect) {
       // Mark as solved
-      let updatedList = [...solvedList];
       if (currentQuestion) {
         const key = `reasoning_${currentQuestion.id}`;
-        if (!updatedList.includes(key)) {
-          updatedList.push(key);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("careerbridge_solved_aptitude", JSON.stringify(updatedList));
-          }
-          setSolvedList(updatedList);
-        }
+        markAsSolved(key);
       }
 
       setPopupMessage("Now I will give the simple explanation to solve this question with formula 💡🚀");
@@ -126,38 +98,21 @@ export default function ReasoningPage() {
         setTimeout(() => {
           setPopupMessage("");
           setHasAnswered(false);
-          let updatedList = [...solvedList];
           if (level === "Easy") {
-            const nextLvl = "Medium";
-            setLevel(nextLvl);
+            setLevel("Medium");
             setCurrentQuestionIndex(0);
-            const questionsOfLevel = aptitudeData.reasoning.filter(
-              (q) => q.difficulty.toLowerCase() === nextLvl.toLowerCase()
-            );
-            const unsolved = questionsOfLevel.filter(
-              (q) => !updatedList.includes(`reasoning_${q.id}`)
-            );
-            setSessionQuestions(unsolved);
           } else if (level === "Medium") {
-            const nextLvl = "Hard";
-            setLevel(nextLvl);
+            setLevel("Hard");
             setCurrentQuestionIndex(0);
-            const questionsOfLevel = aptitudeData.reasoning.filter(
-              (q) => q.difficulty.toLowerCase() === nextLvl.toLowerCase()
-            );
-            const unsolved = questionsOfLevel.filter(
-              (q) => !updatedList.includes(`reasoning_${q.id}`)
-            );
-            setSessionQuestions(unsolved);
           } else {
-            router.push("/aptitude/data-interpretation");
+            router.push("/aptitude/verbal");
           }
         }, 2500);
       }
     }
   };
 
-  if (loading) {
+  if (loading || loadingProgress) {
     return <div className="aptitude-page"><h2>Loading session...</h2></div>;
   }
 
