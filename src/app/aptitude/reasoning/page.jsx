@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import aptitudeData from "../../../data/aptitude";
 import QuestionCard from "../../../components/aptitude/QuestionCard";
@@ -22,6 +22,9 @@ export default function ReasoningPage() {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [loading, setLoading] = useState(true);
   const [moduleId, setModuleId] = useState(null);
+  
+  const [isModuleCompleted, setIsModuleCompleted] = useState(false);
+  const redirectTimeoutRef = useRef(null);
 
   // Sync state with URL Query params reactively
   useEffect(() => {
@@ -34,6 +37,14 @@ export default function ReasoningPage() {
     setCurrentQuestionIndex(0);
     setHasAnswered(false);
   }, [moduleParam, difficultyParam]);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Update session questions when solvedList or difficulty level changes
   useEffect(() => {
@@ -73,7 +84,22 @@ export default function ReasoningPage() {
     if (isCorrect && currentQuestion) {
       const key = `reasoning_${currentQuestion.id}`;
       markAsSolved(key);
+      
+      setPopupMessage("Now I will give the simple explanation to solve this question with formula 💡🚀");
+      setTimeout(() => {
+        setPopupMessage("");
+      }, 2500);
     }
+  };
+
+  const handleCancelRedirect = () => {
+    if (redirectTimeoutRef.current) {
+      clearTimeout(redirectTimeoutRef.current);
+    }
+    setPopupMessage("");
+    setIsModuleCompleted(false);
+    setHasAnswered(false);
+    router.push("/aptitude");
   };
 
   const handleNextQuestion = () => {
@@ -95,19 +121,24 @@ export default function ReasoningPage() {
             ? "data-interpretation" 
             : "abstract-reasoning";
             
-          setPopupMessage(`Thanks for completing Module ${moduleId}! Starting Module ${nextModuleId}: ${nextModule.title.split(": ")[1] || ""}... 🚀`);
-          setTimeout(() => {
+          setIsModuleCompleted(true);
+          setPopupMessage(`Module ${moduleId} completed (get ready for Module ${nextModuleId})... 🚀`);
+          
+          redirectTimeoutRef.current = setTimeout(() => {
             setPopupMessage("");
+            setIsModuleCompleted(false);
             setHasAnswered(false);
             router.push(`/aptitude/${categoryPath}?difficulty=Easy&module=${nextModuleId}`);
-          }, 3000);
+          }, 3500);
         } else {
-          setPopupMessage(`Thanks for completing Module ${moduleId}! All reasoning practice complete! 🥳`);
-          setTimeout(() => {
+          setIsModuleCompleted(true);
+          setPopupMessage(`Module ${moduleId} completed! All reasoning practice complete! 🥳`);
+          redirectTimeoutRef.current = setTimeout(() => {
             setPopupMessage("");
+            setIsModuleCompleted(false);
             setHasAnswered(false);
             router.push("/aptitude");
-          }, 3000);
+          }, 3500);
         }
       } else {
         setPopupMessage("Correct! Level Completed! 🎉");
@@ -137,9 +168,32 @@ export default function ReasoningPage() {
       {/* Rocking Popup Overlay */}
       {popupMessage && (
         <div className="rocking-popup-overlay">
-          <div className="rocking-popup-content">
+          <div className="rocking-popup-content" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
             <h2>{popupMessage}</h2>
-            <p>Correct answer! Moving forward...</p>
+            {!isModuleCompleted ? (
+              <p>Correct answer! Moving forward...</p>
+            ) : (
+              <div style={{ display: "flex", gap: "15px", marginTop: "10px" }}>
+                <button
+                  onClick={handleCancelRedirect}
+                  style={{
+                    background: "rgba(239, 68, 68, 0.2)",
+                    border: "1px solid #ef4444",
+                    color: "#f87171",
+                    padding: "10px 24px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.35)"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)"}
+                >
+                  Not Interested (Exit)
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
