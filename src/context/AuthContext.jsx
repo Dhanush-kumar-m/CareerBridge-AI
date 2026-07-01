@@ -85,6 +85,17 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  const loginWithOutlook = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        scopes: "openid profile email",
+      },
+    });
+    if (error) throw error;
+  };
+
   const logout = async (redirectPath = "/login") => {
     await supabase.auth.signOut();
     setUser(null);
@@ -101,6 +112,7 @@ export function AuthProvider({ children }) {
         login,
         signup,
         loginWithGoogle,
+        loginWithOutlook,
         logout,
         loading,
       }}

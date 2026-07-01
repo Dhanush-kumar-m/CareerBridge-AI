@@ -22,6 +22,10 @@ export default function useAuth() {
     return await auth?.loginWithGoogle();
   };
 
+  const loginWithOutlook = async () => {
+    return await auth?.loginWithOutlook();
+  };
+
   const logoutUser = async (redirectPath = "/login") => {
     const target = (typeof redirectPath === "string") ? redirectPath : "/login";
     await auth?.logout(target);
@@ -42,6 +46,7 @@ export default function useAuth() {
     loginUser,
     signupUser,
     loginWithGoogle,
+    loginWithOutlook,
     logoutUser,
     goToDashboard,
     goToLogin,
