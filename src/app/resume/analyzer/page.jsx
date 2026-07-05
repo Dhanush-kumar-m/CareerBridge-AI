@@ -201,6 +201,7 @@ export default function ResumeAnalyzerPage() {
   };
 
   const extractTextFromPDF = async (arrayBuffer) => {
+    const arrayBufferBackup = arrayBuffer.slice(0);
     try {
       const pdfjsLib = await loadPdfJS();
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -216,11 +217,12 @@ export default function ResumeAnalyzerPage() {
       return fullText;
     } catch (err) {
       console.warn("PDF.js parsing failed, trying raw ASCII extraction fallback...", err);
-      return extractASCIIFallback(arrayBuffer);
+      return extractASCIIFallback(arrayBufferBackup);
     }
   };
 
   const extractTextFromDOCX = async (arrayBuffer) => {
+    const arrayBufferBackup = arrayBuffer.slice(0);
     try {
       const JSZip = await loadJSZip();
       const zip = await JSZip.loadAsync(arrayBuffer);
@@ -236,7 +238,7 @@ export default function ResumeAnalyzerPage() {
       return docXml.replace(/<[^>]+>/g, " ");
     } catch (err) {
       console.warn("DOCX parsing failed, trying raw ASCII extraction fallback...", err);
-      return extractASCIIFallback(arrayBuffer);
+      return extractASCIIFallback(arrayBufferBackup);
     }
   };
 
@@ -264,6 +266,7 @@ export default function ResumeAnalyzerPage() {
 
     try {
       const arrayBuffer = await file.arrayBuffer();
+      const arrayBufferBackup = arrayBuffer.slice(0);
       let text = "";
 
       const fileExtension = file.name.split(".").pop().toLowerCase();
@@ -277,14 +280,14 @@ export default function ResumeAnalyzerPage() {
       }
 
       if (!text || text.trim().length < 20) {
-        text = extractASCIIFallback(arrayBuffer);
+        text = extractASCIIFallback(arrayBufferBackup);
       }
 
       const textLower = text.toLowerCase();
       const fileNameLower = file.name.toLowerCase();
       
-      const hasLinkedin = textLower.includes("linkedin") || textLower.includes("lnkd") || textLower.includes("li.com") || textLower.includes("linkdin");
-      const hasGithub = textLower.includes("github") || textLower.includes("git") || textLower.includes("version");
+      const hasLinkedin = textLower.includes("linkedin") || textLower.includes("linkdin");
+      const hasGithub = textLower.includes("github");
       const validResume = hasLinkedin && hasGithub;
 
       if (!validResume) {
