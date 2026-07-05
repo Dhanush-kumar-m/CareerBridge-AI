@@ -12,7 +12,7 @@ export default function useResumeAnalysis() {
   useEffect(() => {
     async function loadAnalysis() {
       setLoading(true);
-      if (user) {
+      if (user && user.role !== "admin") {
         // Authenticated: Load latest resume analysis from Supabase
         const { data, error } = await supabase
           .from("resume_analyses")
@@ -58,7 +58,7 @@ export default function useResumeAnalysis() {
     setLatestAnalysis(analysis);
     localStorage.setItem("low_score_resume_analysis", JSON.stringify(analysis));
 
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("resume_analyses").insert({
         user_id: user.id,
         score: score,
@@ -71,7 +71,7 @@ export default function useResumeAnalysis() {
     setLatestAnalysis(null);
     localStorage.removeItem("low_score_resume_analysis");
 
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("resume_analyses").delete().eq("user_id", user.id);
     }
   };

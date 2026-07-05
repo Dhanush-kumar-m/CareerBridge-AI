@@ -14,7 +14,7 @@ export default function useCodingProgress() {
   useEffect(() => {
     async function loadCodingData() {
       setLoading(true);
-      if (user) {
+      if (user && user.role !== "admin") {
         // Authenticated: Load solved question IDs
         const { data: solvedData, error: solvedError } = await supabase
           .from("solved_coding")
@@ -128,7 +128,7 @@ export default function useCodingProgress() {
     setSolvedIds(updatedSolved);
     localStorage.setItem("careerbridge_solved_coding", JSON.stringify(updatedSolved));
 
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("solved_coding").insert({
         user_id: user.id,
         question_id: questionId.toString(),
@@ -160,7 +160,7 @@ export default function useCodingProgress() {
     setSubmissions(updatedSubs);
     localStorage.setItem("careerbridge_coding_submissions", JSON.stringify(updatedSubs));
 
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("coding_submissions").insert({
         user_id: user.id,
         question_id: questionId.toString(),

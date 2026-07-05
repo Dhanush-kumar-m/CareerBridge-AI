@@ -14,16 +14,21 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (email === "admin@careerbridge.com" && password === "123456") {
-      loginUser({
-        email,
-        name: "Placement Director",
-        role: "admin",
-      });
-      router.push("/admin");
+      try {
+        await loginUser({
+          email,
+          name: "Placement Director",
+          role: "admin",
+        });
+        window.location.href = "/admin";
+      } catch (err) {
+        setError(err.message || "Admin Sign-in failed.");
+      }
     } else {
       setError("Invalid Admin Credentials");
     }

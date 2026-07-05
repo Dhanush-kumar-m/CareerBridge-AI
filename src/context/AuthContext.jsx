@@ -11,15 +11,33 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // 1. Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    const savedAdmin = typeof window !== "undefined" ? localStorage.getItem("cb_admin_user") : null;
+    if (savedAdmin) {
+      setUser(JSON.parse(savedAdmin));
       setLoading(false);
-    });
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      });
+    }
 
     // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setUser(session?.user ?? null);
+        if (session?.user) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("cb_admin_user");
+          }
+          setUser(session.user);
+        } else {
+          const adminSession = typeof window !== "undefined" ? localStorage.getItem("cb_admin_user") : null;
+          if (adminSession) {
+            setUser(JSON.parse(adminSession));
+          } else {
+            setUser(null);
+          }
+        }
         setLoading(false);
       }
     );
@@ -33,15 +51,19 @@ export function AuthProvider({ children }) {
     if (typeof email === "object" && email !== null) {
       const payload = email;
       if (payload.role === "admin" || payload.email === "admin@careerbridge.com") {
-        setUser({
+        const adminUser = {
           id: "admin-mock-id",
           email: payload.email,
           user_metadata: {
             full_name: payload.name || "Placement Director",
           },
           role: "admin",
-        });
-        return { email: payload.email };
+        };
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cb_admin_user", JSON.stringify(adminUser));
+        }
+        setUser(adminUser);
+        return adminUser;
       }
       
       const { email: extEmail, password: extPassword } = payload;
@@ -50,6 +72,7 @@ export function AuthProvider({ children }) {
         password: extPassword,
       });
       if (error) throw error;
+      setUser(data.user);
       return data.user;
     }
 
@@ -58,6 +81,7 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) throw error;
+    setUser(data.user);
     return data.user;
   };
 
@@ -97,6 +121,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async (redirectPath = "/login") => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cb_admin_user");
+    }
     await supabase.auth.signOut();
     setUser(null);
     const targetPath = (typeof redirectPath === "string") ? redirectPath : "/login";

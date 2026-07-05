@@ -241,21 +241,52 @@ export default function AdminReportsPage() {
       const blob = new Blob([xlsContent], { type: "application/vnd.ms-excel" });
       triggerDownload(blob, `${title}.xls`);
     } else if (format === "PDF") {
-      let pdfContent = `==================================================\n`;
-      pdfContent += `       CAREERBRIDGE AI REPORT GENERATION CENTER       \n`;
-      pdfContent += `  Report: ${title.replace("_", " ")}\n`;
-      pdfContent += `  Compiled on: ${new Date().toLocaleString()}\n`;
-      pdfContent += `==================================================\n\n`;
-      pdfContent += headers.join(" | ") + "\n";
-      pdfContent += "-".repeat(100) + "\n";
-      rows.forEach(row => {
-        pdfContent += row.join(" | ") + "\n";
-      });
-      pdfContent += `\n==================================================\n`;
-      pdfContent += `Confidential. Internal Placement Officers Portal Use Only.\n`;
-      pdfContent += `==================================================\n`;
-      const blob = new Blob([pdfContent], { type: "text/plain" });
-      triggerDownload(blob, `${title}.txt`);
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>CareerBridge AI Report - ${title.split("_").join(" ")}</title>
+            <style>
+              body { font-family: 'Inter', sans-serif; padding: 40px; color: #1f2937; line-height: 1.5; }
+              h1 { color: #4f46e5; margin-bottom: 5px; font-size: 1.8rem; font-weight: 800; }
+              p { color: #4b5563; margin-bottom: 30px; font-size: 0.9rem; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+              th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; }
+              th { background-color: #f3f4f6; color: #374151; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+              tr:nth-child(even) { background-color: #f9fafb; }
+              .footer { margin-top: 40px; font-size: 0.75rem; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 15px; text-align: center; }
+            </style>
+          </head>
+          <body>
+            <h1>CareerBridge AI - ${title.split("_").join(" ")}</h1>
+            <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+            <table>
+              <thead>
+                <tr>
+                  ${headers.map(h => `<th>${h}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(row => `
+                  <tr>
+                    ${row.map(cell => `<td>${cell}</td>`).join("")}
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+            <div class="footer">
+              Confidential. Internal Placement Officers Portal Use Only. © ${new Date().getFullYear()} CareerBridge AI.
+            </div>
+            <script>
+              window.onload = function() {
+                window.print();
+                window.close();
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
     }
   };
 

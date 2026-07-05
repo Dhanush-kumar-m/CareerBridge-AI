@@ -13,7 +13,7 @@ export default function useNotifications() {
   useEffect(() => {
     async function loadNotificationsData() {
       setLoading(true);
-      if (user) {
+      if (user && user.role !== "admin") {
         // 1. Fetch relevant notifications from Supabase
         const { data: list, error } = await supabase
           .from("notifications")
@@ -94,7 +94,7 @@ export default function useNotifications() {
     const ids = notifications.map((n) => n.id);
     localStorage.setItem("read_notifications", JSON.stringify(ids));
 
-    if (user && ids.length > 0) {
+    if (user && user.role !== "admin" && ids.length > 0) {
       const rows = ids.map((id) => ({
         user_id: user.id,
         notification_id: id,

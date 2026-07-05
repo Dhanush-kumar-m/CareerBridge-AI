@@ -33,7 +33,7 @@ export default function useCompanyInteractions() {
   useEffect(() => {
     async function loadInteractions() {
       setLoading(true);
-      if (user) {
+      if (user && user.role !== "admin") {
         // Authenticated: Load from Supabase
         const { data, error } = await supabase
           .from("company_interactions")
@@ -91,7 +91,7 @@ export default function useCompanyInteractions() {
     }
 
     // 4. Update Supabase
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("company_interactions").upsert({
         user_id: user.id,
         company_slug: slug,

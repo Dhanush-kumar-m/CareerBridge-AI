@@ -13,7 +13,7 @@ export default function useAptitudeProgress() {
   useEffect(() => {
     async function loadSolvedProgress() {
       setLoading(true);
-      if (user) {
+      if (user && user.role !== "admin") {
         // Authenticated user: fetch from Supabase
         const { data, error } = await supabase
           .from("solved_aptitude")
@@ -54,7 +54,7 @@ export default function useAptitudeProgress() {
     localStorage.setItem("careerbridge_solved_aptitude", JSON.stringify(updatedList));
 
     // Save to Supabase if logged in
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase.from("solved_aptitude").insert({
         user_id: user.id,
         question_key: questionKey,
@@ -71,7 +71,7 @@ export default function useAptitudeProgress() {
     localStorage.setItem("careerbridge_solved_aptitude", JSON.stringify(updatedList));
 
     // Save to Supabase if logged in
-    if (user) {
+    if (user && user.role !== "admin") {
       await supabase
         .from("solved_aptitude")
         .delete()
