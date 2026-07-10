@@ -11,13 +11,11 @@ export default function AnalyticsSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#ffffff", marginBottom: "15px" }}>
-              Track Your Growth
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "600px", margin: "0 auto" }}>
-              See your progress, completed activities, strengths, and areas to improve in real time.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Track Your Growth
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            See your progress, completed activities, strengths, and areas to improve in real time.
           </ScrollReveal>
         </div>
 

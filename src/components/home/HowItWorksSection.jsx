@@ -27,13 +27,11 @@ export default function HowItWorksSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2rem", fontWeight: "800", color: "#ffffff", marginBottom: "10px" }}>
-              Frequently Asked Questions
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-              Clear your doubts about using CareerBridge AI.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Frequently Asked Questions
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Clear your doubts about using CareerBridge AI.
           </ScrollReveal>
         </div>
 

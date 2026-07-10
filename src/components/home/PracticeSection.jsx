@@ -11,13 +11,11 @@ export default function PracticeSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#ffffff", marginBottom: "15px" }}>
-              Strengthen Aptitude and Coding
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "600px", margin: "0 auto" }}>
-              Practice core topics using real-time feedback engines built to test your structural skills.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Strengthen Aptitude and Coding
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Practice core topics using real-time feedback engines built to test your structural skills.
           </ScrollReveal>
         </div>
 

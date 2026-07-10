@@ -17,21 +17,17 @@ export default function FinalCTASection({ isAuthenticated }) {
         
         {/* Large ScrollFloat transition statement */}
         <div style={{ marginBottom: "40px" }}>
-          <ScrollFloat>
-            <h3 style={{ fontSize: "1.8rem", fontWeight: "700", color: "#a78bfa", margin: 0 }}>
-              “Preparation becomes progress when you practice consistently.”
-            </h3>
+          <ScrollFloat textClassName="scroll-float-highlight">
+            “Preparation becomes progress when you practice consistently.”
           </ScrollFloat>
         </div>
 
         {/* Call to action details with Scroll Reveal */}
-        <ScrollReveal>
-          <h2 style={{ fontSize: "2.4rem", marginBottom: "15px", fontWeight: "800", color: "#ffffff" }}>
-            Ready to Begin?
-          </h2>
-          <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto 35px", fontSize: "1.05rem", lineHeight: "1.6" }}>
-            Start building your placement readiness today. Practice aptitude worksheets, optimize your resume for ATS parsers, compile code, and take AI mock interviews.
-          </p>
+        <ScrollReveal textClassName="section-title">
+          Ready to Begin?
+        </ScrollReveal>
+        <ScrollReveal textClassName="section-subtitle">
+          Start building your placement readiness today. Practice aptitude worksheets, optimize your resume for ATS parsers, compile code, and take AI mock interviews.
         </ScrollReveal>
 
         {/* Staggered action buttons with FadeContent */}

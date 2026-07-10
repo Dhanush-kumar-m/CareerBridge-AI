@@ -1,51 +1,24 @@
-/* OFFICIAL REACT BITS CODE PLACEHOLDER - PASTE THE OFFICIAL JAVASCRIPT+CSS VARIANT HERE */
-import { useState } from 'react';
+import { useRef } from 'react';
 import './SpotlightCard.css';
 
-export default function SpotlightCard({
-  children,
-  className = "",
-  spotlightColor = "rgba(99, 102, 241, 0.15)",
-  style = {}
-}) {
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const [isFocused, setIsFocused] = useState(false);
+const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 255, 255, 0.25)' }) => {
+  const divRef = useRef(null);
 
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setCoords({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+  const handleMouseMove = e => {
+    const rect = divRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    divRef.current.style.setProperty('--mouse-x', `${x}px`);
+    divRef.current.style.setProperty('--mouse-y', `${y}px`);
+    divRef.current.style.setProperty('--spotlight-color', spotlightColor);
   };
 
   return (
-    <div
-      className={`spotlight-card ${className}`}
-      style={{
-        ...style,
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsFocused(true)}
-      onMouseLeave={() => setIsFocused(false)}
-    >
-      {isFocused && (
-        <div
-          className="spotlight-layer"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            background: `radial-gradient(250px circle at ${coords.x}px ${coords.y}px, ${spotlightColor}, transparent 80%)`,
-            zIndex: 0
-          }}
-        />
-      )}
-      <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
-        {children}
-      </div>
+    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`}>
+      {children}
     </div>
   );
-}
+};
+
+export default SpotlightCard;

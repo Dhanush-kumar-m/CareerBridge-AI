@@ -1,43 +1,101 @@
-/* OFFICIAL REACT BITS CODE PLACEHOLDER - PASTE THE OFFICIAL JAVASCRIPT+CSS VARIANT HERE */
-import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import './CountUp.css';
+import { useInView, useMotionValue, useSpring } from 'framer-motion';
+import { useCallback, useEffect, useRef } from 'react';
 
 export default function CountUp({
-  to = 0,
+  to,
+  from = 0,
+  direction = 'up',
+  delay = 0,
   duration = 2,
-  className = ""
+  className = '',
+  startWhen = true,
+  separator = '',
+  onStart,
+  onEnd
 }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, Math.round);
-  const [value, setValue] = useState("0");
   const ref = useRef(null);
+  const motionValue = useMotionValue(direction === 'down' ? to : from);
 
-  useEffect(() => {
-    let hasStarted = false;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !hasStarted) {
-        hasStarted = true;
-        animate(count, to, { duration, ease: "easeOut" });
+  const damping = 20 + 40 * (1 / duration);
+  const stiffness = 100 * (1 / duration);
+
+  const springValue = useSpring(motionValue, {
+    damping,
+    stiffness
+  });
+
+  const isInView = useInView(ref, { once: true, margin: '0px' });
+
+  const getDecimalPlaces = num => {
+    const str = num.toString();
+
+    if (str.includes('.')) {
+      const decimals = str.split('.')[1];
+
+      if (parseInt(decimals) !== 0) {
+        return decimals.length;
       }
-    }, { threshold: 0.1 });
-
-    if (ref.current) {
-      observer.observe(ref.current);
     }
 
-    return () => observer.disconnect();
-  }, [to, duration, count]);
+    return 0;
+  };
+
+  const maxDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
+
+  const formatValue = useCallback(
+    latest => {
+      const hasDecimals = maxDecimals > 0;
+
+      const options = {
+        useGrouping: !!separator,
+        minimumFractionDigits: hasDecimals ? maxDecimals : 0,
+        maximumFractionDigits: hasDecimals ? maxDecimals : 0
+      };
+
+      const formattedNumber = Intl.NumberFormat('en-US', options).format(latest);
+
+      return separator ? formattedNumber.replace(/,/g, separator) : formattedNumber;
+    },
+    [maxDecimals, separator]
+  );
 
   useEffect(() => {
-    return rounded.on("change", (latest) => {
-      setValue(latest.toLocaleString());
-    });
-  }, [rounded]);
+    if (ref.current) {
+      ref.current.textContent = formatValue(direction === 'down' ? to : from);
+    }
+  }, [from, to, direction, formatValue]);
 
-  return (
-    <span ref={ref} className={`count-up-value ${className}`}>
-      {value}
-    </span>
-  );
+  useEffect(() => {
+    if (isInView && startWhen) {
+      if (typeof onStart === 'function') onStart();
+
+      const timeoutId = setTimeout(() => {
+        motionValue.set(direction === 'down' ? from : to);
+      }, delay * 1000);
+
+      const durationTimeoutId = setTimeout(
+        () => {
+          if (typeof onEnd === 'function') onEnd();
+        },
+        delay * 1000 + duration * 1000
+      );
+
+      return () => {
+        clearTimeout(timeoutId);
+        clearTimeout(durationTimeoutId);
+      };
+    }
+  }, [isInView, startWhen, motionValue, direction, from, to, delay, onStart, onEnd, duration]);
+
+  useEffect(() => {
+    const unsubscribe = springValue.on('change', latest => {
+      if (ref.current) {
+        ref.current.textContent = formatValue(latest);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [springValue, formatValue]);
+
+  return <span className={className} ref={ref} />;
 }

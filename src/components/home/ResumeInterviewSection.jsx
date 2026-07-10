@@ -15,13 +15,11 @@ export default function ResumeInterviewSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#ffffff", marginBottom: "15px" }}>
-              Optimize Resumes & Practice Interviews
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "600px", margin: "0 auto" }}>
-              Improve how you present your skills and communicate your answers to stand out to hiring recruiters.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Optimize Resumes & Practice Interviews
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Improve how you present your skills and communicate your answers to stand out to hiring recruiters.
           </ScrollReveal>
         </div>
 

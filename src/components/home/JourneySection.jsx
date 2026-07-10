@@ -24,13 +24,11 @@ export default function JourneySection() {
         
         {/* Section Title with Scroll Reveal */}
         <div style={{ textAlign: "center", marginBottom: "60px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#ffffff", marginBottom: "15px" }}>
-              Your Complete Placement Preparation Journey
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.98rem", maxWidth: "600px", margin: "0 auto" }}>
-              CareerBridge brings every stage of placement preparation into one focused, step-by-step storytelling flow.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Your Complete Placement Preparation Journey
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            CareerBridge brings every stage of placement preparation into one focused, step-by-step storytelling flow.
           </ScrollReveal>
         </div>
 

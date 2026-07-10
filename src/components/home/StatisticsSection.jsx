@@ -23,13 +23,11 @@ export default function StatisticsSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2rem", fontWeight: "800", color: "#ffffff", marginBottom: "10px" }}>
-              Verified Learning Resources
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-              Built with structured content ready for student practice.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Verified Learning Resources
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Built with structured content ready for student practice.
           </ScrollReveal>
         </div>
 

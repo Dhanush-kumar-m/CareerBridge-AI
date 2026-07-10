@@ -36,13 +36,11 @@ export default function CompanyPreparationSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2rem", fontWeight: "800", color: "#ffffff", marginBottom: "10px" }}>
-              Prepare Company by Company
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "600px", margin: "0 auto" }}>
-              Understand company patterns, coding difficulties, aptitude rounds, and eligibility roadmaps before entering the interview room.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Prepare Company by Company
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Understand company patterns, coding difficulties, aptitude rounds, and eligibility roadmaps before entering the interview room.
           </ScrollReveal>
         </div>
 

@@ -21,13 +21,11 @@ export default function FeaturesSection() {
         
         {/* Section Heading */}
         <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <ScrollReveal>
-            <h2 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#ffffff", marginBottom: "15px" }}>
-              Practice for Every Stage
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-              Accelerating placements through modern features and modules built for target preparedness.
-            </p>
+          <ScrollReveal textClassName="section-title">
+            Practice for Every Stage
+          </ScrollReveal>
+          <ScrollReveal textClassName="section-subtitle">
+            Accelerating placements through modern features and modules built for target preparedness.
           </ScrollReveal>
         </div>
 

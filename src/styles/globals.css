@@ -8442,4 +8442,32 @@ body[data-theme="light"] .ai-assistant-input {
 
 .start-practice-badge-btn:active {
   transform: translateY(0) !important;
-}
+}
+
+/* ScrollReveal Custom Typography Overrides */
+.section-title {
+  font-size: 2.2rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.section-subtitle {
+  font-size: 0.95rem !important;
+  color: var(--text-secondary) !important;
+  text-align: center !important;
+  margin-top: 10px !important;
+  max-width: 600px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.scroll-float-highlight {
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem) !important;
+  font-weight: 700 !important;
+  color: #a78bfa !important;
+  text-align: center !important;
+}
+
+
