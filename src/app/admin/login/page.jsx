@@ -7,7 +7,7 @@ import useAuth from "../../../hooks/useAuth";
 import { FiAward, FiAlertCircle } from "react-icons/fi";
 
 export default function AdminLoginPage() {
-  const { loginUser } = useAuth();
+  const { loginUser, logoutUser } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -18,19 +18,16 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
 
-    if (email === "admin@careerbridge.com" && password === "123456") {
-      try {
-        await loginUser({
-          email,
-          name: "Placement Director",
-          role: "admin",
-        });
+    try {
+      const user = await loginUser(email, password);
+      if (user && user.role === "admin") {
         window.location.href = "/admin";
-      } catch (err) {
-        setError(err.message || "Admin Sign-in failed.");
+      } else {
+        await logoutUser("/admin/login");
+        setError("Unauthorized: Access restricted to administrators only.");
       }
-    } else {
-      setError("Invalid Admin Credentials");
+    } catch (err) {
+      setError(err.message || "Invalid Admin Credentials or Sign-in failed.");
     }
   };
 

@@ -9,34 +9,43 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // 1. Get initial session
-    const savedAdmin = typeof window !== "undefined" ? localStorage.getItem("cb_admin_user") : null;
-    if (savedAdmin) {
-      setUser(JSON.parse(savedAdmin));
-      setLoading(false);
-    } else {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      });
+  const fetchUserRole = async (u) => {
+    if (!u) return null;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", u.id)
+        .single();
+      if (!error && data) {
+        return { ...u, role: data.role };
+      }
+    } catch (e) {
+      console.warn("Failed to load user profile role from Supabase:", e.message);
     }
+    return { ...u, role: "student" };
+  };
+
+  useEffect(() => {
+    // 1. Get initial session and fetch role
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const userWithRole = await fetchUserRole(session.user);
+        setUser(userWithRole);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
 
     // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         if (session?.user) {
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("cb_admin_user");
-          }
-          setUser(session.user);
+          const userWithRole = await fetchUserRole(session.user);
+          setUser(userWithRole);
         } else {
-          const adminSession = typeof window !== "undefined" ? localStorage.getItem("cb_admin_user") : null;
-          if (adminSession) {
-            setUser(JSON.parse(adminSession));
-          } else {
-            setUser(null);
-          }
+          setUser(null);
         }
         setLoading(false);
       }
@@ -48,41 +57,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    if (typeof email === "object" && email !== null) {
-      const payload = email;
-      if (payload.role === "admin" || payload.email === "admin@careerbridge.com") {
-        const adminUser = {
-          id: "admin-mock-id",
-          email: payload.email,
-          user_metadata: {
-            full_name: payload.name || "Placement Director",
-          },
-          role: "admin",
-        };
-        if (typeof window !== "undefined") {
-          localStorage.setItem("cb_admin_user", JSON.stringify(adminUser));
-        }
-        setUser(adminUser);
-        return adminUser;
-      }
-      
-      const { email: extEmail, password: extPassword } = payload;
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: extEmail,
-        password: extPassword,
-      });
-      if (error) throw error;
-      setUser(data.user);
-      return data.user;
-    }
-
+    const payload = (typeof email === "object" && email !== null) ? email : { email, password };
+    
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: payload.email,
+      password: payload.password,
     });
     if (error) throw error;
-    setUser(data.user);
-    return data.user;
+    
+    const userWithRole = await fetchUserRole(data.user);
+    setUser(userWithRole);
+    return userWithRole;
   };
 
   const signup = async (email, password, name) => {
@@ -121,9 +106,6 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async (redirectPath = "/login") => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("cb_admin_user");
-    }
     await supabase.auth.signOut();
     setUser(null);
     const targetPath = (typeof redirectPath === "string") ? redirectPath : "/login";
