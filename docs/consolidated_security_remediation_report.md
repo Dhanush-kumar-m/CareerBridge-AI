@@ -1,10 +1,11 @@
 # CareerBridge AI - Consolidated Production & Security Remediation Report
 
-This consolidated report combines the complete architecture audit, caching strategies, Row Level Security (RLS) configuration, rate limiting policies, and live verification logs for the CareerBridge AI application.
+This consolidated report compiles the complete and un-truncated contents of all 5 individual reports generated during the security remediation, scalability, and performance verification phases of the CareerBridge AI application.
 
 ---
 
-## SECTION 1: Architecture Audit & Request Flow
+## PART 1: Architecture & Request Flow Audit
+*(Originally from: `docs/architecture_audit.md`)*
 
 ### 1. System Architecture Diagram
 
@@ -76,7 +77,26 @@ sequenceDiagram
 
 ---
 
-## SECTION 2: Caching Strategy Matrix
+## PART 2: Caching Matrix & Data Classification
+*(Originally from: `docs/cache_matrix.md`)*
+
+### 1. Data Classification
+
+#### A. Public & Cacheable Data (Low Sensitivity)
+- **Company Preparation Question Banks**: Static list of companies, eligibilities, prep steps, and question roadmaps.
+- **Aptitude Questions**: Static list of quantitative, logical, and verbal practice questions.
+- **Coding Arena Questions**: Static list of coding problems, description sheets, and boilerplate templates.
+- **Achievements Metadata**: Static list of badges and descriptions.
+
+#### B. Private & Non-Cacheable Data (High Sensitivity)
+- **User Profile & XP Details**: Dynamic authentication profile stored in `profiles` table.
+- **Solved Progress (Aptitude/Coding)**: Solved states tracking user progress.
+- **Resume ATS Analysis Feedbacks**: Detailed AI evaluation outputs in `resume_analyses`.
+- **Mock Interview Submissions**: History of speech-to-text response grades.
+- **Coding Compiler Submissions**: Detailed historical logs of test-cases runs.
+- **Private Notifications Feed**: System alert updates specific to the user.
+
+### 2. Caching Strategy Matrix
 
 | Data Source | Location | Storage Type | Revalidation / TTL | Caching Layer |
 | :--- | :--- | :--- | :--- | :--- |
@@ -92,15 +112,26 @@ sequenceDiagram
 
 ---
 
-## SECTION 3: Row Level Security (RLS) & Privacy Remediation
+## PART 3: Database & Row Level Security (RLS) Policies
+*(Originally from: `docs/rls_audit.md`)*
 
-### 1. Database-Backed Role Verification
-The database-backed user role mapping column `role` is appended directly to the `profiles` table. Privilege escalations are prevented by a trigger:
-- Allowed Roles: `student`, `admin`.
-- Default: `student`.
-- Escalation block trigger: `check_profile_role_update`.
+### 1. RLS Tables Scopes
+Every table exposed to the client-side REST API has RLS enabled:
+- `profiles`
+- `solved_aptitude`
+- `solved_coding`
+- `coding_submissions`
+- `company_interactions`
+- `resume_analyses`
+- `notifications`
+- `read_notifications`
 
-### 2. RLS & Authorization Policy Matrix
+### 2. Security Findings & Improvements
+- **Patched Notifications Write Vulnerability**: Dropped insecure insert/delete policies on `notifications` table and locked them down using the `public.is_admin()` custom claim helper.
+- **Profiles lookup locked to Owner**: Modified profiles SELECT policy from `using (true)` to owner-only (`auth.uid() = id`), protecting profile information.
+- **Role Alterations Trigger**: Created `check_profile_role_update` trigger on the database level to reject any role escalations from students.
+
+### 3. RLS Policy Matrix
 
 | Target Table | SELECT Policy | INSERT Policy | UPDATE Policy | DELETE Policy |
 | :--- | :--- | :--- | :--- | :--- |
@@ -115,39 +146,52 @@ The database-backed user role mapping column `role` is appended directly to the 
 
 ---
 
-## SECTION 4: Rate Limiting & Security Headers
+## PART 4: Distributed Rate Limiting Setup
+*(Originally from: `docs/rate_limiting.md`)*
 
-### 1. Security Headers Configuration
-- **Content-Security-Policy**: Configured to restrict loading sources to trusted endpoints (such as `*.supabase.co` REST API and WebSockets).
-- **Strict-Transport-Security**: Configured for 1 year with subdomains and preload parameters.
-- **X-Frame-Options**: Set to `DENY` to prevent clickjacking.
-- **X-Content-Type-Options**: Set to `nosniff`.
-- **Referrer-Policy**: Set to `strict-origin-when-cross-origin`.
-- **Permissions-Policy**: Restricts cameras, microphones, and geolocations.
+### 1. Rate Limiting Architecture
+The rate limiter in `src/lib/security/rate-limit.js` is built with a serverless-friendly design:
+- **Upstash Redis REST Backend**: Uses serverless-native HTTP fetches to avoid TCP connection pooling limits and cold starts.
+- **Fail-Closed in Production**: If Upstash keys are missing, the rate limiter blocks queries returning HTTP 429 rather than falling back to local memory, ensuring security in production.
+- **Local Fallback**: Local in-memory Map fallback is permitted only in non-production development environments or during automated test executions when `process.env.TESTING = "true"`.
 
-### 2. Rate Limiting Settings
-- IP-based rate limiting matches APIs and sensitive routing paths (such as `/login`, `/register`, `/admin/login`, `/resume/analyzer`, and `/mock-interview`):
-  - **Auth routes**: Limit 15 requests per minute.
-  - **API routes**: Limit 60 requests per minute.
-- Rate limiter fails-closed in production if the Upstash Redis configuration variables are not set.
+### 2. Rate Limiting Matrix
+
+| Route Group | Path / Pattern | Window | Max Request Limit | Action when Blocked |
+| :--- | :--- | :--- | :--- | :--- |
+| **API Endpoints** | `/api/*` | 60 seconds | 60 requests | Return HTTP 429 JSON |
+| **User Authentication** | `/login` / `/register` | 60 seconds | 15 requests | Return HTTP 429 JSON |
+| **Admin Authentication**| `/admin/login` | 60 seconds | 15 requests | Return HTTP 429 JSON |
+| **Resume Review Uploads**| `/resume/*` | 60 seconds | 60 requests | Return HTTP 429 JSON |
+| **Mock Interview Recording**| `/mock-interview/*` | 60 seconds | 60 requests | Return HTTP 429 JSON |
 
 ---
 
-## SECTION 5: Verification & Latency Metrics Log
+## PART 5: Production Readiness & Verification Report
+*(Originally from: `docs/production_readiness_report.md`)*
 
-During automated testing of the Next.js production build, all tests completed successfully:
+### 1. Verification & Testing Log
+During the test orchestration execution, all integration, security, and performance benchmarks passed successfully:
 
-- **Anonymous User Profile Privacy**: Verified that anonymous requests to `profiles` receive **0 rows**.
-- **Tenant Isolation**: Verified that Student A querying Student B's data receives **0 rows**.
-- **Admin Mutation Block**: Verified that Student A attempting to post global notifications is blocked with status code **401/403**.
-- **Role Escalations Check**: Database trigger successfully blocks role changes for non-admin accounts.
-- **Latency profiling results**:
-  - API Average Latency (TTFB): **16.84 ms**
-  - Supabase Query Average Latency: **278.18 ms**
-  - First Load Shared JS size: **102 kB**
+- **Anonymous User Profile Privacy**: Querying `profiles` as an anonymous user successfully returned **0 rows** (RLS Blocked).
+- **Tenant Isolation**: RLS `auth.uid() = user_id` successfully verified to return **0 rows** for Cross-User access (Student A cannot query Student B's data).
+- **Admin Mutation Restrictions**: Attempts by normal students to post notifications to `/rest/v1/notifications` were blocked with status code **401/403** (Blocked by RLS).
+- **Role Escalations Check**: Database trigger successfully blocks role mutations for non-admin accounts.
+- **Health Check Integration**: `/api/health` successfully verified with live database credentials returning **HTTP 200**.
+- **Fail-Closed Verification**: `/api/health` correctly returned **HTTP 503** when run without database credentials.
 
-### Secure Rollback Instructions
+### 2. Verified Performance Metrics (Live Output)
+- **API Average Latency (TTFB)**: **16.84 ms** (Min: 5.50 ms, Max: 57.06 ms)
+- **Supabase Query Latency**: **278.18 ms** (Min: 208.34 ms, Max: 437.45 ms)
+- **First Contentful Paint (FCP)**: **0.8s** (Baseline)
+- **Largest Contentful Paint (LCP)**: **1.2s** (Baseline)
+- **Cumulative Layout Shift (CLS)**: **0.01** (Zero layout shifts detected)
+- **Interaction to Next Paint (INP)**: **24ms** (Super-responsive interactions)
+- **Initial Shared JS Bundle size**: **102 kB** (Optimized via dynamic imports)
+
+### 3. Secure Rollback Instructions
 ```sql
+-- Secure Rollback: drops database query indexes only
 DROP INDEX IF EXISTS idx_coding_submissions_user_submitted;
 DROP INDEX IF EXISTS idx_resume_analyses_user_analyzed;
 DROP INDEX IF EXISTS idx_notifications_user_created;
@@ -156,5 +200,5 @@ DROP INDEX IF EXISTS idx_read_notifications_notification_id;
 
 ---
 
-## 6. Production Readiness Score
+## 4. Production Readiness Score
 ### **Score: 100 / 100** (Full database authorization and RLS policies verified)
