@@ -59,15 +59,22 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const payload = (typeof email === "object" && email !== null) ? email : { email, password };
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: payload.email,
-      password: payload.password,
-    });
-    if (error) throw error;
-    
-    const userWithRole = await fetchUserRole(data.user);
-    setUser(userWithRole);
-    return userWithRole;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: payload.email,
+        password: payload.password,
+      });
+      if (error) throw error;
+      
+      const userWithRole = await fetchUserRole(data.user);
+      setUser(userWithRole);
+      return userWithRole;
+    } catch (err) {
+      if (err.message === "Failed to fetch") {
+        throw new Error("Connection failed: Please check your network connection or try disabling your VPN/Adblocker.");
+      }
+      throw err;
+    }
   };
 
   const signup = async (email, password, name) => {
