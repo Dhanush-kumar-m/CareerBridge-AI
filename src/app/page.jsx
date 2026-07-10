@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
-import Lightfall from "../components/common/Lightfall";
 import {
   FiBookOpen,
   FiCode,
@@ -78,117 +77,81 @@ export default function Home() {
   return (
     <main className="home-page" style={{ padding: "0" }}>
       
-      {/* Top Section Wrapper with Full-bleed Lightfall Background */}
-      <div style={{ 
-        position: "relative", 
-        overflow: "hidden",
-        width: "100%",
-        background: "#05070f"
+      {/* Hero Section */}
+      <section className="hero-section" style={{
+        padding: "100px 24px 80px",
+        textAlign: "center",
+        background: "radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, transparent 60%)"
       }}>
-        {/* Full-bleed absolute Lightfall background */}
-        <div style={{ 
-          position: "absolute", 
-          inset: 0, 
-          zIndex: 0, 
-          opacity: 0.35,
-          pointerEvents: "none",
-          maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%)"
-        }}>
-          <Lightfall
-            colors={['#6366f1', '#a78bfa', '#fb7185']}
-            backgroundColor="#05070f"
-            speed={0.4}
-            streakCount={4}
-            streakWidth={0.8}
-            streakLength={0.8}
-            glow={0.8}
-            density={0.5}
-            twinkle={0.8}
-            zoom={2.5}
-            backgroundGlow={0.3}
-            opacity={0.6}
-            mouseInteraction={true}
-          />
-        </div>
-
-        {/* Hero Section */}
-        <section className="hero-section" style={{
-          position: "relative",
-          zIndex: 1,
-          padding: "100px 24px 80px",
-          textAlign: "center"
-        }}>
-          <div className="hero-content" style={{ maxWidth: "850px", margin: "0 auto" }}>
-            <span className="hero-badge" style={{ 
-              display: "inline-flex", 
-              alignItems: "center", 
-              gap: "8px", 
-              border: "1px solid rgba(99, 102, 241, 0.3)", 
-              color: "#818cf8", 
-              background: "rgba(99, 102, 241, 0.08)", 
-              padding: "6px 14px", 
-              borderRadius: "30px", 
-              fontSize: "0.85rem", 
-              fontWeight: "700" 
-            }}>
-              <FiCheckCircle size={14} />
-              <span>Enterprise Placement Training Portal</span>
-            </span>
-
-            <h1 style={{ marginTop: "20px", fontSize: "3.2rem", fontWeight: "800", lineHeight: "1.2", letterSpacing: "-0.03em" }}>
-              Ace Your Campus Placements with <span className="gradient-text">AI</span>
-            </h1>
-
-            <p style={{ margin: "24px auto 35px", fontSize: "1.12rem", color: "var(--text-secondary)", lineHeight: "1.6", maxWidth: "700px" }}>
-              Master Aptitude, Coding, Resume Building, Mock Interviews, Company Preparation, Technical Subjects, and Placement Analytics—all in one AI-powered platform.
-            </p>
-
-            <div style={{ display: "flex", justifyContent: "center", gap: "15px", flexWrap: "wrap" }}>
-              <Link href={isAuthenticated ? "/dashboard" : "/register"} className="btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                <span>Get Started</span>
-                <FiArrowRight />
-              </Link>
-              <Link href="/coding" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                <FiCode />
-                <span>Practice Coding</span>
-              </Link>
-              <Link href="/resume/analyzer" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                <FiFileText />
-                <span>Analyze Resume</span>
-              </Link>
-              <Link href="/mock-interview" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                <FiMic />
-                <span>AI Mock Interview</span>
-              </Link>
-              <Link href="/companies" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                <FiBriefcase />
-                <span>Explore Companies</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Statistics counters */}
-        <section style={{ position: "relative", zIndex: 1, maxWidth: "1000px", margin: "0 auto 80px", padding: "0 20px" }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            gap: "20px",
-            background: "rgba(255,255,255,0.01)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            padding: "30px",
-            borderRadius: "18px"
+        <div className="hero-content" style={{ maxWidth: "850px", margin: "0 auto" }}>
+          <span className="hero-badge" style={{ 
+            display: "inline-flex", 
+            alignItems: "center", 
+            gap: "8px", 
+            border: "1px solid rgba(99, 102, 241, 0.3)", 
+            color: "#818cf8", 
+            background: "rgba(99, 102, 241, 0.08)", 
+            padding: "6px 14px", 
+            borderRadius: "30px", 
+            fontSize: "0.85rem", 
+            fontWeight: "700" 
           }}>
-            {stats.map((stat, idx) => (
-              <div key={idx} style={{ textAlign: "center" }}>
-                <strong style={{ display: "block", fontSize: "2rem", fontWeight: "800", color: "#ffffff" }}>{stat.value}</strong>
-                <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", marginTop: "4px", display: "inline-block" }}>{stat.label}</span>
-              </div>
-            ))}
+            <FiCheckCircle size={14} />
+            <span>Enterprise Placement Training Portal</span>
+          </span>
+
+          <h1 style={{ marginTop: "20px", fontSize: "3.2rem", fontWeight: "800", lineHeight: "1.2", letterSpacing: "-0.03em" }}>
+            Ace Your Campus Placements with <span className="gradient-text">AI</span>
+          </h1>
+
+          <p style={{ margin: "24px auto 35px", fontSize: "1.12rem", color: "var(--text-secondary)", lineHeight: "1.6", maxWidth: "700px" }}>
+            Master Aptitude, Coding, Resume Building, Mock Interviews, Company Preparation, Technical Subjects, and Placement Analytics—all in one AI-powered platform.
+          </p>
+
+          <div style={{ display: "flex", justifyContent: "center", gap: "15px", flexWrap: "wrap" }}>
+            <Link href={isAuthenticated ? "/dashboard" : "/register"} className="btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+              <span>Get Started</span>
+              <FiArrowRight />
+            </Link>
+            <Link href="/coding" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <FiCode />
+              <span>Practice Coding</span>
+            </Link>
+            <Link href="/resume/analyzer" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <FiFileText />
+              <span>Analyze Resume</span>
+            </Link>
+            <Link href="/mock-interview" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <FiMic />
+              <span>AI Mock Interview</span>
+            </Link>
+            <Link href="/companies" className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <FiBriefcase />
+              <span>Explore Companies</span>
+            </Link>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* Statistics counters */}
+      <section style={{ maxWidth: "1000px", margin: "0 auto 80px", padding: "0 20px" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: "20px",
+          background: "rgba(255,255,255,0.01)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          borderRadius: "18px"
+        }}>
+          {stats.map((stat, idx) => (
+            <div key={idx} style={{ textAlign: "center" }}>
+              <strong style={{ display: "block", fontSize: "2rem", fontWeight: "800", color: "#ffffff" }}>{stat.value}</strong>
+              <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", marginTop: "4px", display: "inline-block" }}>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Platform Highlights */}
       <section style={{ maxWidth: "1000px", margin: "0 auto 80px", padding: "0 20px" }}>
