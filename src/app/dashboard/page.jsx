@@ -44,7 +44,8 @@ import {
   FiTerminal,
   FiCpu,
   FiBell,
-  FiInbox
+  FiInbox,
+  FiDownload
 } from "react-icons/fi";
 
 const COLORS = ["#6366f1", "#10b981", "#fbbf24", "#ef4444"];
