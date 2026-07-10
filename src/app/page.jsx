@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth";
+import Lightfall from "../components/common/Lightfall";
 import {
   FiBookOpen,
   FiCode,
@@ -79,11 +80,30 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="hero-section" style={{
+        position: "relative",
         padding: "100px 24px 80px",
         textAlign: "center",
-        background: "radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, transparent 60%)"
+        overflow: "hidden"
       }}>
-        <div className="hero-content" style={{ maxWidth: "850px", margin: "0 auto" }}>
+        {/* Full-bleed absolute Lightfall background */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0, opacity: 0.35 }}>
+          <Lightfall
+            colors={['#6366f1', '#a78bfa', '#fb7185']}
+            backgroundColor="#05070f"
+            speed={0.4}
+            streakCount={4}
+            streakWidth={0.8}
+            streakLength={0.8}
+            glow={0.8}
+            density={0.5}
+            twinkle={0.8}
+            zoom={2.5}
+            backgroundGlow={0.3}
+            opacity={0.6}
+            mouseInteraction={true}
+          />
+        </div>
+        <div className="hero-content" style={{ position: "relative", zIndex: 1, maxWidth: "850px", margin: "0 auto" }}>
           <span className="hero-badge" style={{ 
             display: "inline-flex", 
             alignItems: "center", 
