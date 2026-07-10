@@ -1,0 +1,6 @@
+.spotlight-card {
+  display: block;
+}
+.spotlight-layer {
+  transition: opacity 0.15s ease;
+}
