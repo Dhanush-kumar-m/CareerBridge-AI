@@ -3,12 +3,22 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import codingQuestions from "../../../data/codingQuestions";
-import CodeEditor from "../../../components/coding/CodeEditor";
+import dynamic from "next/dynamic";
+const CodeEditor = dynamic(() => import("../../../components/coding/CodeEditor"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: "600px", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }}>
+      <span style={{ color: "var(--text-secondary)" }}>Loading Code Editor...</span>
+    </div>
+  )
+});
 import LanguageSelector from "../../../components/coding/LanguageSelector";
 import OutputPanel from "../../../components/coding/OutputPanel";
 import TestCases from "../../../components/coding/TestCases";
 import SubmissionResult from "../../../components/coding/SubmissionResult";
-import ConfettiSuccess from "../../../components/coding/ConfettiSuccess";
+const ConfettiSuccess = dynamic(() => import("../../../components/coding/ConfettiSuccess"), {
+  ssr: false
+});
 import useCodingProgress from "../../../hooks/useCodingProgress";
 
 // Helper functions for code execution
