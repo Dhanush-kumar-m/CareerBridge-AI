@@ -1,18 +1,19 @@
 "use client";
 
 import useAuth from "../hooks/useAuth";
+import dynamic from "next/dynamic";
 
-// Import modular homepage sections
-import HeroSection from "../components/home/HeroSection";
-import JourneySection from "../components/home/JourneySection";
-import FeaturesSection from "../components/home/FeaturesSection";
-import CompanyPreparationSection from "../components/home/CompanyPreparationSection";
-import PracticeSection from "../components/home/PracticeSection";
-import ResumeInterviewSection from "../components/home/ResumeInterviewSection";
-import AnalyticsSection from "../components/home/AnalyticsSection";
-import StatisticsSection from "../components/home/StatisticsSection";
-import HowItWorksSection from "../components/home/HowItWorksSection";
-import FinalCTASection from "../components/home/FinalCTASection";
+// Dynamically import modular homepage sections with SSR disabled
+const HeroSection = dynamic(() => import("../components/home/HeroSection"), { ssr: false });
+const JourneySection = dynamic(() => import("../components/home/JourneySection"), { ssr: false });
+const FeaturesSection = dynamic(() => import("../components/home/FeaturesSection"), { ssr: false });
+const CompanyPreparationSection = dynamic(() => import("../components/home/CompanyPreparationSection"), { ssr: false });
+const PracticeSection = dynamic(() => import("../components/home/PracticeSection"), { ssr: false });
+const ResumeInterviewSection = dynamic(() => import("../components/home/ResumeInterviewSection"), { ssr: false });
+const AnalyticsSection = dynamic(() => import("../components/home/AnalyticsSection"), { ssr: false });
+const StatisticsSection = dynamic(() => import("../components/home/StatisticsSection"), { ssr: false });
+const HowItWorksSection = dynamic(() => import("../components/home/HowItWorksSection"), { ssr: false });
+const FinalCTASection = dynamic(() => import("../components/home/FinalCTASection"), { ssr: false });
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
