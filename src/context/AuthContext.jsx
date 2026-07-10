@@ -59,6 +59,11 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const payload = (typeof email === "object" && email !== null) ? email : { email, password };
     
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    if (!supabaseUrl || supabaseUrl.includes("placeholder")) {
+      throw new Error("Configuration required: Please configure valid Supabase credentials in your .env.local file.");
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: payload.email,
