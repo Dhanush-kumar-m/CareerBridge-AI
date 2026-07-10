@@ -43,3 +43,18 @@
   width: 100%;
   height: 1px;
 }
+
+.scroll-stack-scroller.window-scroll {
+  height: auto;
+  overflow: visible;
+}
+
+.scroll-stack-scroller.window-scroll .scroll-stack-inner {
+  padding: 40px 0 0px;
+  min-height: auto;
+}
+
+/* Add a clean vertical spacer to push the next section down when cards are stacked */
+.scroll-stack-scroller.window-scroll .scroll-stack-end {
+  height: 65vh;
+}

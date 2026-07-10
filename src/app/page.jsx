@@ -3,32 +3,63 @@
 import useAuth from "../hooks/useAuth";
 import dynamic from "next/dynamic";
 
-// Dynamically import modular homepage sections with SSR disabled
+// Dynamically import storytelling sections in the logical product flow
 const HeroSection = dynamic(() => import("../components/home/HeroSection"), { ssr: false });
-const JourneySection = dynamic(() => import("../components/home/JourneySection"), { ssr: false });
-const FeaturesSection = dynamic(() => import("../components/home/FeaturesSection"), { ssr: false });
+const WhyPrepSection = dynamic(() => import("../components/home/WhyPrepSection"), { ssr: false });
+const FeaturesSection = dynamic(() => import("../components/home/FeaturesSection"), { ssr: false }); // CareerBridge Solution
+const JourneySection = dynamic(() => import("../components/home/JourneySection"), { ssr: false }); // Timeline
+const PracticeCodingSection = dynamic(() => import("../components/home/PracticeCodingSection"), { ssr: false });
+const PracticeAptitudeSection = dynamic(() => import("../components/home/PracticeAptitudeSection"), { ssr: false });
+const ResumeAnalyzerSection = dynamic(() => import("../components/home/ResumeAnalyzerSection"), { ssr: false });
+const MockInterviewSection = dynamic(() => import("../components/home/MockInterviewSection"), { ssr: false });
 const CompanyPreparationSection = dynamic(() => import("../components/home/CompanyPreparationSection"), { ssr: false });
-const PracticeSection = dynamic(() => import("../components/home/PracticeSection"), { ssr: false });
-const ResumeInterviewSection = dynamic(() => import("../components/home/ResumeInterviewSection"), { ssr: false });
-const AnalyticsSection = dynamic(() => import("../components/home/AnalyticsSection"), { ssr: false });
-const StatisticsSection = dynamic(() => import("../components/home/StatisticsSection"), { ssr: false });
-const HowItWorksSection = dynamic(() => import("../components/home/HowItWorksSection"), { ssr: false });
-const FinalCTASection = dynamic(() => import("../components/home/FinalCTASection"), { ssr: false });
+const AnalyticsSection = dynamic(() => import("../components/home/AnalyticsSection"), { ssr: false }); // Analytics Showcase
+const StatisticsSection = dynamic(() => import("../components/home/StatisticsSection"), { ssr: false }); // Platform Statistics
+const HowItWorksSection = dynamic(() => import("../components/home/HowItWorksSection"), { ssr: false }); // FAQ
+const FinalCTASection = dynamic(() => import("../components/home/FinalCTASection"), { ssr: false }); // Final Call-To-Action
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
 
   return (
     <main className="home-page" style={{ padding: "0" }}>
+      {/* 1. Hero */}
       <HeroSection isAuthenticated={isAuthenticated} />
-      <JourneySection />
+      
+      {/* 2. Why Placement Preparation Matters */}
+      <WhyPrepSection />
+      
+      {/* 3. CareerBridge Solution */}
       <FeaturesSection />
+      
+      {/* 4. Placement Journey Timeline */}
+      <JourneySection />
+      
+      {/* 5. Coding Practice */}
+      <PracticeCodingSection />
+      
+      {/* 6. Aptitude Training */}
+      <PracticeAptitudeSection />
+      
+      {/* 7. Resume Analyzer */}
+      <ResumeAnalyzerSection />
+      
+      {/* 8. AI Mock Interview */}
+      <MockInterviewSection />
+      
+      {/* 9. Company Preparation */}
       <CompanyPreparationSection />
-      <PracticeSection />
-      <ResumeInterviewSection />
+      
+      {/* 10. Student Analytics Dashboard */}
       <AnalyticsSection />
+      
+      {/* 11. Platform Statistics */}
       <StatisticsSection />
+      
+      {/* 13. FAQ */}
       <HowItWorksSection />
+      
+      {/* 14. Final Call-To-Action */}
       <FinalCTASection isAuthenticated={isAuthenticated} />
     </main>
   );

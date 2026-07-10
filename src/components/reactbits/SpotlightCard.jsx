@@ -1,10 +1,13 @@
 import { useRef } from 'react';
 import './SpotlightCard.css';
 
-const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 255, 255, 0.25)' }) => {
+const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 255, 255, 0.25)', ...props }) => {
   const divRef = useRef(null);
 
   const handleMouseMove = e => {
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     const rect = divRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -15,7 +18,7 @@ const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 2
   };
 
   return (
-    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`}>
+    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`} {...props}>
       {children}
     </div>
   );

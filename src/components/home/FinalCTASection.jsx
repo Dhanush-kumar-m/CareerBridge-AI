@@ -8,15 +8,19 @@ import FadeContent from "../reactbits/FadeContent";
 export default function FinalCTASection({ isAuthenticated }) {
   return (
     <section id="get-started" className="cta-section" style={{
-      margin: "80px auto 100px",
+      margin: "40px auto 60px",
       textAlign: "center",
-      padding: "80px 40px",
-      background: "radial-gradient(circle at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%)"
+      padding: "60px 24px",
+      minHeight: "50vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "radial-gradient(circle at center, rgba(59, 130, 246, 0.09) 0%, transparent 65%)"
     }}>
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         
         {/* Large ScrollFloat transition statement */}
-        <div style={{ marginBottom: "40px" }}>
+        <div style={{ marginBottom: "30px" }}>
           <ScrollFloat textClassName="scroll-float-highlight">
             “Preparation becomes progress when you practice consistently.”
           </ScrollFloat>
@@ -26,19 +30,30 @@ export default function FinalCTASection({ isAuthenticated }) {
         <ScrollReveal textClassName="section-title">
           Ready to Begin?
         </ScrollReveal>
-        <ScrollReveal textClassName="section-subtitle">
-          Start building your placement readiness today. Practice aptitude worksheets, optimize your resume for ATS parsers, compile code, and take AI mock interviews.
-        </ScrollReveal>
+        
+        <div style={{ margin: "10px 0 35px 0" }}>
+          <ScrollReveal textClassName="section-subtitle">
+            Start building your placement readiness today. Practice aptitude worksheets, optimize your resume for ATS parsers, compile code, and take AI mock interviews.
+          </ScrollReveal>
+        </div>
 
-        {/* Staggered action buttons with FadeContent */}
-        <FadeContent delay={0.25}>
-          <div style={{ display: "flex", justifyContent: "center", gap: "15px", flexWrap: "wrap" }}>
-            <Link href={isAuthenticated ? "/dashboard" : "/register"} className="btn">Get Started</Link>
-            <Link href="/coding" className="btn-outline">Practice Coding</Link>
-            <Link href="/resume/analyzer" className="btn-outline">Analyze Resume</Link>
-            <Link href="/mock-interview" className="btn-outline">Start AI Interview</Link>
-          </div>
-        </FadeContent>
+        {/* Single Contextual CTA with FadeContent */}
+        {isAuthenticated && (
+          <FadeContent delay={0.25}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Link href="/dashboard" className="btn" style={{
+                padding: "14px 36px",
+                fontSize: "1rem",
+                fontWeight: "700",
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)",
+                boxShadow: "0 4px 20px rgba(59, 130, 246, 0.25)"
+              }}>
+                Go to Student Dashboard
+              </Link>
+            </div>
+          </FadeContent>
+        )}
 
       </div>
     </section>

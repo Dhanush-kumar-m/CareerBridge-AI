@@ -8,11 +8,14 @@ const nextProcess = spawn("npx", ["next", "start", "-p", "3001"], {
   env: { ...process.env, PORT: "3001", TESTING: "true" }
 });
 
+nextProcess.stdout.on("data", (data) => console.log(`[Next.js stdout] ${data}`));
+nextProcess.stderr.on("data", (data) => console.error(`[Next.js stderr] ${data}`));
+
 let testTimeout = setTimeout(() => {
   console.error("❌ Server startup timeout.");
   nextProcess.kill("SIGTERM");
   process.exit(1);
-}, 20000); // 20 seconds timeout limit
+}, 30000); // 30 seconds timeout limit
 
 const runTests = async () => {
   try {
@@ -43,5 +46,5 @@ const runTests = async () => {
   }
 };
 
-// Wait 6 seconds for Next.js to fully start up before sending requests
-setTimeout(runTests, 6000);
+// Wait 12 seconds for Next.js to fully start up before sending requests
+setTimeout(runTests, 12000);

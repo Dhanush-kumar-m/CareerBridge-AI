@@ -16,6 +16,20 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 40) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -51,8 +65,32 @@ export default function Navbar() {
     { name: "Analytics", path: "/analytics" },
   ];
 
+  const isHome = pathname === "/";
+  const headerPosition = isHome ? "fixed" : "sticky";
+  const headerBg = isHome 
+    ? (scrolled ? "rgba(6, 8, 20, 0.8)" : "transparent") 
+    : "rgba(17, 24, 39, 0.95)";
+  const headerBorder = isHome
+    ? (scrolled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent")
+    : "1px solid #1f2937";
+  const headerBlur = isHome && scrolled ? "blur(12px)" : "none";
+
   return (
-    <header className="navbar" style={{ position: "relative" }}>
+    <header 
+      className="navbar" 
+      style={{ 
+        position: headerPosition,
+        top: 0,
+        left: 0,
+        width: "100%",
+        zIndex: 1000,
+        transition: "background 0.3s, backdrop-filter 0.3s, border-color 0.3s, padding 0.3s",
+        background: headerBg,
+        backdropFilter: headerBlur,
+        borderBottom: headerBorder,
+        padding: isHome && !scrolled ? "20px 40px" : "14px 40px"
+      }}
+    >
       <div className="navbar-left">
         <Link href="/" className="logo" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
           <FiBriefcase className="logo-icon" style={{ color: "var(--primary)", fontSize: "1.2rem" }} />

@@ -22,11 +22,11 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section id="how-it-works" style={{ padding: "80px 20px" }}>
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <section id="how-it-works" style={{ padding: "100px 24px" }}>
+      <div style={{ maxWidth: "850px", margin: "0 auto" }}>
         
         {/* Section Heading */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <div style={{ textAlign: "center", marginBottom: "50px" }}>
           <ScrollReveal textClassName="section-title">
             Frequently Asked Questions
           </ScrollReveal>
@@ -40,12 +40,14 @@ export default function HowItWorksSection() {
           {faqData.map((faq, idx) => {
             const isOpen = openFaq === idx;
             return (
-              <AnimatedContent key={idx} delay={idx * 0.08} yOffset={15}>
+              <AnimatedContent key={idx} delay={idx * 0.05} yOffset={15}>
                 <div style={{ 
-                  background: "rgba(255,255,255,0.01)", 
-                  border: "1px solid rgba(255,255,255,0.06)", 
-                  borderRadius: "10px", 
-                  overflow: "hidden" 
+                  background: "rgba(17, 24, 39, 0.45)", 
+                  border: "1px solid rgba(255, 255, 255, 0.06)", 
+                  borderRadius: "12px", 
+                  overflow: "hidden",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+                  transition: "border-color 0.2s"
                 }}>
                   <button 
                     onClick={() => toggleFaq(idx)}
@@ -65,7 +67,7 @@ export default function HowItWorksSection() {
                     }}
                   >
                     <span>{faq.q}</span>
-                    <span>{isOpen ? <FiMinus /> : <FiPlus />}</span>
+                    <span style={{ color: "var(--primary)" }}>{isOpen ? <FiMinus /> : <FiPlus />}</span>
                   </button>
 
                   {isOpen && (
@@ -83,27 +85,6 @@ export default function HowItWorksSection() {
             );
           })}
         </div>
-
-        {/* Future Roadmap Card */}
-        <AnimatedContent delay={0.3} yOffset={20}>
-          <div style={{ 
-            background: "rgba(99, 102, 241, 0.03)", 
-            border: "1px dashed rgba(99, 102, 241, 0.2)", 
-            padding: "30px", 
-            borderRadius: "18px" 
-          }}>
-            <h3 style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "1.15rem", fontWeight: "700", color: "#ffffff", marginBottom: "15px" }}>
-              <FiCpu style={{ color: "#818cf8" }} />
-              <span>Future Platform Roadmap Preview</span>
-            </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "15px", fontSize: "0.84rem", color: "var(--text-secondary)" }}>
-              <div>✦ AI Career Coach advisor profiles</div>
-              <div>✦ Interactive GD (Group Discussion) simulator</div>
-              <div>✦ Live multiplayer coding arenas</div>
-              <div>✦ Job referral recommendation portals</div>
-            </div>
-          </div>
-        </AnimatedContent>
 
       </div>
     </section>

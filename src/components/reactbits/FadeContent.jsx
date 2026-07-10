@@ -28,6 +28,15 @@ const FadeContent = ({
     const el = ref.current;
     if (!el) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      gsap.set(el, {
+        autoAlpha: 1,
+        filter: 'blur(0px)'
+      });
+      return;
+    }
+
     let scrollerTarget = container || document.getElementById('snap-main-container') || null;
     if (typeof scrollerTarget === 'string') {
       scrollerTarget = document.querySelector(scrollerTarget);
@@ -37,49 +46,49 @@ const FadeContent = ({
 
     const getSeconds = val => (typeof val === 'number' && val > 10 ? val / 1000 : val);
 
-    gsap.set(el, {
-      autoAlpha: initialOpacity,
-      filter: blur ? 'blur(10px)' : 'blur(0px)',
-      willChange: 'opacity, filter, transform'
-    });
+    const ctx = gsap.context(() => {
+      gsap.set(el, {
+        autoAlpha: initialOpacity,
+        filter: blur ? 'blur(10px)' : 'blur(0px)',
+        willChange: 'opacity, filter, transform'
+      });
 
-    const tl = gsap.timeline({
-      paused: true,
-      delay: getSeconds(delay),
-      onComplete: () => {
-        if (onComplete) onComplete();
-        if (disappearAfter > 0) {
-          gsap.to(el, {
-            autoAlpha: initialOpacity,
-            filter: blur ? 'blur(10px)' : 'blur(0px)',
-            delay: getSeconds(disappearAfter),
-            duration: getSeconds(disappearDuration),
-            ease: disappearEase,
-            onComplete: () => onDisappearanceComplete?.()
-          });
+      const tl = gsap.timeline({
+        paused: true,
+        delay: getSeconds(delay),
+        onComplete: () => {
+          if (onComplete) onComplete();
+          if (disappearAfter > 0) {
+            gsap.to(el, {
+              autoAlpha: initialOpacity,
+              filter: blur ? 'blur(10px)' : 'blur(0px)',
+              delay: getSeconds(disappearAfter),
+              duration: getSeconds(disappearDuration),
+              ease: disappearEase,
+              onComplete: () => onDisappearanceComplete?.()
+            });
+          }
         }
-      }
-    });
+      });
 
-    tl.to(el, {
-      autoAlpha: 1,
-      filter: 'blur(0px)',
-      duration: getSeconds(duration),
-      ease: ease
-    });
+      tl.to(el, {
+        autoAlpha: 1,
+        filter: 'blur(0px)',
+        duration: getSeconds(duration),
+        ease: ease
+      });
 
-    const st = ScrollTrigger.create({
-      trigger: el,
-      scroller: scrollerTarget || window,
-      start: `top ${startPct}%`,
-      once: true,
-      onEnter: () => tl.play()
-    });
+      ScrollTrigger.create({
+        trigger: el,
+        scroller: scrollerTarget || window,
+        start: `top ${startPct}%`,
+        once: true,
+        onEnter: () => tl.play()
+      });
+    }, el);
 
     return () => {
-      st.kill();
-      tl.kill();
-      gsap.killTweensOf(el);
+      ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -1,4 +1,3 @@
-/* OFFICIAL REACT BITS CODE PLACEHOLDER - PASTE THE OFFICIAL JAVASCRIPT+CSS VARIANT HERE */
 import { motion } from 'framer-motion';
 import './SplitText.css';
 
@@ -8,6 +7,12 @@ export default function SplitText({
   delay = 0,
   animationDelay = 0.05
 }) {
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReducedMotion) {
+    return <span className={className}>{text}</span>;
+  }
+
   const words = text.split(" ");
   return (
     <span className={`split-text-container ${className}`}>

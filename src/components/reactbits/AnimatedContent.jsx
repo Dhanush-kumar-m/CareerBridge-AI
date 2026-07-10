@@ -23,6 +23,8 @@ const AnimatedContent = ({
   onComplete,
   onDisappearanceComplete,
   className = '',
+  yOffset,
+  xOffset,
   ...props
 }) => {
   const ref = useRef(null);
@@ -31,6 +33,18 @@ const AnimatedContent = ({
     const el = ref.current;
     if (!el) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      gsap.set(el, {
+        visibility: 'visible',
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1
+      });
+      return;
+    }
+
     let scrollerTarget = container || document.getElementById('snap-main-container') || null;
 
     if (typeof scrollerTarget === 'string') {
@@ -38,54 +52,56 @@ const AnimatedContent = ({
     }
 
     const axis = direction === 'horizontal' ? 'x' : 'y';
-    const offset = reverse ? -distance : distance;
+    const activeDistance = yOffset !== undefined ? yOffset : (xOffset !== undefined ? xOffset : distance);
+    const offset = reverse ? -activeDistance : activeDistance;
     const startPct = (1 - threshold) * 100;
 
-    gsap.set(el, {
-      [axis]: offset,
-      scale,
-      opacity: animateOpacity ? initialOpacity : 1,
-      visibility: 'visible'
-    });
+    const ctx = gsap.context(() => {
+      gsap.set(el, {
+        [axis]: offset,
+        scale,
+        opacity: animateOpacity ? initialOpacity : 1,
+        visibility: 'visible'
+      });
 
-    const tl = gsap.timeline({
-      paused: true,
-      delay,
-      onComplete: () => {
-        if (onComplete) onComplete();
-        if (disappearAfter > 0) {
-          gsap.to(el, {
-            [axis]: reverse ? distance : -distance,
-            scale: 0.8,
-            opacity: animateOpacity ? initialOpacity : 0,
-            delay: disappearAfter,
-            duration: disappearDuration,
-            ease: disappearEase,
-            onComplete: () => onDisappearanceComplete?.()
-          });
+      const tl = gsap.timeline({
+        paused: true,
+        delay,
+        onComplete: () => {
+          if (onComplete) onComplete();
+          if (disappearAfter > 0) {
+            gsap.to(el, {
+              [axis]: reverse ? distance : -distance,
+              scale: 0.8,
+              opacity: animateOpacity ? initialOpacity : 0,
+              delay: disappearAfter,
+              duration: disappearDuration,
+              ease: disappearEase,
+              onComplete: () => onDisappearanceComplete?.()
+            });
+          }
         }
-      }
-    });
+      });
 
-    tl.to(el, {
-      [axis]: 0,
-      scale: 1,
-      opacity: 1,
-      duration,
-      ease
-    });
+      tl.to(el, {
+        [axis]: 0,
+        scale: 1,
+        opacity: 1,
+        duration,
+        ease
+      });
 
-    const st = ScrollTrigger.create({
-      trigger: el,
-      scroller: scrollerTarget,
-      start: `top ${startPct}%`,
-      once: true,
-      onEnter: () => tl.play()
-    });
+      ScrollTrigger.create({
+        trigger: el,
+        scroller: scrollerTarget,
+        start: `top ${startPct}%`,
+        once: true,
+        onEnter: () => tl.play()
+      });
+    }, el);
 
     return () => {
-      st.kill();
-      tl.kill();
+      ctx.revert();
     };
   }, [
     container,
@@ -103,7 +119,9 @@ const AnimatedContent = ({
     disappearDuration,
     disappearEase,
     onComplete,
-    onDisappearanceComplete
+    onDisappearanceComplete,
+    yOffset,
+    xOffset
   ]);
 
   return (

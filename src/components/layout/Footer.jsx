@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiMail, FiPhone, FiMapPin, FiBriefcase, FiGithub, FiLinkedin } from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiBriefcase, FiGithub, FiLinkedin, FiGlobe } from "react-icons/fi";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -12,85 +12,108 @@ export default function Footer() {
   }
 
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        {/* Brand */}
-        <div className="footer-brand">
-          <h2 style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+    <footer className="footer" style={{
+      background: "rgba(10, 12, 26, 0.95)",
+      borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+      padding: "80px 24px 40px",
+      fontSize: "0.88rem"
+    }}>
+      <div className="footer-container" style={{
+        maxWidth: "1100px",
+        margin: "0 auto",
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+        gap: "40px",
+        marginBottom: "60px"
+      }}>
+        {/* Brand Column */}
+        <div style={{ gridColumn: "span 2", minWidth: "250px" }}>
+          <h2 style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "1.3rem", fontWeight: "800", color: "#ffffff", marginBottom: "16px" }}>
             <FiBriefcase style={{ color: "var(--primary)" }} />
             <span>CareerBridge AI</span>
           </h2>
-
-          <p>
-            Smart Placement Preparation Platform helping students improve aptitude, coding skills, resume building, ATS score, mock interviews, and placement readiness.
+          <p style={{ color: "var(--text-secondary)", lineHeight: "1.6", marginBottom: "20px" }}>
+            Smart Placement Preparation Platform helping students master aptitude, compile code, analyze resumes, practice mock interviews, and track placement readiness.
           </p>
-        </div>
-
-        {/* Quick Links */}
-        <div className="footer-links">
-          <h3>Quick Links</h3>
-          <Link href="/">Home</Link>
-          <Link href="/dashboard">Dashboard</Link>
-          <Link href="/coding">Coding Practice</Link>
-          <Link href="/aptitude">Aptitude Training</Link>
-          <Link href="/profile">Profile</Link>
-        </div>
-
-        {/* Resources */}
-        <div className="footer-links">
-          <h3>Resources</h3>
-          <Link href="/companies">Company Preparation</Link>
-          <Link href="/analytics">Analytics</Link>
-          <Link href="/leaderboard">Leaderboard</Link>
-          <Link href="/mock-interview">Mock Interview</Link>
-          <Link href="/resume/analyzer">Resume Analyzer</Link>
-        </div>
-
-        {/* Contact */}
-        <div className="footer-contact">
-          <h3>Contact</h3>
-          <p style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "5px 0" }}>
-            <FiMail />
-            <span>kumardhanush6494@gmail.com</span>
-          </p>
-
-          <p style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "5px 0" }}>
-            <FiPhone />
-            <span>+91 8637431104</span>
-          </p>
-
-          <p style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "5px 0" }}>
-            <FiMapPin />
-            <span>India</span>
-          </p>
-
-          <div className="footer-social" style={{ marginTop: "15px", display: "flex", gap: "15px" }}>
+          <div style={{ display: "flex", gap: "15px" }}>
             <a
               href="https://github.com/Dhanush-kumar-m"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              style={{ color: "var(--text-secondary)", hover: { color: "#ffffff" }, transition: "color 0.2s" }}
             >
-              <FiGithub />
-              <span>GitHub</span>
+              <FiGithub size={20} />
             </a>
-
             <a
               href="https://linkedin.com/in/dhanush-kumar-m-b19877295"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}
             >
-              <FiLinkedin />
-              <span>LinkedIn</span>
+              <FiLinkedin size={20} />
             </a>
           </div>
         </div>
+
+        {/* Features Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#ffffff", marginBottom: "8px" }}>Features</h3>
+          <Link href="/aptitude" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Aptitude worksheets</Link>
+          <Link href="/coding" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Coding arena</Link>
+          <Link href="/resume/analyzer" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Resume scan</Link>
+          <Link href="/mock-interview" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Mock interviews</Link>
+        </div>
+
+        {/* Resources Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#ffffff", marginBottom: "8px" }}>Resources</h3>
+          <Link href="/companies" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Company preparation</Link>
+          <Link href="/analytics" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Performance charts</Link>
+          <Link href="/leaderboard" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Leaderboards</Link>
+          <Link href="/dashboard" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Student dashboard</Link>
+        </div>
+
+        {/* Legal Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#ffffff", marginBottom: "8px" }}>Legal</h3>
+          <Link href="#" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Privacy Policy</Link>
+          <Link href="#" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Terms & Conditions</Link>
+          <Link href="#" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }}>Placement Guidelines</Link>
+        </div>
+
+        {/* Contact Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#ffffff", marginBottom: "8px" }}>Contact</h3>
+          <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <FiMail />
+            <span>kumardhanush6494@gmail.com</span>
+          </span>
+          <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <FiPhone />
+            <span>+91 8637431104</span>
+          </span>
+          <span style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <FiMapPin />
+            <span>India</span>
+          </span>
+        </div>
       </div>
 
-      <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} CareerBridge AI. All Rights Reserved.</p>
-        <p>Built with ❤️ by Dhanush Kumar</p>
+      {/* Footer Bottom */}
+      <div style={{
+        maxWidth: "1100px",
+        margin: "0 auto",
+        paddingTop: "30px",
+        borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+        display: "flex",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: "15px",
+        color: "var(--text-secondary)",
+        fontSize: "0.8rem"
+      }}>
+        <span>© {new Date().getFullYear()} CareerBridge AI. All Rights Reserved.</span>
+        <span>Built with ❤️ by Dhanush Kumar</span>
       </div>
     </footer>
   );
