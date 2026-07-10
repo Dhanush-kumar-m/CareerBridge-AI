@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "node scripts/test-integration.js",
-    "test-production": "npm run build && node scripts/test-integration.js"
+    "test-production": "npm run build && node scripts/run-all-tests.js"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

@@ -18,6 +18,17 @@ export async function rateLimit(ip, limit = 20, windowSeconds = 60) {
   const currentWindow = Math.floor(now / windowSeconds);
   const key = `rate_limit:${ip}:${currentWindow}`;
 
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    if (process.env.NODE_ENV === "production" && process.env.TESTING !== "true") {
+      console.error("CRITICAL ERROR: Upstash Redis credentials missing in production! Blocking request to prevent rate-limit bypass.");
+      return {
+        success: false,
+        limit,
+        remaining: 0,
+      };
+    }
+  }
+
   if (UPSTASH_URL && UPSTASH_TOKEN) {
     try {
       const cleanUrl = UPSTASH_URL.endsWith("/") ? UPSTASH_URL : `${UPSTASH_URL}/`;

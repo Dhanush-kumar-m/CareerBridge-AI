@@ -14,14 +14,35 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_created
 CREATE INDEX IF NOT EXISTS idx_read_notifications_notification_id 
   ON public.read_notifications (notification_id);
 
--- 5. Revoke overly permissive notification table write/delete policies and replace with secure ones
+-- 5. Secure RLS policies for notifications table
+-- Revoke all old policies
 DROP POLICY IF EXISTS "Allow all users to insert notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Allow all users to delete notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow users to insert own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow users to delete own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can view relevant notifications" ON public.notifications;
 
-CREATE POLICY "Allow users to insert own notifications"
+-- Enforce secure Select: Users see global (user_id is null) or their own personal notifications
+CREATE POLICY "Users can view relevant notifications"
+  ON public.notifications FOR SELECT
+  USING (
+    user_id IS NULL 
+    OR user_id = auth.uid()
+    OR (auth.jwt() ->> 'email' = 'admin@careerbridge.com')
+  );
+
+-- Enforce secure Insert: Only the admin (admin@careerbridge.com) or a user writing their own alert can insert
+CREATE POLICY "Allow admin or user to insert notifications"
   ON public.notifications FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (
+    auth.uid() = user_id 
+    OR (auth.jwt() ->> 'email' = 'admin@careerbridge.com')
+  );
 
-CREATE POLICY "Allow users to delete own notifications"
+-- Enforce secure Delete: Only the admin (admin@careerbridge.com) or a user deleting their own alert can delete
+CREATE POLICY "Allow admin or user to delete notifications"
   ON public.notifications FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (
+    auth.uid() = user_id 
+    OR (auth.jwt() ->> 'email' = 'admin@careerbridge.com')
+  );

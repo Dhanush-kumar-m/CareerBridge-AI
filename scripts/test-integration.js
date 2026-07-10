@@ -5,7 +5,7 @@ console.log("🚀 Starting Next.js production server on port 3001...");
 
 const nextProcess = spawn("npx", ["next", "start", "-p", "3001"], {
   shell: true,
-  env: { ...process.env, PORT: "3001" }
+  env: { ...process.env, PORT: "3001", TESTING: "true" }
 });
 
 let testTimeout = setTimeout(() => {
