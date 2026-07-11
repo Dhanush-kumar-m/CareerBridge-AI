@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 
 export default function LoginPage() {
-  const { loginUser, loginWithGoogle, loginWithOutlook } = useAuth();
-  const router = useRouter();
+  const { loginWithGoogle, loginWithOutlook } = useAuth();
+  const [error, setError] = useState("");
 
   const handleGoogleLogin = async () => {
     setError("");
@@ -27,80 +26,19 @@ export default function LoginPage() {
     }
   };
 
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      await loginUser(email, password);
-      router.push("/");
-    } catch (err) {
-      setError(err.message || "Invalid Email or Password");
-    }
-  };
-
   return (
     <div className="auth-container">
-
-      <form
-        className="auth-card"
-        onSubmit={handleLogin}
-      >
-
-        <h1>
-          CareerBridge AI Login
-        </h1>
-
-        <p>
-          Login to continue your placement preparation.
-        </p>
+      <div className="auth-card">
+        <h1>CareerBridge AI Login</h1>
+        <p>Login to continue your placement preparation.</p>
 
         {error && (
-          <div className="error-box">
+          <div className="error-box" style={{ marginBottom: "20px" }}>
             {error}
           </div>
         )}
 
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
-        />
-
-        <button type="submit">
-          Login
-        </button>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "15px 0" }}>
-          <div style={{ flex: 1, height: "1px", background: "var(--border-color)", opacity: 0.5 }}></div>
-          <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>OR</span>
-          <div style={{ flex: 1, height: "1px", background: "var(--border-color)", opacity: 0.5 }}></div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", marginTop: "10px" }}>
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -164,23 +102,12 @@ export default function LoginPage() {
           </button>
         </div>
 
-
-
-        <div style={{ marginTop: "20px", borderTop: "1px solid var(--border-color)", paddingTop: "15px", textAlign: "center", display: "flex", flexDirection: "column", gap: "12px" }}>
-          <div>
-            <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>New user? </span>
-            <Link href="/register" style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: "700", textDecoration: "none" }}>
-              Create Account →
-            </Link>
-          </div>
-          
+        <div style={{ marginTop: "25px", borderTop: "1px solid var(--border-color)", paddingTop: "15px", textAlign: "center" }}>
           <Link href="/admin/login" style={{ fontSize: "0.85rem", color: "var(--primary)", fontWeight: "700", textDecoration: "none" }}>
-            🎓 Access Administrator Portal →
+            🛡️ Access Administrator Portal →
           </Link>
         </div>
-
-      </form>
-
+      </div>
     </div>
   );
 }
