@@ -54,8 +54,10 @@ export default function AnalyticsPage() {
   const [atsScore, setAtsScore] = useState(88);
   const [readinessScore, setReadinessScore] = useState(81);
   const [currentStreak, setCurrentStreak] = useState(5);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (typeof window !== "undefined") {
       const solvedList = JSON.parse(localStorage.getItem("careerbridge_solved_coding") || "[]");
       if (solvedList.length > 0) setSolvedCount(solvedList.length);
@@ -67,6 +69,10 @@ export default function AnalyticsPage() {
       if (savedResume && savedResume.score) setAtsScore(savedResume.score);
     }
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   // ==========================================
   // CHART DATASETS
@@ -304,7 +310,7 @@ SUMMARY METRICS:
                   <span>Preparation Growth curve</span>
                 </h3>
                 <div style={{ width: "100%", height: 280 }}>
-                  <ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={progressData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorApt" x1="0" y1="0" x2="0" y2="1">
@@ -404,7 +410,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Correct vs Incorrect Solved Answers</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={aptPieData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={4} dataKey="value">
                       {aptPieData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
@@ -420,7 +426,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Accuracy Index by Difficulty Level</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={aptDifficultyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
@@ -438,7 +444,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px", gridColumn: "1 / -1" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Topic-wise Aptitude Accuracy Breakdown</h3>
               <div style={{ width: "100%", height: 260 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={aptTopicData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="topic" stroke="rgba(255,255,255,0.3)" style={{ fontSize: "0.78rem" }} />
@@ -461,7 +467,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Problems Solved by Level</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={codingDiffData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={4} dataKey="value">
                       {codingDiffData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
@@ -477,7 +483,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Language Solved Counts & Accuracies</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={languageData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="language" stroke="rgba(255,255,255,0.3)" />
@@ -495,7 +501,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px", gridColumn: "1 / -1" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Weekly Coding Arena Rating History</h3>
               <div style={{ width: "100%", height: 260 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={contestHistoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
@@ -518,7 +524,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Interview Parameters Evaluation</h3>
               <div style={{ width: "100%", height: 260 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={interviewRadarData}>
                     <PolarGrid stroke="rgba(255,255,255,0.05)" />
                     <PolarAngleAxis dataKey="metric" stroke="rgba(255,255,255,0.4)" style={{ fontSize: "0.75rem" }} />
@@ -533,7 +539,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Subject-wise Technical Competency Mastery</h3>
               <div style={{ width: "100%", height: 260 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={subjectsData}>
                     <PolarGrid stroke="rgba(255,255,255,0.05)" />
                     <PolarAngleAxis dataKey="subject" stroke="rgba(255,255,255,0.4)" style={{ fontSize: "0.72rem" }} />
@@ -548,7 +554,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px", gridColumn: "1 / -1" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Resume Section Completeness Index</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={resumeSectionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="section" stroke="rgba(255,255,255,0.3)" />
@@ -571,7 +577,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Mock Assessment Percentile Trends</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={mockHistoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="test" stroke="rgba(255,255,255,0.3)" />
@@ -587,7 +593,7 @@ SUMMARY METRICS:
             <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
               <h3 style={{ fontSize: "1.15rem", fontWeight: "700", marginBottom: "15px", color: "#ffffff" }}>Coding Arena Rating History</h3>
               <div style={{ width: "100%", height: 240 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={contestHistoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
