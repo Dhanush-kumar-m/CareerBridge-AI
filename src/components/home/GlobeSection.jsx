@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import Spline from "@splinetool/react-spline";
 import styles from "./GlobeSection.module.css";
 
@@ -28,6 +28,12 @@ class SplineErrorBoundary extends React.Component {
 }
 
 export default function GlobeSection() {
+  const [error, setError] = useState(null);
+
+  if (error) {
+    throw error;
+  }
+
   const fallbackUI = (
     <div className={styles.fallbackContainer}>
       <div className={styles.fallbackGlobe} />
@@ -49,9 +55,8 @@ export default function GlobeSection() {
             <Spline 
               scene="https://prod.spline.design/wXzLfYnDZepS9Wj1/scene.splinecode" 
               onError={(e) => {
-                console.warn("Spline load error:", e);
-                // Trigger the error boundary
-                throw new Error("Failed to load Spline scene");
+                console.warn("Spline load error caught inside GlobeSection:", e);
+                setError(new Error("Failed to load Spline scene"));
               }}
             />
           </Suspense>
