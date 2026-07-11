@@ -66,6 +66,15 @@ export async function rateLimit(ip, limit = 20, windowSeconds = 60) {
   }
 
   // Local development fallback
+  // Prune expired entries to prevent memory growth
+  for (const [key] of localCache.entries()) {
+    const parts = key.split(":");
+    const keyWindow = parseInt(parts[parts.length - 1], 10);
+    if (isNaN(keyWindow) || keyWindow < currentWindow) {
+      localCache.delete(key);
+    }
+  }
+
   const localKey = `${ip}:${currentWindow}`;
   const history = localCache.get(localKey) || [];
   const currentCount = history.length;
@@ -80,11 +89,6 @@ export async function rateLimit(ip, limit = 20, windowSeconds = 60) {
 
   history.push(now);
   localCache.set(localKey, history);
-
-  // Auto clean up key after window expires
-  setTimeout(() => {
-    localCache.delete(localKey);
-  }, windowSeconds * 1000);
 
   return {
     success: true,
