@@ -1,3 +1,10 @@
+-- Ensure the role column exists on public.profiles table
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'student' NOT NULL;
+
+-- Ensure check_role constraint exists
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS check_role;
+ALTER TABLE public.profiles ADD CONSTRAINT check_role CHECK (role IN ('student', 'admin'));
+
 -- Update handle_new_user function to automatically assign admin role to designated emails
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
