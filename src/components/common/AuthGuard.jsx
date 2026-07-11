@@ -39,7 +39,7 @@ export default function AuthGuard({ children }) {
         if (role === "admin") {
           if (isStudentPublic) {
             logoutUser(pathname); // Clear admin session if visiting student logins
-          } else if (isStudentRoute || isAdminPublic) {
+          } else if (isAdminPublic) {
             router.push("/admin");
           }
         } else {
@@ -63,7 +63,7 @@ export default function AuthGuard({ children }) {
 
   // Render spinner while routing checks are resolving
   const isPrivateAndUnauth = !isAuthenticated && !isPublicRoute;
-  const isRoleMismatched = isAuthenticated && ((user?.role === "admin" && isStudentRoute) || (user?.role !== "admin" && isAdminRoute));
+  const isRoleMismatched = isAuthenticated && (user?.role !== "admin" && isAdminRoute);
 
   if (isPrivateAndUnauth || isRoleMismatched) {
     return (

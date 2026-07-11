@@ -11,6 +11,11 @@ export function AuthProvider({ children }) {
 
   const fetchUserRole = async (u) => {
     if (!u) return null;
+    
+    // Auto-detect admin emails for instant local client representation and secure fallback
+    const adminEmails = ["12k21rakeshkannam@gmail.com", "admin@careerbridge.com"];
+    const isMatchedAdmin = u.email && adminEmails.includes(u.email.toLowerCase());
+    
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -18,12 +23,14 @@ export function AuthProvider({ children }) {
         .eq("id", u.id)
         .single();
       if (!error && data) {
-        return { ...u, role: data.role };
+        // Enforce admin email restriction: if email doesn't match list, they cannot have the admin role
+        const finalRole = isMatchedAdmin ? "admin" : (data.role === "admin" ? "student" : data.role);
+        return { ...u, role: finalRole };
       }
     } catch (e) {
       console.warn("Failed to load user profile role from Supabase:", e.message);
     }
-    return { ...u, role: "student" };
+    return { ...u, role: isMatchedAdmin ? "admin" : "student" };
   };
 
   useEffect(() => {

@@ -10,11 +10,14 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
   const pathname = usePathname() || "";
-  const { isAuthenticated, logoutUser } = useAuth();
+  const { isAuthenticated, logoutUser, user } = useAuth();
 
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   const [scrolled, setScrolled] = useState(false);
 
@@ -34,6 +37,9 @@ export default function Navbar() {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
       }
     };
 
@@ -191,21 +197,128 @@ export default function Navbar() {
         )}
 
         {isAuthenticated ? (
-          <>
-            <Link href="/profile" className="profile-btn" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <FiUser size={16} />
-              <span>Profile</span>
-            </Link>
-
+          <div style={{ position: "relative", marginLeft: "10px" }} ref={profileDropdownRef}>
             <button
-              onClick={logoutUser}
-              className="logout-btn"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              style={{
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#ffffff",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                borderRadius: "20px",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s"
+              }}
+              className="profile-trigger-btn"
             >
-              <FiLogOut size={16} />
-              <span>Logout</span>
+              <FiUser size={16} />
+              <span>{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Profile"}</span>
             </button>
-          </>
+
+            {showProfileDropdown && (
+              <div style={{
+                position: "absolute",
+                top: "45px",
+                right: "0",
+                width: "280px",
+                background: "linear-gradient(145deg, #1e293b, #0f172a)",
+                border: "1px solid rgba(59, 130, 246, 0.3)",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)",
+                padding: "16px",
+                zIndex: 1000,
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                textAlign: "left"
+              }} className="profile-dropdown-card">
+                <div>
+                  <h4 style={{ margin: "0", fontSize: "1.05rem", fontWeight: "700", color: "#ffffff" }}>
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}
+                  </h4>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#94a3b8", wordBreak: "break-all" }}>
+                    {user?.email}
+                  </p>
+                </div>
+                
+                <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.08)" }} />
+                
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setShowProfileDropdown(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      background: "rgba(59, 130, 246, 0.15)",
+                      color: "#60a5fa",
+                      border: "1px solid rgba(59, 130, 246, 0.3)",
+                      borderRadius: "8px",
+                      padding: "10px 14px",
+                      fontWeight: "700",
+                      fontSize: "0.9rem",
+                      textDecoration: "none",
+                      transition: "all 0.2s"
+                    }}
+                    className="admin-dashboard-link"
+                  >
+                    <span>🛡️ Admin dashboard</span>
+                  </Link>
+                )}
+                
+                <Link
+                  href="/profile"
+                  onClick={() => setShowProfileDropdown(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    color: "#e2e8f0",
+                    borderRadius: "8px",
+                    padding: "8px 10px",
+                    fontWeight: "600",
+                    fontSize: "0.9rem",
+                    textDecoration: "none"
+                  }}
+                  className="profile-link"
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setShowProfileDropdown(false);
+                    logoutUser();
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    background: "none",
+                    border: "none",
+                    color: "#ef4444",
+                    cursor: "pointer",
+                    padding: "8px 10px",
+                    width: "100%",
+                    textAlign: "left",
+                    fontWeight: "600",
+                    fontSize: "0.9rem"
+                  }}
+                  className="profile-logout-btn"
+                >
+                  <FiLogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           // If on Login/Register page, don't show Login/Get Started actions to keep it clean and focus on the page form.
           // Otherwise, on the main home page/guest pages, show the authentication options.
