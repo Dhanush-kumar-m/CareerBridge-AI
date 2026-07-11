@@ -35,7 +35,7 @@ export default function AdminLayout({ children }) {
 
     if (!loading && !isAdminLogin) {
       if (!isAuthenticated || user?.role !== "admin") {
-        router.push("/");
+        router.push("/admin/login");
       }
     }
   }, [isAuthenticated, user, loading, router, isAdminLogin]);
@@ -173,7 +173,7 @@ export default function AdminLayout({ children }) {
 
           {/* Logout Button */}
           <button
-            onClick={logoutUser}
+            onClick={() => logoutUser("/admin/login")}
             style={{
               display: "inline-flex",
               alignItems: "center",
