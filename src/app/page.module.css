@@ -1,0 +1,42 @@
+.mainShell {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.heroSection {
+  position: relative;
+  z-index: 2; /* Forces typography above the absolute globe container */
+  width: 100%;
+  padding: 12rem 2rem 8rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.textContainer {
+  max-width: 800px;
+}
+
+.editorialHeadline {
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .editorialHeadline { font-size: 2.25rem; }
+}
+
+.editorialSubhead {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+}

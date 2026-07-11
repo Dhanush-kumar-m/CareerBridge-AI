@@ -1,0 +1,35 @@
+.globeContainer {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 650px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.splineCanvas {
+  width: 100% !important;
+  height: 100% !important;
+  /* Strips color channels to isolate the textured stone/clay finish */
+  filter: grayscale(100%) contrast(105%) brightness(95%);
+}
+
+.fallbackSpinner {
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--text-primary);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
