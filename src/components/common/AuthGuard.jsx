@@ -37,15 +37,15 @@ export default function AuthGuard({ children }) {
         // Authenticated redirects
         const role = user?.role;
         if (role === "admin") {
-          if (isStudentPublic) {
-            router.push("/dashboard"); // Redirect to student portal instead of logging out
+          if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+            router.push("/admin");
           } else if (isAdminPublic) {
             router.push("/admin");
           }
         } else {
           if (isAdminPublic) {
             logoutUser(pathname); // Clear student session if visiting admin logins
-          } else if (isAdminRoute || isStudentPublic) {
+          } else if (isAdminRoute || pathname.startsWith("/login") || pathname.startsWith("/register")) {
             router.push("/");
           }
         }
