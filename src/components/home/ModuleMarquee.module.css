@@ -1,0 +1,72 @@
+.marqueeContainer {
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 16px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.marqueeTrack {
+  display: flex;
+  white-space: nowrap;
+  animation: scrollMarquee 35s linear infinite;
+  gap: 30px;
+}
+
+.marqueeContainer:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marqueeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  user-select: none;
+}
+
+.marqueeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marqueeTrack {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .marqueeContainer {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .marqueeContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .marqueeTrack {
+    animation: none;
+    transform: none;
+  }
+}

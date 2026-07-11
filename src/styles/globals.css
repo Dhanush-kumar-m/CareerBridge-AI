@@ -6,41 +6,41 @@
 
 :root {
   /* Backgrounds */
-  --bg-primary: #0A0A0B;
-  --bg-secondary: #111113;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.05);
+  --bg-primary: #f6f7fb;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0f3f9;
 
   /* Text */
-  --text-primary: #F3F2ED;
-  --text-secondary: #8B8B90;
-  --text-faint: #57575C;
+  --text-primary: #172033;
+  --text-secondary: #667085;
+  --text-faint: #94a3b8;
 
-  /* Accent */
-  --accent: #3b82f6;
-  --accent-light: #60a5fa;
-  --accent-soft: rgba(59, 130, 246, 0.10);
-  --accent-border: rgba(59, 130, 246, 0.22);
-  --accent-glow: rgba(59, 130, 246, 0.09);
+  /* Accent / Primary */
+  --accent: #3157d5;
+  --accent-light: #4c6ef5;
+  --accent-soft: rgba(49, 87, 213, 0.08);
+  --accent-border: rgba(49, 87, 213, 0.15);
+  --accent-glow: rgba(49, 87, 213, 0.04);
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-subtle: #e4e8f0;
+  --border-strong: #cbd5e1;
 
   /* Status colors */
-  --success: #34D399;
-  --warning: #3b82f6;
-  --danger: #F87171;
+  --success: #16a36a;
+  --warning: #e59a22;
+  --danger: #e11d48;
 
-  /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  /* Gradients & Shadows */
+  --gradient-accent: linear-gradient(135deg, #3157d5 0%, #4c6ef5 100%);
   --gradient-hero-glow: radial-gradient(circle at top, var(--accent-glow) 0%, transparent 60%);
-  --gradient-cta: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  --shadow-accent: rgba(59, 130, 246, 0.25);
+  --gradient-cta: linear-gradient(135deg, #3157d5 0%, #233fa8 100%);
+  --shadow-accent: rgba(49, 87, 213, 0.15);
 
   /* Fonts */
   --font-body: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* =========================
@@ -81,9 +81,9 @@ select{
 width:100%;
 padding:12px;
 border-radius:10px;
-border:1px solid #374151;
-background:#111827;
-color:white;
+border:1px solid var(--border-subtle);
+background: var(--bg-secondary);
+color: var(--text-primary);
 margin-bottom:15px;
 }
 
@@ -100,8 +100,8 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 padding:20px 40px;
-background:#111827;
-border-bottom:1px solid #1f2937;
+background: var(--bg-secondary);
+border-bottom:1px solid var(--border-subtle);
 position:sticky;
 top:0;
 z-index:100;

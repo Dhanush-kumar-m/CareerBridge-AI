@@ -1,110 +1,111 @@
 "use client";
 
-import { FiShield, FiCode, FiArrowRight } from "react-icons/fi";
-import SplitText from "../reactbits/SplitText";
-import FadeContent from "../reactbits/FadeContent";
+import React from "react";
+import Link from "next/link";
+import { FiArrowRight, FiCheckCircle, FiActivity } from "react-icons/fi";
+import useAuth from "../../hooks/useAuth";
 import styles from "./HeroSection.module.css";
 
 export default function HeroSection() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <section className={styles.hero}>
-      {/* subtle amber glow, replaces the old indigo radial gradient */}
-      <div className={styles.heroGlow} aria-hidden="true" />
-
-      <div className={styles.heroInner}>
-        {/* Badge — fades in first */}
-        <FadeContent duration={600} delay={0} blur={true}>
-          <div className={styles.badge}>
-            <FiShield size={13} color="var(--accent)" />
-            <span>Next-Gen Career Training Infrastructure</span>
-          </div>
-        </FadeContent>
-
-        {/* Headline — word-by-word split, like fin.com's load-in */}
-        <h1 className={styles.headline}>
-          <SplitText
-            text="Crack Your Dream Job With"
-            className={styles.headlineWhite}
-            splitType="words"
-            delay={80}
-            duration={0.7}
-          />
-          <SplitText
-            text="CareerBridge AI"
-            className={styles.headlineAccent}
-            splitType="words"
-            delay={80}
-            duration={0.7}
-            startDelay={300}
-          />
-        </h1>
-
-        {/* Description — fades in after headline settles */}
-        <FadeContent duration={700} delay={650} blur={true}>
+    <section className={styles.heroSection}>
+      <div className={styles.heroContainer}>
+        {/* Left Column: Storytelling Copy */}
+        <div className={styles.heroContent}>
+          <span className={styles.eyebrow}>
+            Placement Preparation Platform
+          </span>
+          <h1 className={styles.headline}>
+            Prepare for placements with a clear plan.
+          </h1>
           <p className={styles.description}>
-            An institutional-grade platform designed to accelerate candidate
-            preparation. Master Aptitude assessments, solve Coding challenges,
-            scan ATS resumes, and practice live mock interviews.
+            Practice aptitude, coding, resumes and interviews in one structured platform designed to help students become placement-ready.
           </p>
-        </FadeContent>
 
-        {/* CTAs — last to arrive */}
-        <FadeContent duration={700} delay={850} blur={false}>
-          <div className={styles.ctaRow}>
-            <a href="/login" className={styles.ctaPrimary}>
-              Access Student Portal <FiArrowRight size={16} />
-            </a>
-            <a href="/coding" className={styles.ctaSecondary}>
-              Practice Coding <FiCode size={16} />
-            </a>
+          <div className={styles.ctaGroup}>
+            <Link href={isAuthenticated ? "/dashboard" : "/register"} className={styles.ctaPrimary}>
+              <span>Start Preparing</span>
+              <FiArrowRight size={16} />
+            </Link>
+            <Link href="/coding" className={styles.ctaSecondary}>
+              <span>Explore Practice Modules</span>
+            </Link>
           </div>
-        </FadeContent>
 
-        {/* Live dashboard mockup — reveals with a slight rise + fade,
-            timed just after the CTAs so the eye has somewhere to land */}
-        <FadeContent duration={900} delay={1050} blur={true}>
-          <div className={styles.dashboardPanel}>
-            <div className={styles.panelChrome}>
-              <span className={styles.dotRed} />
-              <span className={styles.dotYellow} />
-              <span className={styles.dotGreen} />
+          <div className={styles.trustPoints}>
+            <div className={styles.trustPoint}>
+              <FiCheckCircle className={styles.trustIcon} size={16} />
+              <span>Structured learning paths</span>
             </div>
-
-            <div className={styles.dashboardGrid}>
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Placement Readiness</span>
-                <span className={styles.metricValue}>85%</span>
-                <span className={styles.metricDelta}>+5% this week</span>
-                <div className={styles.progressTrack}>
-                  <div className={styles.progressFill} style={{ width: "85%" }} />
-                </div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Coding Challenges</span>
-                <span className={styles.metricValue}>42 solved</span>
-                <span className={styles.metricDelta}>5-day streak</span>
-                <div className={styles.streakRow}>
-                  {[1, 1, 1, 1, 1, 0, 0].map((lit, i) => (
-                    <span
-                      key={i}
-                      className={lit ? styles.streakBoxLit : styles.streakBox}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Resume ATS Match</span>
-                <span className={styles.metricValue}>88/100</span>
-                <span className={styles.metricDelta}>Strong match</span>
-                <div className={styles.progressTrack}>
-                  <div className={styles.progressFill} style={{ width: "88%" }} />
-                </div>
-              </div>
+            <div className={styles.trustPoint}>
+              <FiCheckCircle className={styles.trustIcon} size={16} />
+              <span>Company-specific questions</span>
+            </div>
+            <div className={styles.trustPoint}>
+              <FiCheckCircle className={styles.trustIcon} size={16} />
+              <span>Progress tracking</span>
             </div>
           </div>
-        </FadeContent>
+        </div>
+
+        {/* Right Column: Dashboard Preview Panel */}
+        <div className={styles.dashboardPreview}>
+          <div className={styles.panelHeader}>
+            <span className={styles.panelTitle}>Student Console</span>
+            <span className={styles.panelBadge}>Level 4</span>
+          </div>
+
+          {/* Goal Progress */}
+          <div className={styles.previewCard}>
+            <div className={styles.cardMeta}>
+              <span>Weekly Prep Goal</span>
+              <span>85% Completed</span>
+            </div>
+            <div className={styles.progressBar}>
+              <div className={styles.progressFill} style={{ width: "85%" }} />
+            </div>
+          </div>
+
+          {/* Code Streak */}
+          <div className={styles.previewCard}>
+            <div className={styles.cardMeta}>
+              <span>Coding Streak</span>
+              <span>5 days</span>
+            </div>
+            <div className={styles.streakGrid}>
+              <div className={`${styles.streakDot} ${styles.streakDotActive}`} />
+              <div className={`${styles.streakDot} ${styles.streakDotActive}`} />
+              <div className={`${styles.streakDot} ${styles.streakDotActive}`} />
+              <div className={`${styles.streakDot} ${styles.streakDotActive}`} />
+              <div className={`${styles.streakDot} ${styles.streakDotActive}`} />
+              <div className={styles.streakDot} />
+              <div className={styles.streakDot} />
+            </div>
+          </div>
+
+          {/* Active Tasks & Stats */}
+          <div className={styles.previewCard}>
+            <div className={styles.upcomingTask}>
+              <div className={styles.taskIndicator} />
+              <div className={styles.taskDetail}>
+                <span className={styles.taskName}>Aptitude assessment</span>
+                <span className={styles.taskTime}>Scheduled for today</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.previewCard}>
+            <div className={styles.upcomingTask}>
+              <FiActivity size={16} style={{ color: "var(--accent)" }} />
+              <div className={styles.taskDetail}>
+                <span className={styles.taskName}>TCS Prep Progress</span>
+                <span className={styles.taskTime}>12/15 rounds solved</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

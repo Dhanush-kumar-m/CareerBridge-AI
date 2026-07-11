@@ -1,0 +1,342 @@
+.sectionWrapper {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 100px 24px;
+}
+
+.titleArea {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 60px;
+}
+
+.titleArea h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 10px;
+}
+
+.eyebrow {
+  font-family: monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.stickyContainer {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+@media (max-width: 968px) {
+  .stickyContainer {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* On desktop, left column is sticky */
+@media (min-width: 969px) {
+  .leftColumn {
+    position: sticky;
+    top: 140px;
+    height: fit-content;
+  }
+}
+
+.moduleTab {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.moduleTabActive {
+  border-color: var(--accent);
+  box-shadow: 0 10px 25px rgba(49, 87, 213, 0.05);
+}
+
+.tabHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tabNumber {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.moduleTabActive .tabNumber {
+  color: var(--accent);
+}
+
+.tabTitle {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tabDesc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.tabPoints {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  list-style: none;
+  padding: 0;
+}
+
+.tabPoints li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabPointIcon {
+  color: var(--accent);
+}
+
+/* Right Column: Previews */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 969px) {
+  .rightColumn {
+    position: sticky;
+    top: 140px;
+    height: 520px;
+  }
+}
+
+.previewContainer {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(23, 32, 51, 0.04);
+  padding: 30px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.previewWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.previewItem {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.previewItemActive {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Product UI Previews */
+.aptitudeUI, .codingUI, .resumeUI, .interviewUI {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.uiHeader {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.uiQuestion {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.uiOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uiOption {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.uiOptionSelected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.uiOptionCorrect {
+  border-color: var(--success);
+  background: rgba(22, 163, 106, 0.08);
+}
+
+.uiExplanation {
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(22, 163, 106, 0.04);
+  border: 1px solid rgba(22, 163, 106, 0.15);
+  font-size: 0.82rem;
+  color: var(--success);
+  line-height: 1.4;
+}
+
+/* Coding Editor Preview */
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  background: #1e1e24;
+  padding: 8px 16px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #8b8b90;
+}
+
+.editorBody {
+  background: #111115;
+  color: #f3f2ed;
+  font-family: monospace;
+  font-size: 0.82rem;
+  padding: 16px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  min-height: 120px;
+  line-height: 1.5;
+}
+
+.testResult {
+  background: rgba(22, 163, 106, 0.08);
+  border: 1px solid rgba(22, 163, 106, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.82rem;
+  color: var(--success);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Resume Score Preview */
+.scoreCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.scoreCircle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 4px solid var(--accent-border);
+  border-top-color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.resumeTips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resumeTip {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Interview Waveform */
+.interviewWave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+}
+
+.waveBar {
+  flex: 1;
+  background: var(--accent-border);
+  height: 20%;
+  border-radius: 2px;
+}
+
+.waveActive {
+  background: var(--accent);
+  animation: wavePulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes wavePulse {
+  0% { height: 10%; }
+  100% { height: 90%; }
+}

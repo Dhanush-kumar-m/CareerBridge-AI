@@ -1,90 +1,92 @@
 "use client";
 
-import ScrollReveal from "../reactbits/ScrollReveal";
-import AnimatedContent from "../reactbits/AnimatedContent";
-import SpotlightCard from "../reactbits/SpotlightCard";
+import React from "react";
+import Link from "next/link";
+import { FiArrowRight } from "react-icons/fi";
+import styles from "./CompanyPreparationSection.module.css";
+
+const COMPANIES = [
+  {
+    name: "TCS",
+    category: "Mass Recruiter",
+    aptitude: "Numerical, Verbal & Logical",
+    coding: "Standard arrays & string iterations",
+    technical: "Data Structures, Database Basics",
+    progress: 75,
+    link: "/companies/tcs"
+  },
+  {
+    name: "Accenture",
+    category: "Systems Consultant",
+    aptitude: "Cognitive assessment, English",
+    coding: "Pseudocode debugging & binary logic",
+    technical: "Networking basics, Security basics",
+    progress: 45,
+    link: "/companies/accenture"
+  },
+  {
+    name: "Amazon",
+    category: "Product Giant",
+    aptitude: "Online Assessment (OA), Work Styles",
+    coding: "Graphs, Trees & Dynamic Programming",
+    technical: "System Design, Object Oriented Design",
+    progress: 10,
+    link: "/companies/amazon"
+  }
+];
 
 export default function CompanyPreparationSection() {
-  const categories = [
-    {
-      title: "Product-Based",
-      color: "#2563eb",
-      desc: "Google, Microsoft, Amazon, Adobe, Oracle, Zoho, Salesforce.",
-      details: "Practice dynamic programming, graph algorithms, and system design patterns common in product company rounds."
-    },
-    {
-      title: "Service-Based",
-      color: "#10b981",
-      desc: "TCS, Infosys, Wipro, Cognizant, Capgemini, Accenture, IBM.",
-      details: "Master quantitative worksheets, pseudocode decoding, verbal filters, and typical service company test structures."
-    },
-    {
-      title: "Startups",
-      color: "#3b82f6",
-      desc: "Razorpay, CRED, PhonePe, Meesho, BrowserStack, Postman.",
-      details: "Focus on operational project building, React/Node code tests, REST API integrations, and fast-paced startup rounds."
-    }
-  ];
-
   return (
-    <section id="companies" style={{ 
-      padding: "100px 24px", 
-      background: "rgba(255, 255, 255, 0.01)", 
-      borderTop: "1px solid rgba(255, 255, 255, 0.04)" 
-    }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        
-        {/* Section Heading */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <ScrollReveal textClassName="section-title">
-            Prepare Company by Company
-          </ScrollReveal>
-          <ScrollReveal textClassName="section-subtitle">
-            Understand company patterns, coding difficulties, aptitude rounds, and eligibility roadmaps before entering the interview room.
-          </ScrollReveal>
-        </div>
+    <section className={styles.sectionWrapper}>
+      <div className={styles.titleArea}>
+        <span className={styles.eyebrow}>Targeted Learning</span>
+        <h2>Prepare for the companies you are targeting</h2>
+        <p className={styles.description}>
+          Study previous assessment patterns, frequently asked coding problems, technical topics and interview questions for specific hiring companies.
+        </p>
+      </div>
 
-        {/* Company Cards Grid */}
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", 
-          gap: "24px" 
-        }}>
-          {categories.map((c, i) => {
-            const getRgbString = (hex) => {
-              switch (hex) {
-                case "#2563eb": return "37, 99, 235";
-                case "#10b981": return "16, 185, 129";
-                case "#3b82f6": return "59, 130, 246";
-                default: return "59, 130, 246";
-              }
-            };
-            const rgb = getRgbString(c.color);
+      <div className={styles.cardsGrid}>
+        {COMPANIES.map((company, index) => (
+          <div key={index} className={styles.companyCard}>
+            <div className={styles.cardHeader}>
+              <span className={company.name === "Amazon" ? styles.companyName : styles.companyName}>
+                {company.name}
+              </span>
+              <span className={styles.categoryBadge}>{company.category}</span>
+            </div>
 
-            return (
-              <AnimatedContent key={i} delay={i * 0.1} yOffset={25}>
-                <SpotlightCard 
-                  spotlightColor={`rgba(${rgb}, 0.1)`} 
-                  style={{ 
-                    height: "100%",
-                    padding: "32px 28px",
-                    background: "rgba(17, 24, 39, 0.4)",
-                    border: "1px solid rgba(255, 255, 255, 0.05)",
-                    borderRadius: "16px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start"
-                  }}
-                >
-                <h4 style={{ color: c.color, margin: "0 0 12px 0", fontSize: "1.3rem", fontWeight: "700" }}>{c.title}</h4>
-                <p style={{ fontSize: "0.88rem", color: "#e2e8f0", margin: "0 0 16px 0", fontWeight: "600", letterSpacing: "0.02em" }}>{c.desc}</p>
-                <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", margin: 0, lineHeight: "1.6" }}>{c.details}</p>
-              </SpotlightCard>
-              </AnimatedContent>
-            );
-          })}
-        </div>
+            <div className={styles.prepTopics}>
+              <div className={styles.prepTopic}>
+                <span>Aptitude patterns:</span>
+                <span className={styles.topicVal}>{company.aptitude}</span>
+              </div>
+              <div className={styles.prepTopic}>
+                <span>Coding focus:</span>
+                <span className={styles.topicVal}>{company.coding}</span>
+              </div>
+              <div className={styles.prepTopic}>
+                <span>Technical focus:</span>
+                <span className={styles.topicVal}>{company.technical}</span>
+              </div>
+            </div>
 
+            <div className={styles.progressBarArea}>
+              <div className={styles.progressBarLabel}>
+                <span>My Prep Status</span>
+                <span>{company.progress}% ready</span>
+              </div>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${company.progress}%` }} />
+              </div>
+            </div>
+
+            <Link href="/companies" className={styles.exploreBtn}>
+              <span>Explore Preparation</span>
+              <FiArrowRight size={16} />
+            </Link>
+          </div>
+        ))}
       </div>
     </section>
   );

@@ -1,70 +1,40 @@
-"use client";
+import React from "react";
+import HeroSection from "../components/home/HeroSection";
+import ModuleMarquee from "../components/home/ModuleMarquee";
+import StickyModulesSection from "../components/home/StickyModulesSection";
+import CompanyPreparationSection from "../components/home/CompanyPreparationSection";
+import PreparationJourneySection from "../components/home/PreparationJourneySection";
+import StudentProgressSection from "../components/home/StudentProgressSection";
+import FinalCTASection from "../components/home/FinalCTASection";
 
-import useAuth from "../hooks/useAuth";
-import dynamic from "next/dynamic";
-
-// Dynamically import storytelling sections in the logical product flow
-const HeroSection = dynamic(() => import("../components/home/HeroSection"), { ssr: false });
-const WhyPrepSection = dynamic(() => import("../components/home/WhyPrepSection"), { ssr: false });
-const GlobeSection = dynamic(() => import("../components/home/GlobeSection"), { ssr: false });
-const FeaturesSection = dynamic(() => import("../components/home/FeaturesSection"), { ssr: false }); // CareerBridge Solution
-const JourneySection = dynamic(() => import("../components/home/JourneySection"), { ssr: false }); // Timeline
-const PracticeCodingSection = dynamic(() => import("../components/home/PracticeCodingSection"), { ssr: false });
-const PracticeAptitudeSection = dynamic(() => import("../components/home/PracticeAptitudeSection"), { ssr: false });
-const ResumeAnalyzerSection = dynamic(() => import("../components/home/ResumeAnalyzerSection"), { ssr: false });
-const MockInterviewSection = dynamic(() => import("../components/home/MockInterviewSection"), { ssr: false });
-const CompanyPreparationSection = dynamic(() => import("../components/home/CompanyPreparationSection"), { ssr: false });
-const AnalyticsSection = dynamic(() => import("../components/home/AnalyticsSection"), { ssr: false }); // Analytics Showcase
-const StatisticsSection = dynamic(() => import("../components/home/StatisticsSection"), { ssr: false }); // Platform Statistics
-const HowItWorksSection = dynamic(() => import("../components/home/HowItWorksSection"), { ssr: false }); // FAQ
-const FinalCTASection = dynamic(() => import("../components/home/FinalCTASection"), { ssr: false }); // Final Call-To-Action
+export const metadata = {
+  title: "CareerBridge AI — Structured Placement Preparation",
+  description: "Prepare for placement aptitude, coding challenges, resume scoring, and mock interviews with structured learning paths.",
+};
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <main className="home-page" style={{ padding: "0" }}>
-      {/* 1. Hero */}
-      <HeroSection isAuthenticated={isAuthenticated} />
-      
-      {/* 2. Why Placement Preparation Matters */}
-      <WhyPrepSection />
+      {/* 1. Hero Section */}
+      <HeroSection />
 
-      {/* Globe Section */}
-      <GlobeSection />
-      
-      {/* 3. CareerBridge Solution */}
-      <FeaturesSection />
-      
-      {/* 4. Placement Journey Timeline */}
-      <JourneySection />
-      
-      {/* 5. Coding Practice */}
-      <PracticeCodingSection />
-      
-      {/* 6. Aptitude Training */}
-      <PracticeAptitudeSection />
-      
-      {/* 7. Resume Analyzer */}
-      <ResumeAnalyzerSection />
-      
-      {/* 8. AI Mock Interview */}
-      <MockInterviewSection />
-      
-      {/* 9. Company Preparation */}
+      {/* 2. Module Marquee Strip */}
+      <ModuleMarquee />
+
+      {/* 3. Sticky Modules Section */}
+      <StickyModulesSection />
+
+      {/* 4. Targeted Company Preparation */}
       <CompanyPreparationSection />
-      
-      {/* 10. Student Analytics Dashboard */}
-      <AnalyticsSection />
-      
-      {/* 11. Platform Statistics */}
-      <StatisticsSection />
-      
-      {/* 13. FAQ */}
-      <HowItWorksSection />
-      
-      {/* 14. Final Call-To-Action */}
-      <FinalCTASection isAuthenticated={isAuthenticated} />
+
+      {/* 5. Process Journey Section */}
+      <PreparationJourneySection />
+
+      {/* 6. Student Progress & Analytics */}
+      <StudentProgressSection />
+
+      {/* 7. Final Call-to-Action */}
+      <FinalCTASection />
     </main>
   );
 }
