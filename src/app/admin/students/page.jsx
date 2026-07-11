@@ -50,103 +50,10 @@ export default function StudentsPage() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [selectedStudent, setSelectedStudent] = useState(null);
   
-  // Mock data for student list (covering all requested fields)
-  const [students, setStudents] = useState([
-    {
-      id: 101,
-      name: "Dhanush Kumar",
-      regNo: "SRM202201",
-      email: "dhanush@gmail.com",
-      phone: "+91 8637431104",
-      dept: "CSE",
-      year: "4th Year",
-      section: "A",
-      cgpa: 8.0,
-      placementStatus: "Placement Ready",
-      accountStatus: "Active",
-      lastLogin: "Today, 10:45 AM",
-      backlogs: 0,
-      skills: ["Java", "React", "SQL", "Git"],
-      projectTitle: "AI Resume Scanner & Placement Audit engine",
-      projectTech: "React, Next.js, Node.js, Python",
-      ats: 88,
-      solved: 245,
-      aptitudeSolved: 520,
-      interviewScore: 82,
-      hours: 45
-    },
-    {
-      id: 102,
-      name: "Arun Kumar",
-      regNo: "SRM202202",
-      email: "arun@gmail.com",
-      phone: "+91 8637431105",
-      dept: "CSE",
-      year: "4th Year",
-      section: "A",
-      cgpa: 7.8,
-      placementStatus: "Intermediate",
-      accountStatus: "Active",
-      lastLogin: "Yesterday, 2:15 PM",
-      backlogs: 0,
-      skills: ["Python", "React", "MongoDB"],
-      projectTitle: "E-Commerce sales analytics platform",
-      projectTech: "React, Express, MongoDB",
-      ats: 82,
-      solved: 180,
-      aptitudeSolved: 420,
-      interviewScore: 78,
-      hours: 32
-    },
-    {
-      id: 103,
-      name: "Priya Sharma",
-      regNo: "SRM202203",
-      email: "priya@gmail.com",
-      phone: "+91 8637431106",
-      dept: "ECE",
-      year: "3rd Year",
-      section: "B",
-      cgpa: 8.2,
-      placementStatus: "Advanced",
-      accountStatus: "Active",
-      lastLogin: "2 days ago",
-      backlogs: 0,
-      skills: ["C++", "SQL", "Git"],
-      projectTitle: "Microcontroller temperature monitor logs",
-      projectTech: "C++, Arduino, SQL",
-      ats: 85,
-      solved: 210,
-      aptitudeSolved: 480,
-      interviewScore: 80,
-      hours: 38
-    },
-    {
-      id: 104,
-      name: "Rahul Verma",
-      regNo: "SRM202204",
-      email: "rahul@gmail.com",
-      phone: "+91 8637431107",
-      dept: "IT",
-      year: "4th Year",
-      section: "A",
-      cgpa: 7.2,
-      placementStatus: "Beginner",
-      accountStatus: "Suspended",
-      lastLogin: "1 week ago",
-      backlogs: 2,
-      skills: ["Java", "HTML", "CSS"],
-      projectTitle: "Local Library database tool",
-      projectTech: "Java, MySQL",
-      ats: 75,
-      solved: 140,
-      aptitudeSolved: 310,
-      interviewScore: 72,
-      hours: 20
-    }
-  ]);
+  // Real student profiles fetched from the database
+  const [students, setStudents] = useState([]);
 
-  // Load dynamic students from Supabase and merge them
+  // Load dynamic students from Supabase
   useEffect(() => {
     async function loadStudents() {
       try {
@@ -181,19 +88,7 @@ export default function StudentsPage() {
               hours: 0
             }));
 
-          setStudents(prev => {
-            const merged = [...prev];
-            dbStudents.forEach(dbS => {
-              const existsIdx = merged.findIndex(m => String(m.email).toLowerCase() === String(dbS.email).toLowerCase());
-              if (existsIdx !== -1) {
-                // If student exists in mock data but doesn't have the password, update it
-                merged[existsIdx] = { ...merged[existsIdx], id: dbS.id, passwordPlain: dbS.passwordPlain };
-              } else {
-                merged.push(dbS);
-              }
-            });
-            return merged;
-          });
+          setStudents(dbStudents);
         }
       } catch (e) {
         console.error("Failed to load DB students:", e);
