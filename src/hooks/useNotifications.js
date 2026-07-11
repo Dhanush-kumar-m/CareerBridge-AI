@@ -29,8 +29,6 @@ export default function useNotifications() {
             date: new Date(n.created_at).toLocaleDateString(),
             status: "Sent",
           }));
-          setNotifications(notifyList);
-          localStorage.setItem("system_notifications", JSON.stringify(notifyList));
         }
 
         // 2. Fetch read states
@@ -39,14 +37,21 @@ export default function useNotifications() {
           .select("notification_id")
           .eq("user_id", user.id);
 
-        if (!readError && readData) {
-          const readIds = readData.map((row) => row.notification_id);
-          localStorage.setItem("read_notifications", JSON.stringify(readIds));
-          const unread = notifyList.filter((n) => !readIds.includes(n.id)).length;
-          setUnreadCount(unread);
-        }
+        const readIds = (!readError && readData) ? readData.map((row) => row.notification_id) : [];
+        localStorage.setItem("read_notifications", JSON.stringify(readIds));
+
+        // 3. Map read status
+        notifyList.forEach((n) => {
+          n.isRead = readIds.includes(n.id);
+        });
+
+        const unread = notifyList.filter((n) => !n.isRead).length;
+        setUnreadCount(unread);
+        setNotifications(notifyList);
+        localStorage.setItem("system_notifications", JSON.stringify(notifyList));
+
       } else {
-        // Guest: fallback to localStorage
+        // Guest/Admin: fallback to localStorage
         const stored = localStorage.getItem("system_notifications");
         let list = [];
         if (stored) {
@@ -77,11 +82,15 @@ export default function useNotifications() {
           ];
           localStorage.setItem("system_notifications", JSON.stringify(list));
         }
-        setNotifications(list);
 
         const readIds = JSON.parse(localStorage.getItem("read_notifications") || "[]");
-        const unread = list.filter((n) => !readIds.includes(n.id)).length;
+        list.forEach((n) => {
+          n.isRead = readIds.includes(n.id);
+        });
+
+        const unread = list.filter((n) => !n.isRead).length;
         setUnreadCount(unread);
+        setNotifications(list);
       }
       setLoading(false);
     }
@@ -94,12 +103,30 @@ export default function useNotifications() {
     const ids = notifications.map((n) => n.id);
     localStorage.setItem("read_notifications", JSON.stringify(ids));
 
+    // Update local state instantly so the UI reflects the read status immediately!
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
     if (user && user.role !== "admin" && ids.length > 0) {
-      const rows = ids.map((id) => ({
-        user_id: user.id,
-        notification_id: id,
-      }));
-      await supabase.from("read_notifications").upsert(rows);
+      try {
+        const { data: existingRead } = await supabase
+          .from("read_notifications")
+          .select("notification_id")
+          .eq("user_id", user.id);
+        
+        const existingIds = existingRead ? existingRead.map(r => r.notification_id) : [];
+        const newIdsToMark = ids.filter(id => !existingIds.includes(id));
+        
+        if (newIdsToMark.length > 0) {
+          const rows = newIdsToMark.map((id) => ({
+            user_id: user.id,
+            notification_id: id,
+          }));
+          const { error } = await supabase.from("read_notifications").insert(rows);
+          if (error) console.error("Failed to insert read notifications:", error);
+        }
+      } catch (err) {
+        console.error("Error marking notifications as read:", err);
+      }
     }
   };
 

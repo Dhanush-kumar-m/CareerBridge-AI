@@ -173,7 +173,27 @@ export default function Navbar() {
               }}>
                 <div style={{ padding: "12px 15px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontWeight: "700", fontSize: "0.92rem", color: "#ffffff" }}>Announcements</span>
-                  <span style={{ fontSize: "0.75rem", color: "#60a5fa", fontWeight: "600" }}>Recent Updates</span>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      markAllAsRead();
+                    }}
+                    style={{ 
+                      background: "none", 
+                      border: "none", 
+                      color: "#60a5fa", 
+                      fontSize: "0.75rem", 
+                      fontWeight: "700", 
+                      cursor: "pointer",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      transition: "background 0.2s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(96, 165, 250, 0.1)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "none"}
+                  >
+                    Mark all as read
+                  </button>
                 </div>
                 <div style={{ maxHeight: "280px", overflowY: "auto" }}>
                   {notifications.length === 0 ? (
@@ -182,8 +202,26 @@ export default function Navbar() {
                     </div>
                   ) : (
                     notifications.map((n, idx) => (
-                      <div key={idx} style={{ padding: "12px 15px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", transition: "background 0.2s" }} className="notif-item">
-                        <h4 style={{ margin: "0 0 4px", fontSize: "0.88rem", fontWeight: "600", color: "#ffffff" }}>{n.title}</h4>
+                      <div key={idx} style={{ 
+                        padding: "12px 15px", 
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.08)", 
+                        transition: "background 0.2s",
+                        background: n.isRead ? "transparent" : "rgba(59, 130, 246, 0.05)"
+                      }} className="notif-item">
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <h4 style={{ margin: "0 0 4px", fontSize: "0.88rem", fontWeight: "600", color: "#ffffff" }}>{n.title}</h4>
+                          {!n.isRead && (
+                            <span style={{
+                              width: "6px",
+                              height: "6px",
+                              borderRadius: "50%",
+                              background: "#3b82f6",
+                              display: "inline-block",
+                              marginLeft: "6px",
+                              marginTop: "5px"
+                            }} />
+                          )}
+                        </div>
                         <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "#cbd5e1", lineHeight: "1.4" }}>{n.content}</p>
                         <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>{n.date}</span>
                       </div>
