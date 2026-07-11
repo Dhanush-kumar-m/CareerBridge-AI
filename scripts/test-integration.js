@@ -1,11 +1,11 @@
 import { spawn } from "child_process";
 import assert from "assert";
 
-console.log("🚀 Starting Next.js production server on port 3001...");
+console.log("🚀 Starting Next.js production server on port 3002...");
 
-const nextProcess = spawn("npx", ["next", "start", "-p", "3001"], {
+const nextProcess = spawn("npx", ["next", "start", "-p", "3002"], {
   shell: true,
-  env: { ...process.env, PORT: "3001", TESTING: "true" }
+  env: { ...process.env, PORT: "3002", TESTING: "true" }
 });
 
 nextProcess.stdout.on("data", (data) => console.log(`[Next.js stdout] ${data}`));
@@ -20,7 +20,7 @@ let testTimeout = setTimeout(() => {
 const runTests = async () => {
   try {
     console.log("📡 Querying /api/status...");
-    const statusRes = await fetch("http://localhost:3001/api/status");
+    const statusRes = await fetch("http://localhost:3002/api/status");
     const statusData = await statusRes.json();
     console.log("Status Response:", statusData);
     
@@ -29,7 +29,7 @@ const runTests = async () => {
     assert.ok(statusData.version);
     
     console.log("📡 Querying /api/health...");
-    const healthRes = await fetch("http://localhost:3001/api/health");
+    const healthRes = await fetch("http://localhost:3002/api/health");
     console.log("Health Response Status:", healthRes.status);
     
     assert.ok([200, 503].includes(healthRes.status));

@@ -10,7 +10,7 @@ async function measureApiLatency() {
   for (let i = 0; i < 5; i++) {
     const start = performance.now();
     try {
-      const res = await fetch("http://localhost:3001/api/status");
+      const res = await fetch("http://localhost:3002/api/status");
       await res.json();
       const end = performance.now();
       latencies.push(end - start);

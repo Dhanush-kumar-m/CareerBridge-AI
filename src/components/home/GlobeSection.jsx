@@ -47,7 +47,7 @@ export default function GlobeSection() {
         <SplineErrorBoundary fallback={fallbackUI}>
           <Suspense fallback={<div className={styles.loading}>Loading Interactive Globe...</div>}>
             <Spline 
-              scene="https://prod.spline.design/Vet2fBgG-W0ZFEO6/scene.splinecode" 
+              scene="https://prod.spline.design/wXzLfYnDZepS9Wj1/scene.splinecode" 
               onError={(e) => {
                 console.warn("Spline load error:", e);
                 // Trigger the error boundary

@@ -2,9 +2,9 @@ import { spawn } from "child_process";
 
 console.log("⚡ Starting Unified Verification & Performance Testing Suite...");
 
-const nextProcess = spawn("npx", ["next", "start", "-p", "3001"], {
+const nextProcess = spawn("npx", ["next", "start", "-p", "3002"], {
   shell: true,
-  env: { ...process.env, PORT: "3001", TESTING: "true" }
+  env: { ...process.env, PORT: "3002", TESTING: "true" }
 });
 
 let testTimeout = setTimeout(() => {
