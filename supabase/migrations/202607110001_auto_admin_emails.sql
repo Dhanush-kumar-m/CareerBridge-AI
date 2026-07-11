@@ -17,7 +17,7 @@ BEGIN
     NEW.raw_user_meta_data->>'avatar_url',
     0,
     CASE 
-      WHEN LOWER(NEW.email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com') THEN 'admin'
+      WHEN LOWER(NEW.email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com') THEN 'admin'
       ELSE 'student'
     END
   );
@@ -30,5 +30,5 @@ UPDATE public.profiles
 SET role = 'admin'
 WHERE id IN (
   SELECT id FROM auth.users
-  WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com')
+  WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com')
 );
