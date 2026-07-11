@@ -1,6 +1,14 @@
 "use client";
 
-import Editor from "@monaco-editor/react";
+import { useState, useEffect } from "react";
+import Editor, { loader } from "@monaco-editor/react";
+
+// Configure Monaco loader to use the local self-hosted assets in the public directory (completely offline-compatible and immune to CDN blockages)
+loader.config({
+  paths: {
+    vs: "/monaco/vs"
+  }
+});
 
 export default function CodeEditor({
   code,
@@ -8,10 +16,57 @@ export default function CodeEditor({
   language,
   defaultCode,
 }) {
+  const [editorError, setEditorError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loader.init()
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Monaco editor failed to load:", err);
+        setEditorError(err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const handleError = (event) => {
+      // Intercept script loading failures or generic event errors that Next.js DevTools crashes on
+      const isScriptError = event.target?.tagName === "SCRIPT" || event.message === "Script error.";
+      const isEventError = String(event.error) === "[object Event]" || (event.error && typeof event.error === "object" && !event.error.message);
+      
+      if (isScriptError || isEventError) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation?.();
+        console.warn("Intercepted and suppressed script/event error to prevent Next.js dev overlay crash:", event);
+      }
+    };
+
+    const handleRejection = (event) => {
+      const isEventRejection = String(event.reason) === "[object Event]" || (event.reason && typeof event.reason === "object" && !event.reason.message);
+      
+      if (isEventRejection) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation?.();
+        console.warn("Intercepted and suppressed unhandled rejection event to prevent Next.js dev overlay crash:", event);
+      }
+    };
+
+    window.addEventListener("error", handleError, { capture: true });
+    window.addEventListener("unhandledrejection", handleRejection, { capture: true });
+
+    return () => {
+      window.removeEventListener("error", handleError, { capture: true });
+      window.removeEventListener("unhandledrejection", handleRejection, { capture: true });
+    };
+  }, []);
+
   const getDefaultCode = () => {
-    switch (
-      language.toLowerCase()
-    ) {
+    switch (language.toLowerCase()) {
       case "java":
         return `public class Main {
     public static void main(String[] args) {
@@ -47,32 +102,51 @@ int main() {
     }
   };
 
+  const currentValue = code || defaultCode || getDefaultCode();
+
+  if (editorError) {
+    return (
+      <div className="editor-container" style={{ flexShrink: 0 }}>
+        <div className="editor-header">
+          <h3>💻 Code Editor (Fallback Mode)</h3>
+          <span style={{ color: "#ef4444", fontSize: "0.8rem" }}>Offline / Load Error</span>
+        </div>
+        <textarea
+          style={{
+            width: "100%",
+            height: "550px",
+            backgroundColor: "#1e1e1e",
+            color: "#d4d4d4",
+            fontFamily: "Consolas, Monaco, monospace",
+            fontSize: "15px",
+            padding: "16px",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "0 0 10px 10px",
+            outline: "none",
+            resize: "none",
+            lineHeight: "1.5",
+          }}
+          value={currentValue}
+          onChange={(e) => setCode(e.target.value)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="editor-container" style={{ flexShrink: 0 }}>
-
       <div className="editor-header">
-
-        <h3>
-          💻 Code Editor
-        </h3>
-
-        <span>
-          {language}
-        </span>
-
+        <h3>💻 Code Editor</h3>
+        <span>{language}</span>
       </div>
 
       <Editor
         height="550px"
         language={language.toLowerCase()}
         theme="vs-dark"
-        value={
-          code || defaultCode || getDefaultCode()
-        }
+        value={currentValue}
         loading="Loading Editor..."
-        onChange={(value) =>
-          setCode(value || "")
-        }
+        onChange={(value) => setCode(value || "")}
         options={{
           fontSize: 15,
           minimap: {
@@ -87,7 +161,6 @@ int main() {
           suggestOnTriggerCharacters: true,
         }}
       />
-
     </div>
   );
 }

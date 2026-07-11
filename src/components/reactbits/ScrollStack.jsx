@@ -31,6 +31,10 @@ const ScrollStack = ({
   const lastTransformsRef = useRef(new Map());
   const isUpdatingRef = useRef(false);
 
+  const targetScrollTopRef = useRef(0);
+  const currentScrollTopRef = useRef(0);
+  const isRunningRafRef = useRef(false);
+
   const cardPositionsRef = useRef([]);
   const endElementPositionRef = useRef(0);
 
@@ -64,12 +68,11 @@ const ScrollStack = ({
     }
   }, [useWindowScroll]);
 
-  const updateCardTransforms = useCallback(() => {
-    if (!cardsRef.current.length || isUpdatingRef.current) return;
+  const updateCardTransforms = useCallback((scrollTopVal) => {
+    if (!cardsRef.current.length) return;
 
-    isUpdatingRef.current = true;
-
-    const { scrollTop, containerHeight } = getScrollData();
+    const { containerHeight } = getScrollData();
+    const scrollTop = typeof scrollTopVal === 'number' ? scrollTopVal : getScrollData().scrollTop;
     const stackPositionPx = parsePercentage(stackPosition, containerHeight);
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
 
@@ -156,8 +159,6 @@ const ScrollStack = ({
         }
       }
     });
-
-    isUpdatingRef.current = false;
   }, [
     itemScale,
     itemStackDistance,
@@ -172,9 +173,37 @@ const ScrollStack = ({
     getScrollData
   ]);
 
-  const handleScroll = useCallback(() => {
-    updateCardTransforms();
+  const rafLoop = useCallback(() => {
+    const target = targetScrollTopRef.current;
+    const current = currentScrollTopRef.current;
+    
+    // Smooth lerping factor (0.12 provides a great balance between responsiveness and buttery smoothness)
+    const lerpFactor = 0.12;
+    const diff = target - current;
+    
+    if (Math.abs(diff) < 0.15) {
+      currentScrollTopRef.current = target;
+      updateCardTransforms(target);
+      isRunningRafRef.current = false;
+    } else {
+      currentScrollTopRef.current = current + diff * lerpFactor;
+      updateCardTransforms(currentScrollTopRef.current);
+      animationFrameRef.current = requestAnimationFrame(rafLoop);
+    }
   }, [updateCardTransforms]);
+
+  const handleScroll = useCallback(() => {
+    const { scrollTop } = getScrollData();
+    if (useWindowScroll) {
+      targetScrollTopRef.current = scrollTop;
+      if (!isRunningRafRef.current) {
+        isRunningRafRef.current = true;
+        animationFrameRef.current = requestAnimationFrame(rafLoop);
+      }
+    } else {
+      updateCardTransforms(scrollTop);
+    }
+  }, [useWindowScroll, getScrollData, rafLoop, updateCardTransforms]);
 
   const setupLenis = useCallback(() => {
     if (useWindowScroll) {
@@ -313,6 +342,7 @@ const ScrollStack = ({
       cardsRef.current = [];
       transformsCache.clear();
       isUpdatingRef.current = false;
+      isRunningRafRef.current = false;
     };
   }, [
     itemDistance,
