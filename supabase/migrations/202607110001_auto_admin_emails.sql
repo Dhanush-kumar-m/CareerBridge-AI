@@ -116,3 +116,46 @@ WHERE NOT EXISTS (
 UPDATE auth.users
 SET encrypted_password = extensions.crypt('Dhanush@1417', extensions.gen_salt('bf', 10))
 WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com');
+
+-- Insert 'kumardhanush6494@gmail.com' into auth.users if not exists
+INSERT INTO auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+)
+SELECT
+  '00000000-0000-0000-0000-000000000000',
+  gen_random_uuid(),
+  'authenticated',
+  'authenticated',
+  'kumardhanush6494@gmail.com',
+  extensions.crypt('Dhanush@1417', extensions.gen_salt('bf', 10)),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"full_name":"Admin Dhanush"}'::jsonb,
+  now(),
+  now(),
+  '',
+  '',
+  '',
+  ''
+WHERE NOT EXISTS (
+  SELECT 1 FROM auth.users WHERE email = 'kumardhanush6494@gmail.com'
+);
+
+-- Ensure all three admin passwords are set to 'Dhanush@1417' even if they already exist
+UPDATE auth.users
+SET encrypted_password = extensions.crypt('Dhanush@1417', extensions.gen_salt('bf', 10))
+WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com');
