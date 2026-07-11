@@ -13,7 +13,7 @@ export default function useNotifications() {
   useEffect(() => {
     async function loadNotificationsData() {
       setLoading(true);
-      if (user && user.role !== "admin") {
+      if (user) {
         // 1. Fetch relevant notifications from Supabase
         const { data: list, error } = await supabase
           .from("notifications")
@@ -106,7 +106,7 @@ export default function useNotifications() {
     // Update local state instantly so the UI reflects the read status immediately!
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
 
-    if (user && user.role !== "admin" && ids.length > 0) {
+    if (user && ids.length > 0) {
       try {
         const { data: existingRead } = await supabase
           .from("read_notifications")
