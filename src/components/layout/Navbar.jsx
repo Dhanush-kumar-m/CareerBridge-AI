@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import MobileMenu from "./MobileMenu";
 import useAuth from "../../hooks/useAuth";
 import useNotifications from "../../hooks/useNotifications";
 import { FiUser, FiLogOut, FiBriefcase, FiBell } from "react-icons/fi";
@@ -339,12 +338,6 @@ export default function Navbar() {
           )
         )}
       </div>
-
-      {isAuthenticated && pathname !== "/" && (
-        <div className="mobile-menu-wrapper">
-          <MobileMenu />
-        </div>
-      )}
       
       <style jsx>{`
         .bell-btn:hover {
