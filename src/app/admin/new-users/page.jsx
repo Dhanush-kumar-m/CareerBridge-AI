@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../../../lib/supabase";
 import { FiUsers, FiActivity, FiDownload, FiClock } from "react-icons/fi";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
 export default function NewUsersPage() {
   const [users, setUsers] = useState([]);
@@ -74,6 +75,24 @@ export default function NewUsersPage() {
     const totalLogouts = activities.filter(a => a.activity_type === "logout").length;
 
     return { totalUsers, loginsToday, totalLogins, totalLogouts };
+  }, [users, activities]);
+
+  // Compute 7-day dynamic user growth and activity trends for chart visualization
+  const chartData = useMemo(() => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toDateString());
+    }
+
+    return days.map(dayStr => {
+      const label = new Date(dayStr).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const registrations = users.filter(u => new Date(u.created_at).toDateString() === dayStr).length;
+      const logins = activities.filter(a => a.activity_type === "login" && new Date(a.timestamp).toDateString() === dayStr).length;
+      const logouts = activities.filter(a => a.activity_type === "logout" && new Date(a.timestamp).toDateString() === dayStr).length;
+      return { name: label, Registrations: registrations, Logins: logins, Logouts: logouts };
+    });
   }, [users, activities]);
 
   // PDF Export utility using window.print() styled frame
@@ -328,6 +347,39 @@ export default function NewUsersPage() {
         <div className="stat-pill" style={{ padding: "18px" }}>
           <span className="stat-label">Total Logout Audits</span>
           <span className="stat-value">{stats.totalLogouts} Logouts</span>
+        </div>
+      </div>
+
+      {/* 7-Day Portal Engagement & Growth Trends */}
+      <div style={{
+        background: "rgba(255,255,255,0.01)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        borderRadius: "16px",
+        padding: "24px"
+      }}>
+        <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0" }}>7-Day Portal Engagement & Growth Trends</h3>
+        <div style={{ width: "100%", height: 300 }}>
+          <ResponsiveContainer>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorLogins" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorRegs" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" style={{ fontSize: "0.78rem" }} />
+              <YAxis stroke="rgba(255,255,255,0.3)" style={{ fontSize: "0.78rem" }} />
+              <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#ffffff" }} />
+              <Legend wrapperStyle={{ fontSize: "0.85rem", marginTop: "10px" }} />
+              <Area type="monotone" name="Logins" dataKey="Logins" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorLogins)" isAnimationActive={true} />
+              <Area type="monotone" name="Registrations" dataKey="Registrations" stroke="#ec4899" strokeWidth={2} fillOpacity={1} fill="url(#colorRegs)" isAnimationActive={true} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
