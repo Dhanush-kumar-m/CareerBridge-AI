@@ -164,14 +164,7 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <div className="demo-login" style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px", padding: "15px", borderRadius: "10px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-color)", textAlign: "left" }}>
-          <h4 style={{ margin: "0 0 5px", fontSize: "0.9rem", fontWeight: "700" }}>Demo Credentials</h4>
-          <div>
-            <span style={{ fontSize: "0.82rem", color: "var(--primary)", fontWeight: "bold", display: "block" }}>Student Account</span>
-            <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", display: "block" }}>Email: student@careerbridge.com</span>
-            <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", display: "block" }}>Password: 123456</span>
-          </div>
-        </div>
+
 
         <div style={{ marginTop: "20px", borderTop: "1px solid var(--border-color)", paddingTop: "15px", textAlign: "center", display: "flex", flexDirection: "column", gap: "12px" }}>
           <div>
