@@ -7,14 +7,15 @@ export async function middleware(request) {
   // Set headers on response
   const response = NextResponse.next();
 
-  // 1. Content Security Policy (CSP) - allows Supabase REST API & web sockets, Monaco Editor eval execution
+  // 1. Content Security Policy (CSP) - allows Supabase REST API & web sockets, Monaco Editor eval execution, cdnjs CDNs
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: blob: https://*.supabase.co;
     font-src 'self' data:;
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdnjs.cloudflare.com;
+    worker-src 'self' blob:;
     frame-src 'self';
     frame-ancestors 'none';
     object-src 'none';
@@ -35,23 +36,30 @@ export async function middleware(request) {
   const isSensitivePage = pathname.startsWith("/mock-interview") || pathname.startsWith("/resume");
 
   if (isApi || isAuth || isSensitivePage) {
-    const ip = request.ip || request.headers.get("x-forwarded-for") || "127.0.0.1";
-    const limit = isAuth ? 15 : 60;
-    const windowSeconds = 60;
+    try {
+      const ip = request.ip || request.headers.get("x-forwarded-for") || "127.0.0.1";
+      const limit = isAuth ? 15 : 60;
+      const windowSeconds = 60;
 
-    const limitResult = await rateLimit(ip, limit, windowSeconds);
+      const hostname = request.nextUrl.hostname;
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
 
-    if (!limitResult.success) {
-      return new NextResponse(
-        JSON.stringify({ error: "Too many requests. Please try again later." }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Retry-After": String(windowSeconds),
-          },
-        }
-      );
+      const limitResult = await rateLimit(ip, limit, windowSeconds, isLocalhost);
+
+      if (!limitResult.success) {
+        return new NextResponse(
+          JSON.stringify({ error: "Too many requests. Please try again later." }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Retry-After": String(windowSeconds),
+            },
+          }
+        );
+      }
+    } catch (err) {
+      console.error("RATE LIMITER MIDDLEWARE CRASH:", err);
     }
   }
 

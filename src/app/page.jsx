@@ -34,7 +34,7 @@ export default function Home() {
       {/* 6. Student Progress & Analytics */}
       <StudentProgressSection />
 
-      {/* 7. Memorable Scroll storytelling interaction */}
+      {/* 7. Student Profile storytelling interaction */}
       <MemorableScrollSection />
 
       {/* 8. Final Call-to-Action */}

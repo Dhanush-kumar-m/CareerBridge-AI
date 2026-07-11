@@ -1,9 +1,6 @@
-"use client";
-
 import React from "react";
 import { FiCheck } from "react-icons/fi";
 import styles from "./StudentProgressSection.module.css";
-import AnimatedContent from "../reactbits/AnimatedContent";
 
 const CATEGORIES = [
   "Weekly learning activity tracking",
@@ -24,7 +21,7 @@ export default function StudentProgressSection() {
     <section className={styles.sectionWrapper}>
       <div className={styles.sectionContainer}>
         {/* Left Column: Descriptive Content */}
-        <AnimatedContent delay={0.1} yOffset={25} className={styles.leftColumn}>
+        <div className={styles.leftColumn}>
           <span className={styles.eyebrow}>Analytics & Insights</span>
           <h2>Know exactly where you need to improve</h2>
           <p className={styles.description}>
@@ -40,13 +37,13 @@ export default function StudentProgressSection() {
               </li>
             ))}
           </ul>
-        </AnimatedContent>
+        </div>
 
         {/* Right Column: Visual SVG Analytics Dashboard */}
         <div className={styles.analyticsDashboard}>
           <div className={styles.dashboardRow}>
             {/* SVG Line Chart */}
-            <AnimatedContent delay={0.2} yOffset={20} className={styles.chartCard}>
+            <div className={styles.chartCard}>
               <span className={styles.chartTitle}>Weekly Practice Activity</span>
               <svg className={styles.chartSvg} viewBox="0 0 300 120">
                 <defs>
@@ -58,6 +55,7 @@ export default function StudentProgressSection() {
                 <path
                   d="M0 110 Q 50 80, 100 95 T 200 40 T 300 30 L 300 120 L 0 120 Z"
                   fill="url(#chartGradient)"
+                  className={styles.chartArea}
                 />
                 <path
                   d="M0 110 Q 50 80, 100 95 T 200 40 T 300 30"
@@ -65,15 +63,16 @@ export default function StudentProgressSection() {
                   stroke="var(--accent)"
                   strokeWidth="3.5"
                   strokeLinecap="round"
+                  className={styles.chartPath}
                 />
-                <circle cx="100" cy="95" r="4.5" fill="var(--accent)" />
-                <circle cx="200" cy="40" r="4.5" fill="var(--accent)" />
-                <circle cx="300" cy="30" r="4.5" fill="var(--accent)" />
+                <circle cx="100" cy="95" r="4.5" fill="var(--accent)" className={styles.chartDot} />
+                <circle cx="200" cy="40" r="4.5" fill="var(--accent)" className={styles.chartDot} style={{ animationDelay: "0.2s" }} />
+                <circle cx="300" cy="30" r="4.5" fill="var(--accent)" className={styles.chartDot} style={{ animationDelay: "0.4s" }} />
               </svg>
-            </AnimatedContent>
-
+            </div>
+ 
             {/* SVG Circular Progress Ring */}
-            <AnimatedContent delay={0.3} yOffset={20} className={styles.circleCard}>
+            <div className={styles.circleCard}>
               <span className={styles.chartTitle}>Placement Readiness</span>
               <div style={{ position: "relative", width: "80px", height: "80px" }}>
                 <svg width="80" height="80" className={styles.circleSvg}>
@@ -95,17 +94,18 @@ export default function StudentProgressSection() {
                     strokeDasharray="213.6"
                     strokeDashoffset="42.7" // 80% progress
                     strokeLinecap="round"
+                    className={styles.circleFill}
                   />
                 </svg>
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span className={styles.circleText}>80%</span>
                 </div>
               </div>
-            </AnimatedContent>
+            </div>
           </div>
 
           {/* Activity Heatmap Grid */}
-          <AnimatedContent delay={0.4} yOffset={20} className={styles.heatmapCard}>
+          <div className={styles.heatmapCard}>
             <span className={styles.chartTitle}>Consistency Calendar (Active Days)</span>
             <div className={styles.heatmapGrid}>
               {HEATMAP_CELLS.map((level, i) => {
@@ -117,7 +117,7 @@ export default function StudentProgressSection() {
                 return <div key={i} className={cellClass} />;
               })}
             </div>
-          </AnimatedContent>
+          </div>
         </div>
       </div>
     </section>

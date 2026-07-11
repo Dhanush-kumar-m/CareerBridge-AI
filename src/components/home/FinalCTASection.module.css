@@ -1,9 +1,13 @@
+/* FinalCTASection.module.css */
+
 .sectionWrapper {
-  background: var(--home-dark); /* Premium dark graphite background */
+  background: var(--bg-secondary); /* Premium theme-aware background */
   padding: 120px 24px;
   position: relative;
   overflow: hidden;
   text-align: center;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .bgText {
@@ -14,7 +18,8 @@
   font-family: var(--font-display);
   font-size: clamp(8rem, 15vw, 16rem);
   font-weight: 900;
-  color: rgba(244, 243, 238, 0.015);
+  color: var(--border-subtle);
+  opacity: 0.05;
   letter-spacing: 0.1em;
   user-select: none;
   pointer-events: none;
@@ -36,7 +41,7 @@
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 5vw, 3.2rem);
   font-weight: 800;
-  color: var(--home-dark-text);
+  color: var(--text-primary);
   line-height: 1.15;
   letter-spacing: -0.01em;
 }
@@ -44,7 +49,7 @@
 .description {
   font-size: 1.1rem;
   line-height: 1.6;
-  color: var(--home-dark-muted);
+  color: var(--text-secondary);
 }
 
 .ctaGroup {
@@ -68,25 +73,25 @@
 }
 
 .ctaPrimary {
-  background: var(--home-accent);
+  background: var(--accent);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(31, 111, 95, 0.25);
+  box-shadow: 0 4px 14px var(--shadow-accent);
 }
 
 .ctaPrimary:hover {
-  background: var(--home-accent-hover);
+  background: var(--accent-light);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(31, 111, 95, 0.35);
+  box-shadow: 0 6px 20px var(--shadow-accent);
 }
 
 .ctaSecondary {
-  border: 1px solid rgba(244, 243, 238, 0.15);
-  background: rgba(244, 243, 238, 0.05);
-  color: var(--home-dark-text);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .ctaSecondary:hover {
-  background: rgba(244, 243, 238, 0.1);
-  border-color: rgba(244, 243, 238, 0.3);
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
   transform: translateY(-2px);
 }

@@ -4,14 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useAuth from "../../hooks/useAuth";
 import useNotifications from "../../hooks/useNotifications";
-import { FiUser, FiLogOut, FiBriefcase, FiBell } from "react-icons/fi";
+import { useTheme } from "../../context/ThemeContext";
+import { FiUser, FiLogOut, FiBriefcase, FiBell, FiSun, FiMoon } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
   const pathname = usePathname() || "";
   const { isAuthenticated, logoutUser, user } = useAuth();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
+  const { theme, toggleTheme } = useTheme();
 
+  const [mounted, setMounted] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -19,6 +22,10 @@ export default function Navbar() {
   const profileDropdownRef = useRef(null);
 
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,6 +67,14 @@ export default function Navbar() {
   }
 
   // Dynamic Navigation Items
+  const adminItems = [
+    { name: "Admin Console", path: "/admin" },
+    { name: "Students", path: "/admin/students" },
+    { name: "Companies", path: "/admin/companies" },
+    { name: "Reports", path: "/admin/reports" },
+    { name: "New Users", path: "/admin/new-users" },
+  ];
+
   const authenticatedItems = [
     { name: "Dashboard", path: "/dashboard" },
     { name: "Aptitude", path: "/aptitude" },
@@ -77,17 +92,15 @@ export default function Navbar() {
     { name: "About", path: "/#progress-analytics" },
   ];
 
-  const activeItems = isAuthenticated ? authenticatedItems : guestItems;
+  const activeItems = isAuthenticated
+    ? (user?.role === "admin" ? adminItems : authenticatedItems)
+    : guestItems;
   const isHome = pathname === "/";
   const headerPosition = isHome ? "fixed" : "sticky";
   
-  // High polish dark navbar style configurations for home, light for elsewhere
-  const headerBg = isHome 
-    ? (scrolled ? "rgba(18, 24, 22, 0.94)" : "transparent")
-    : (scrolled ? "rgba(248, 247, 243, 0.85)" : "transparent");
-  const headerBorder = isHome
-    ? (scrolled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent")
-    : (scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent");
+  // High polish theme-aware navbar style configurations
+  const headerBg = scrolled ? "var(--bg-secondary)" : "transparent";
+  const headerBorder = scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent";
   const headerBlur = scrolled ? "blur(16px)" : "none";
 
   return (
@@ -108,8 +121,8 @@ export default function Navbar() {
     >
       <div className="navbar-left">
         <Link href="/" className="logo" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-          <FiBriefcase className="logo-icon" style={{ color: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)", fontSize: "1.2rem" }} />
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: "800", color: isHome ? "#ffffff" : "var(--text-primary)", letterSpacing: "-0.01em" }}>
+          <FiBriefcase className="logo-icon" style={{ color: "var(--accent)", fontSize: "1.2rem" }} />
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
             CareerBridge AI
           </span>
         </Link>
@@ -125,8 +138,8 @@ export default function Navbar() {
               fontSize: "0.9rem",
               fontWeight: "600",
               color: pathname === item.path 
-                ? (isHome ? "#ffffff" : "var(--accent)") 
-                : (isHome ? "#B8C0BB" : "var(--text-secondary)"),
+                ? "var(--accent)" 
+                : "var(--text-secondary)",
               transition: "color 0.2s ease"
             }}
           >
@@ -137,6 +150,32 @@ export default function Navbar() {
 
       <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         
+        {/* Theme Toggle Button */}
+        {mounted ? (
+          <button
+            onClick={toggleTheme}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "8px",
+              borderRadius: "50%",
+              transition: "background 0.2s, color 0.2s"
+            }}
+            className="theme-toggle-btn"
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
+          </button>
+        ) : (
+          <div style={{ width: 34, height: 34 }} />
+        )}
+
         {/* Notification Bell Section */}
         {isAuthenticated && (
           <div style={{ position: "relative" }} ref={dropdownRef}>
@@ -145,7 +184,7 @@ export default function Navbar() {
               style={{
                 background: "none",
                 border: "none",
-                color: isHome ? "#B8C0BB" : "var(--text-secondary)",
+                color: "var(--text-secondary)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -217,18 +256,18 @@ export default function Navbar() {
                         style={{ 
                           padding: "12px 15px", 
                           borderBottom: "1px solid var(--border-subtle)", 
-                          background: notif.read ? "transparent" : "var(--bg-primary)",
+                          background: notif.isRead ? "transparent" : "var(--bg-primary)",
                           transition: "background 0.2s"
                         }}
                       >
-                        <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: notif.read ? "500" : "600", margin: "0 0 4px" }}>
+                        <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: notif.isRead ? "500" : "600", margin: "0 0 4px" }}>
                           {notif.title}
                         </p>
                         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", margin: "0 0 6px", lineHeight: "1.4" }}>
-                          {notif.message}
+                          {notif.content || notif.message}
                         </p>
                         <span style={{ fontSize: "0.7rem", color: "var(--text-faint)" }}>
-                          {new Date(notif.created_at).toLocaleDateString()}
+                          {notif.date}
                         </span>
                       </div>
                     ))
@@ -250,7 +289,7 @@ export default function Navbar() {
                 gap: "8px",
                 background: "none",
                 border: "none",
-                color: isHome ? "#ffffff" : "var(--text-primary)",
+                color: "var(--text-primary)",
                 fontWeight: "600",
                 fontSize: "0.88rem",
                 cursor: "pointer",
@@ -264,7 +303,7 @@ export default function Navbar() {
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                background: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)",
+                background: "var(--accent)",
                 color: "#ffffff",
                 display: "flex",
                 alignItems: "center",
@@ -365,12 +404,12 @@ export default function Navbar() {
                 style={{ 
                   fontSize: "0.88rem", 
                   fontWeight: "600", 
-                  color: isHome ? "#B8C0BB" : "var(--text-secondary)", 
+                  color: "var(--text-secondary)", 
                   textDecoration: "none",
                   transition: "color 0.2s"
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = isHome ? "#ffffff" : "var(--text-primary)"}
-                onMouseLeave={(e) => e.currentTarget.style.color = isHome ? "#B8C0BB" : "var(--text-secondary)"}
+                onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
               >
                 Login
               </Link>
@@ -380,20 +419,20 @@ export default function Navbar() {
                 style={{
                   padding: "10px 20px",
                   borderRadius: "10px",
-                  background: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)",
+                  background: "var(--accent)",
                   color: "#ffffff",
                   fontSize: "0.88rem",
                   fontWeight: "600",
                   textDecoration: "none",
-                  boxShadow: isHome ? "0 2px 8px rgba(49, 87, 213, 0.15)" : "0 2px 8px rgba(49, 87, 213, 0.15)",
+                  boxShadow: "var(--shadow)",
                   transition: "all 0.2s"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isHome ? "var(--home-accent-hover, #2448B7)" : "#2448b7";
+                  e.currentTarget.style.background = "var(--accent-light)";
                   e.currentTarget.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = isHome ? "var(--home-accent, #3157D5)" : "var(--accent)";
+                  e.currentTarget.style.background = "var(--accent)";
                   e.currentTarget.style.transform = "none";
                 }}
               >
@@ -406,7 +445,7 @@ export default function Navbar() {
       
       <style jsx>{`
         .nav-link:hover {
-          color: ${isHome ? '#ffffff' : 'var(--accent)'} !important;
+          color: var(--accent) !important;
         }
       `}</style>
     </header>

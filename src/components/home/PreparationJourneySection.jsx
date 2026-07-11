@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
 import styles from "./PreparationJourneySection.module.css";
-import AnimatedContent from "../reactbits/AnimatedContent";
 
 const STEPS = [
   {
@@ -37,11 +34,11 @@ export default function PreparationJourneySection() {
 
       <div className={styles.stepsGrid}>
         {STEPS.map((step, index) => (
-          <AnimatedContent key={index} delay={index * 0.1} yOffset={20} className={styles.stepCard}>
+          <div key={index} className={styles.stepCard}>
             <div className={styles.stepNumber}>{step.number}</div>
             <h3 className={styles.stepTitle}>{step.title}</h3>
             <p className={styles.stepDesc}>{step.description}</p>
-          </AnimatedContent>
+          </div>
         ))}
       </div>
     </section>

@@ -168,20 +168,39 @@ export default function ResumeAnalyzerPage() {
   const fileInputRef = useRef(null);
   const resultsRef = useRef(null);
 
-  // Dynamic loading of CDN helper scripts for client-side parsing of PDF/DOCX
+  // Dynamic loading of CDN helper scripts with load timeouts for resilient parsing
   const loadPdfJS = () => {
     return new Promise((resolve, reject) => {
       if (window.pdfjsLib) {
         resolve(window.pdfjsLib);
         return;
       }
+      const timeout = setTimeout(() => {
+        reject(new Error("PDF parser loading timed out"));
+      }, 3000);
       const script = document.createElement("script");
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js";
-      script.onload = () => {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-        resolve(window.pdfjsLib);
+      script.onload = async () => {
+        try {
+          // Bypass CORS restrictions for loading worker scripts from foreign CDNs by building a local Blob URL
+          const workerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+          const res = await fetch(workerUrl);
+          const code = await res.text();
+          const blob = new Blob([code], { type: "application/javascript" });
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
+          clearTimeout(timeout);
+          resolve(window.pdfjsLib);
+        } catch (e) {
+          console.warn("Failed to load PDF worker via Blob, falling back to static URL:", e);
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+          clearTimeout(timeout);
+          resolve(window.pdfjsLib);
+        }
       };
-      script.onerror = () => reject(new Error("Could not load PDF parser"));
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("Could not load PDF parser"));
+      };
       document.head.appendChild(script);
     });
   };
@@ -192,10 +211,19 @@ export default function ResumeAnalyzerPage() {
         resolve(window.JSZip);
         return;
       }
+      const timeout = setTimeout(() => {
+        reject(new Error("DOCX parser loading timed out"));
+      }, 3000);
       const script = document.createElement("script");
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
-      script.onload = () => resolve(window.JSZip);
-      script.onerror = () => reject(new Error("Could not load DOCX parser"));
+      script.onload = () => {
+        clearTimeout(timeout);
+        resolve(window.JSZip);
+      };
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("Could not load DOCX parser"));
+      };
       document.head.appendChild(script);
     });
   };
@@ -204,7 +232,7 @@ export default function ResumeAnalyzerPage() {
     const arrayBufferBackup = arrayBuffer.slice(0);
     try {
       const pdfjsLib = await loadPdfJS();
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
       const pdf = await loadingTask.promise;
       let fullText = "";
       
@@ -242,18 +270,17 @@ export default function ResumeAnalyzerPage() {
     }
   };
 
+  // High performance native O(N) ASCII decoder to replace the slow O(N^2) JS loop
   const extractASCIIFallback = (arrayBuffer) => {
-    const arr = new Uint8Array(arrayBuffer);
-    let result = "";
-    for (let i = 0; i < arr.length; i++) {
-      const code = arr[i];
-      if ((code >= 32 && code <= 126) || code === 10 || code === 13 || code === 9) {
-        result += String.fromCharCode(code);
-      } else {
-        result += " ";
-      }
+    try {
+      const decoder = new TextDecoder("utf-8", { fatal: false });
+      const decodedText = decoder.decode(arrayBuffer);
+      // Strip out control/binary noise characters, keeping standard printable characters
+      return decodedText.replace(/[^\x20-\x7E\n\r\t]/g, " ");
+    } catch (err) {
+      console.error("High-performance ASCII fallback failed:", err);
+      return "";
     }
-    return result;
   };
 
   const processFile = async (file) => {
@@ -274,6 +301,31 @@ export default function ResumeAnalyzerPage() {
         text = await extractTextFromPDF(arrayBuffer);
       } else if (fileExtension === "docx" || fileExtension === "doc") {
         text = await extractTextFromDOCX(arrayBuffer);
+      } else if (fileExtension === "zip") {
+        const JSZip = await loadJSZip();
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const fileNames = Object.keys(zip.files).filter(name => {
+          const isSystem = name.includes("__MACOSX") || name.includes(".DS_Store") || name.startsWith(".");
+          const ext = name.split(".").pop().toLowerCase();
+          return !isSystem && !zip.files[name].dir && ["pdf", "docx", "doc", "txt", "md"].includes(ext);
+        });
+
+        if (fileNames.length === 0) {
+          throw new Error("No valid resume file found inside the zip archive.");
+        }
+
+        const resumeFileName = fileNames[0];
+        const ext = resumeFileName.split(".").pop().toLowerCase();
+        const fileBuffer = await zip.files[resumeFileName].async("arraybuffer");
+
+        if (ext === "pdf") {
+          text = await extractTextFromPDF(fileBuffer);
+        } else if (ext === "docx" || ext === "doc") {
+          text = await extractTextFromDOCX(fileBuffer);
+        } else {
+          const decoder = new TextDecoder("utf-8");
+          text = decoder.decode(fileBuffer);
+        }
       } else {
         const decoder = new TextDecoder("utf-8");
         text = decoder.decode(arrayBuffer);
@@ -293,7 +345,7 @@ export default function ResumeAnalyzerPage() {
       if (!validResume) {
         setTimeout(() => {
           setIsAnalyzing(false);
-          setError("Pls upload the resume my friend 🥺📄✨ (LinkedIn & GitHub profiles required)");
+          setError("Pls upload the resume my friend 🥺📄✨");
           setIsResume(false);
           setFileName("");
           setTimeout(() => {

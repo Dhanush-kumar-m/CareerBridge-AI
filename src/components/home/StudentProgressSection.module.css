@@ -80,14 +80,16 @@
 
 /* Right Side: Analytics Dashboard Preview */
 .analyticsDashboard {
-  background: var(--bg-primary);
+  background: var(--bg-card-hover); /* Soft off-white in light, deep blue/grey in dark */
   border: 1px solid var(--border-subtle);
   border-radius: 24px;
   padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: 0 15px 30px rgba(23, 32, 51, 0.03);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
 }
 
 .dashboardRow {
@@ -102,20 +104,29 @@
   }
 }
 
+.chartCard, .circleCard, .heatmapCard {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chartCard:hover, .circleCard:hover, .heatmapCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 32px var(--shadow-accent);
+}
+
 .chartCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 20px;
 }
 
 .chartTitle {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .chartSvg {
@@ -131,16 +142,13 @@
 }
 
 .circleCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   text-align: center;
+  padding: 20px;
 }
 
 .circleSvg {
@@ -149,20 +157,17 @@
 
 .circleText {
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--accent);
 }
 
 /* Heatmap Grid */
 .heatmapCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 20px;
 }
 
 .heatmapGrid {
@@ -175,10 +180,72 @@
 .heatmapCell {
   aspect-ratio: 1;
   border-radius: 3px;
-  background: rgba(23, 32, 51, 0.04);
+  background: var(--bg-primary); /* Base color matches theme */
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
-.cellActive1 { background: rgba(49, 87, 213, 0.15); }
-.cellActive2 { background: rgba(49, 87, 213, 0.45); }
-.cellActive3 { background: rgba(49, 87, 213, 0.75); }
+.heatmapCell:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 10px var(--accent-glow);
+  z-index: 10;
+}
+
+.cellActive1 { background: var(--accent-soft); }
+.cellActive2 { background: rgba(59, 130, 246, 0.35); }
+.cellActive3 { background: var(--accent-light); opacity: 0.75; }
 .cellActive4 { background: var(--accent); }
+
+/* SVG Animation Elements */
+.chartPath {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: drawLine 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.chartArea {
+  opacity: 0;
+  animation: fadeInArea 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
+}
+
+.chartDot {
+  transform: scale(0);
+  transform-origin: center;
+  animation: popDot 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 1.2s;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+.chartDot:hover {
+  transform: scale(1.6) !important;
+  fill: var(--text-primary);
+}
+
+.circleFill {
+  stroke-dasharray: 213.6;
+  stroke-dashoffset: 213.6;
+  animation: drawCircle 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeInArea {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popDot {
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes drawCircle {
+  to {
+    stroke-dashoffset: 42.7;
+  }
+}

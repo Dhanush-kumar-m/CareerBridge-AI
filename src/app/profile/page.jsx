@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import useAuth from "../../hooks/useAuth";
 
 export default function ProfilePage() {
-  const [student] = useState({
-    name: "Dhanush Kumar",
-    email: "dhanush@example.com",
+  const { user } = useAuth();
+
+  const student = {
+    name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Dhanush Kumar",
+    email: user?.email || "dhanush@example.com",
     department: "Computer Science Engineering",
     year: "Final Year",
     cgpa: "8.0",
@@ -18,7 +21,7 @@ export default function ProfilePage() {
     streak: 14,
     rank: 12,
     profileCompletion: 92,
-  });
+  };
 
   return (
     <div className="profile-page">

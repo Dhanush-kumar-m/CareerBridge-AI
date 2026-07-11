@@ -11,15 +11,16 @@ const localCache = new Map();
  * @param {string} ip Client IP address
  * @param {number} limit Maximum requests allowed in the window
  * @param {number} windowSeconds Window duration in seconds
+ * @param {boolean} allowLocalFallback Allow falling back to in-memory store in production (e.g. for localhost)
  * @returns {Promise<{success: boolean, limit: number, remaining: number}>}
  */
-export async function rateLimit(ip, limit = 20, windowSeconds = 60) {
+export async function rateLimit(ip, limit = 20, windowSeconds = 60, allowLocalFallback = false) {
   const now = Math.floor(Date.now() / 1000);
   const currentWindow = Math.floor(now / windowSeconds);
   const key = `rate_limit:${ip}:${currentWindow}`;
 
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-    if (process.env.NODE_ENV === "production" && process.env.TESTING !== "true") {
+    if (process.env.NODE_ENV === "production" && process.env.TESTING !== "true" && !allowLocalFallback) {
       console.error("CRITICAL ERROR: Upstash Redis credentials missing in production! Blocking request to prevent rate-limit bypass.");
       return {
         success: false,

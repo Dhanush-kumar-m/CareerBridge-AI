@@ -7,6 +7,9 @@ const nextProcess = spawn("npx", ["next", "start", "-p", "3002"], {
   env: { ...process.env, PORT: "3002", TESTING: "true" }
 });
 
+nextProcess.stdout.on("data", (data) => console.log(`[Next.js stdout] ${data}`));
+nextProcess.stderr.on("data", (data) => console.error(`[Next.js stderr] ${data}`));
+
 let testTimeout = setTimeout(() => {
   console.error("❌ Orchestrator timeout: Server did not respond.");
   nextProcess.kill("SIGTERM");
@@ -20,6 +23,7 @@ const runAll = async () => {
     console.log("PHASE 1: Run Integration Tests");
     console.log("==================================================");
     const { execSync } = await import("child_process");
+    process.env.TEST_ORCHESTRATED = "true";
     execSync("node scripts/test-integration.js", { stdio: "inherit" });
 
     // 2. Security tests
