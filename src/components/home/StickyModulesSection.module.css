@@ -281,6 +281,25 @@
   align-items: center;
 }
 
+.nextProblemBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--success);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.nextProblemBtn:hover {
+  background: #118255;
+}
+
 /* Resume Score Preview */
 .scoreCard {
   display: flex;

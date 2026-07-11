@@ -5,6 +5,7 @@ import StickyModulesSection from "../components/home/StickyModulesSection";
 import CompanyPreparationSection from "../components/home/CompanyPreparationSection";
 import PreparationJourneySection from "../components/home/PreparationJourneySection";
 import StudentProgressSection from "../components/home/StudentProgressSection";
+import MemorableScrollSection from "../components/home/MemorableScrollSection";
 import FinalCTASection from "../components/home/FinalCTASection";
 
 export const metadata = {
@@ -33,7 +34,10 @@ export default function Home() {
       {/* 6. Student Progress & Analytics */}
       <StudentProgressSection />
 
-      {/* 7. Final Call-to-Action */}
+      {/* 7. Memorable Scroll storytelling interaction */}
+      <MemorableScrollSection />
+
+      {/* 8. Final Call-to-Action */}
       <FinalCTASection />
     </main>
   );

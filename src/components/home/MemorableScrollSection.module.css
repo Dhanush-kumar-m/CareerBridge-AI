@@ -1,0 +1,225 @@
+.sectionWrapper {
+  padding: 120px 24px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sectionContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+@media (max-width: 968px) {
+  .sectionContainer {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (min-width: 969px) {
+  .leftColumn {
+    position: sticky;
+    top: 160px;
+  }
+}
+
+.headingArea h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 40px;
+}
+
+.scrollList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.scrollItem {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-faint);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.scrollItemActive {
+  color: var(--accent);
+  transform: translateX(10px);
+}
+
+.itemArrow {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 1.3rem;
+}
+
+.scrollItemActive .itemArrow {
+  opacity: 1;
+}
+
+/* Right Column: Dynamic Preview Display */
+.rightColumn {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 969px) {
+  .rightColumn {
+    position: sticky;
+    top: 160px;
+  }
+}
+
+.displayCard {
+  width: 100%;
+  max-width: 420px;
+  height: 380px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(23, 32, 51, 0.04);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.previewWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.previewItem {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.previewItemActive {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Specific Card Layouts */
+.innerCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.codeBox {
+  background: #111115;
+  color: #f3f2ed;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 12px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+.atsProgress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.scoreVal {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.waveGrid {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  margin-top: 10px;
+}
+
+.waveBar {
+  flex: 1;
+  background: var(--accent-border);
+  height: 30%;
+  border-radius: 2px;
+}
+
+.waveActive {
+  background: var(--accent);
+  animation: waveBarPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes waveBarPulse {
+  0% { height: 20%; }
+  100% { height: 100%; }
+}
+
+.readyBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.badgeIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(22, 163, 106, 0.1);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 0 20px rgba(22, 163, 106, 0.2);
+}
+
+.badgeTitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}

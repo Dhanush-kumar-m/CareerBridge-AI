@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiCheck, FiCpu, FiFileText, FiMessageSquare } from "react-icons/fi";
+import { FiCheck, FiCpu, FiFileText, FiMessageSquare, FiArrowRight } from "react-icons/fi";
 import styles from "./StickyModulesSection.module.css";
 
 const MODULES = [
@@ -30,7 +30,7 @@ const MODULES = [
     icon: <FiCpu size={14} />
   },
   {
-    id: 3,
+    id: 2,
     number: "03 / 04",
     title: "Resume Preparation",
     description: "Scan your resume against target job profiles, analyze ATS scores, and get instant feedback on missing keywords.",
@@ -42,7 +42,7 @@ const MODULES = [
     icon: <FiFileText size={14} />
   },
   {
-    id: 4,
+    id: 3,
     number: "04 / 04",
     title: "Mock Interviews",
     description: "Practice technical and HR interview rounds with real-time feedback on confidence, speech pace, and grammar.",
@@ -91,7 +91,7 @@ export default function StickyModulesSection() {
           ))}
         </div>
 
-        {/* Right Column: Previews updating smoothly on click / scroll */}
+        {/* Right Column: Previews updating smoothly on click */}
         <div className={styles.rightColumn}>
           <div className={styles.previewContainer}>
             <div className={styles.previewWrapper}>
@@ -119,7 +119,7 @@ export default function StickyModulesSection() {
                     </div>
                   </div>
                   <div className={styles.uiExplanation}>
-                    <strong>Explanation:</strong> Prime numbers on a 6-sided die are 2, 3, and 5. The total favorable outcomes are 3, and the total possible outcomes are 6. Probability = 3/6 = 1/2.
+                    <strong>Explanation:</strong> Prime numbers on a die are 2, 3, and 5. The total outcomes are 6. Probability = 3/6 = 1/2.
                   </div>
                 </div>
               </div>
@@ -127,6 +127,10 @@ export default function StickyModulesSection() {
               {/* Coding Preview */}
               <div className={`${styles.previewItem} ${activeModule === 1 ? styles.previewItemActive : ""}`}>
                 <div className={styles.codingUI}>
+                  <div className={styles.uiHeader}>
+                    <span>Problem: Max Product of Two Elements</span>
+                    <span style={{ color: "var(--success)", fontWeight: "700" }}>Accepted</span>
+                  </div>
                   <div className={styles.editorHeader}>
                     <span>solution.cpp</span>
                     <span>C++17</span>
@@ -141,13 +145,16 @@ export default function StickyModulesSection() {
                   </div>
                   <div className={styles.testResult}>
                     <span>✓ Compilation Success</span>
-                    <span style={{ fontWeight: "700" }}>All 12 test cases passed</span>
+                    <button className={styles.nextProblemBtn}>
+                      <span>Next Problem</span>
+                      <FiArrowRight size={14} />
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Resume Preview */}
-              <div className={`${styles.previewItem} ${activeModule === 3 ? styles.previewItemActive : ""}`}>
+              <div className={`${styles.previewItem} ${activeModule === 2 ? styles.previewItemActive : ""}`}>
                 <div className={styles.resumeUI}>
                   <div className={styles.uiHeader}>
                     <span>Resume ATS Match Analyzer</span>
@@ -180,7 +187,7 @@ export default function StickyModulesSection() {
               </div>
 
               {/* Interview Preview */}
-              <div className={`${styles.previewItem} ${activeModule === 4 ? styles.previewItemActive : ""}`}>
+              <div className={`${styles.previewItem} ${activeModule === 3 ? styles.previewItemActive : ""}`}>
                 <div className={styles.interviewUI}>
                   <div className={styles.uiHeader}>
                     <span>Mock Interview Console</span>

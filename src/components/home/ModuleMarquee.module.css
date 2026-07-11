@@ -4,17 +4,19 @@
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 16px 0;
+  padding: 18px 0;
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .marqueeTrack {
   display: flex;
   white-space: nowrap;
-  animation: scrollMarquee 35s linear infinite;
-  gap: 30px;
+  animation: scrollMarquee 45s linear infinite;
+  gap: 0;
+  align-items: center;
 }
 
 .marqueeContainer:hover .marqueeTrack {
@@ -23,29 +25,29 @@
 
 @keyframes scrollMarquee {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-33.333%); }
 }
 
 .marqueeItem {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-subtle);
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 0 40px;
   user-select: none;
+  transition: color 0.2s ease;
 }
 
-.marqueeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0.6;
+.marqueeItem:hover {
+  color: var(--accent);
+}
+
+.divider {
+  color: var(--border-strong);
+  font-weight: 300;
+  opacity: 0.8;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -53,7 +55,9 @@
     animation: none;
     flex-wrap: wrap;
     justify-content: center;
-    padding: 0 20px;
+  }
+  .divider {
+    display: inline;
   }
 }
 

@@ -10,8 +10,8 @@ import { useState, useEffect, useRef } from "react";
 export default function Navbar() {
   const pathname = usePathname() || "";
   const { isAuthenticated, logoutUser, user } = useAuth();
-
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
+
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -22,7 +22,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
+      if (window.scrollY > 20) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -59,8 +59,8 @@ export default function Navbar() {
     return null;
   }
 
-  const navItems = [
-    { name: "Home", path: "/" },
+  // Dynamic Navigation Items
+  const authenticatedItems = [
     { name: "Dashboard", path: "/dashboard" },
     { name: "Aptitude", path: "/aptitude" },
     { name: "Coding", path: "/coding" },
@@ -70,15 +70,21 @@ export default function Navbar() {
     { name: "Analytics", path: "/analytics" },
   ];
 
+  const guestItems = [
+    { name: "Practice", path: "/#practice-modules" },
+    { name: "Companies", path: "/companies" },
+    { name: "Resources", path: "/#journey" },
+    { name: "About", path: "/#progress-analytics" },
+  ];
+
+  const activeItems = isAuthenticated ? authenticatedItems : guestItems;
   const isHome = pathname === "/";
   const headerPosition = isHome ? "fixed" : "sticky";
-  const headerBg = isHome 
-    ? (scrolled ? "rgba(6, 8, 20, 0.8)" : "transparent") 
-    : "rgba(17, 24, 39, 0.95)";
-  const headerBorder = isHome
-    ? (scrolled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent")
-    : "1px solid #1f2937";
-  const headerBlur = isHome && scrolled ? "blur(12px)" : "none";
+  
+  // High polish light navbar style configurations
+  const headerBg = scrolled ? "rgba(255, 255, 255, 0.82)" : "transparent";
+  const headerBorder = scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent";
+  const headerBlur = scrolled ? "blur(16px)" : "none";
 
   return (
     <header 
@@ -89,43 +95,45 @@ export default function Navbar() {
         left: 0,
         width: "100%",
         zIndex: 1000,
-        transition: "background 0.3s, backdrop-filter 0.3s, border-color 0.3s, padding 0.3s",
+        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         background: headerBg,
         backdropFilter: headerBlur,
         borderBottom: headerBorder,
-        padding: isHome && !scrolled ? "20px 40px" : "14px 40px"
+        padding: scrolled ? "14px 40px" : "20px 40px"
       }}
     >
       <div className="navbar-left">
         <Link href="/" className="logo" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-          <FiBriefcase className="logo-icon" style={{ color: "var(--primary)", fontSize: "1.2rem" }} />
-          <span>CareerBridge AI</span>
+          <FiBriefcase className="logo-icon" style={{ color: "var(--accent)", fontSize: "1.2rem" }} />
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+            CareerBridge AI
+          </span>
         </Link>
       </div>
 
-      {isAuthenticated && (
-        <nav className="nav-links">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              href={item.path}
-              className={
-                pathname === item.path
-                  ? "nav-link active"
-                  : "nav-link"
-              }
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-      )}
+      <nav className="nav-links" style={{ display: "flex", gap: "28px" }}>
+        {activeItems.map((item) => (
+          <Link
+            key={item.path}
+            href={item.path}
+            className={pathname === item.path ? "nav-link active" : "nav-link"}
+            style={{
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              color: pathname === item.path ? "var(--accent)" : "var(--text-secondary)",
+              transition: "color 0.2s ease"
+            }}
+          >
+            {item.name}
+          </Link>
+        ))}
+      </nav>
 
-      <div className="nav-actions" style={{ display: "flex", alignItems: "center" }}>
+      <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         
-        {/* Notification Bell Section - Only visible if logged in */}
+        {/* Notification Bell Section */}
         {isAuthenticated && (
-          <div style={{ position: "relative", marginRight: "15px" }} ref={dropdownRef}>
+          <div style={{ position: "relative" }} ref={dropdownRef}>
             <button
               onClick={handleBellClick}
               style={{
@@ -142,17 +150,16 @@ export default function Navbar() {
               }}
               className="bell-btn"
             >
-              <FiBell size={20} />
+              <FiBell size={18} />
               {unreadCount > 0 && (
                 <span style={{
                   position: "absolute",
-                  top: "2px",
-                  right: "2px",
-                  background: "#ef4444",
-                  color: "white",
+                  top: "4px",
+                  right: "4px",
+                  background: "var(--danger)",
                   borderRadius: "50%",
-                  width: "8px",
-                  height: "8px",
+                  width: "7px",
+                  height: "7px",
                   display: "block"
                 }} />
               )}
@@ -164,15 +171,15 @@ export default function Navbar() {
                 top: "45px",
                 right: "0",
                 width: "320px",
-                background: "linear-gradient(145deg, #1e293b, #0f172a)",
-                border: "1.5px solid #3b82f6",
+                background: "var(--bg-secondary)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: "12px",
-                boxShadow: "0 15px 30px rgba(0, 0, 0, 0.5), 0 0 10px rgba(59, 130, 246, 0.15)",
+                boxShadow: "0 10px 30px rgba(23, 32, 51, 0.08)",
                 zIndex: 1000,
                 overflow: "hidden"
               }}>
-                <div style={{ padding: "12px 15px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontWeight: "700", fontSize: "0.92rem", color: "#ffffff" }}>Announcements</span>
+                <div style={{ padding: "12px 15px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontWeight: "700", fontSize: "0.88rem", color: "var(--text-primary)" }}>Announcements</span>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -181,49 +188,44 @@ export default function Navbar() {
                     style={{ 
                       background: "none", 
                       border: "none", 
-                      color: "#60a5fa", 
+                      color: "var(--accent)", 
                       fontSize: "0.75rem", 
                       fontWeight: "700", 
                       cursor: "pointer",
                       padding: "2px 6px",
-                      borderRadius: "4px",
-                      transition: "background 0.2s"
+                      borderRadius: "4px"
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(96, 165, 250, 0.1)"}
-                    onMouseLeave={(e) => e.currentTarget.style.background = "none"}
                   >
                     Mark all as read
                   </button>
                 </div>
                 <div style={{ maxHeight: "280px", overflowY: "auto" }}>
                   {notifications.length === 0 ? (
-                    <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}>
+                    <div style={{ padding: "20px", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.82rem" }}>
                       No notifications yet.
                     </div>
                   ) : (
                     notifications.map((n, idx) => (
                       <div key={idx} style={{ 
                         padding: "12px 15px", 
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.08)", 
-                        transition: "background 0.2s",
-                        background: n.isRead ? "transparent" : "rgba(59, 130, 246, 0.05)"
-                      }} className="notif-item">
+                        borderBottom: "1px solid var(--border-subtle)", 
+                        background: n.isRead ? "transparent" : "var(--bg-card-hover)"
+                      }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          <h4 style={{ margin: "0 0 4px", fontSize: "0.88rem", fontWeight: "600", color: "#ffffff" }}>{n.title}</h4>
+                          <h4 style={{ margin: "0 0 4px", fontSize: "0.85rem", fontWeight: "700", color: "var(--text-primary)" }}>{n.title}</h4>
                           {!n.isRead && (
                             <span style={{
                               width: "6px",
                               height: "6px",
                               borderRadius: "50%",
-                              background: "#3b82f6",
+                              background: "var(--accent)",
                               display: "inline-block",
-                              marginLeft: "6px",
                               marginTop: "5px"
                             }} />
                           )}
                         </div>
-                        <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "#cbd5e1", lineHeight: "1.4" }}>{n.content}</p>
-                        <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>{n.date}</span>
+                        <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>{n.content}</p>
+                        <span style={{ fontSize: "0.7rem", color: "var(--text-faint)" }}>{n.date}</span>
                       </div>
                     ))
                   )}
@@ -234,13 +236,13 @@ export default function Navbar() {
         )}
 
         {isAuthenticated ? (
-          <div style={{ position: "relative", marginLeft: "10px" }} ref={profileDropdownRef}>
+          <div style={{ position: "relative" }} ref={profileDropdownRef}>
             <button
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#ffffff",
+                background: "var(--bg-card-hover)",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-primary)",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
@@ -248,12 +250,11 @@ export default function Navbar() {
                 padding: "8px 16px",
                 borderRadius: "20px",
                 fontWeight: "600",
-                fontSize: "0.9rem",
+                fontSize: "0.88rem",
                 transition: "all 0.2s"
               }}
-              className="profile-trigger-btn"
             >
-              <FiUser size={16} />
+              <FiUser size={14} />
               <span>{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Profile"}</span>
             </button>
 
@@ -262,28 +263,28 @@ export default function Navbar() {
                 position: "absolute",
                 top: "45px",
                 right: "0",
-                width: "280px",
-                background: "linear-gradient(145deg, #1e293b, #0f172a)",
-                border: "1px solid rgba(59, 130, 246, 0.3)",
+                width: "240px",
+                background: "var(--bg-secondary)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: "12px",
-                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)",
+                boxShadow: "0 10px 25px rgba(23, 32, 51, 0.08)",
                 padding: "16px",
                 zIndex: 1000,
                 display: "flex",
                 flexDirection: "column",
                 gap: "12px",
                 textAlign: "left"
-              }} className="profile-dropdown-card">
+              }}>
                 <div>
-                  <h4 style={{ margin: "0", fontSize: "1.05rem", fontWeight: "700", color: "#ffffff" }}>
+                  <h4 style={{ margin: "0", fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}
                   </h4>
-                  <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#94a3b8", wordBreak: "break-all" }}>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--text-secondary)", wordBreak: "break-all" }}>
                     {user?.email}
                   </p>
                 </div>
                 
-                <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.08)" }} />
+                <div style={{ height: "1px", background: "var(--border-subtle)" }} />
                 
                 {user?.role === "admin" && (
                   <Link
@@ -293,17 +294,15 @@ export default function Navbar() {
                       display: "flex",
                       alignItems: "center",
                       gap: "10px",
-                      background: "rgba(59, 130, 246, 0.15)",
-                      color: "#60a5fa",
-                      border: "1px solid rgba(59, 130, 246, 0.3)",
+                      background: "var(--accent-soft)",
+                      color: "var(--accent)",
+                      border: "1px solid var(--accent-border)",
                       borderRadius: "8px",
                       padding: "10px 14px",
                       fontWeight: "700",
-                      fontSize: "0.9rem",
-                      textDecoration: "none",
-                      transition: "all 0.2s"
+                      fontSize: "0.85rem",
+                      textDecoration: "none"
                     }}
-                    className="admin-dashboard-link"
                   >
                     <span>🛡️ Admin dashboard</span>
                   </Link>
@@ -316,16 +315,15 @@ export default function Navbar() {
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
-                    color: "#e2e8f0",
+                    color: "var(--text-primary)",
                     borderRadius: "8px",
                     padding: "8px 10px",
                     fontWeight: "600",
-                    fontSize: "0.9rem",
+                    fontSize: "0.85rem",
                     textDecoration: "none"
                   }}
-                  className="profile-link"
                 >
-                  <FiUser size={16} />
+                  <FiUser size={14} />
                   <span>My Profile</span>
                 </Link>
 
@@ -340,36 +338,61 @@ export default function Navbar() {
                     gap: "10px",
                     background: "none",
                     border: "none",
-                    color: "#ef4444",
+                    color: "var(--danger)",
                     cursor: "pointer",
                     padding: "8px 10px",
                     width: "100%",
                     textAlign: "left",
                     fontWeight: "600",
-                    fontSize: "0.9rem"
+                    fontSize: "0.85rem"
                   }}
-                  className="profile-logout-btn"
                 >
-                  <FiLogOut size={16} />
+                  <FiLogOut size={14} />
                   <span>Logout</span>
                 </button>
               </div>
             )}
           </div>
         ) : (
-          // If on Login/Register page, don't show Login/Get Started actions to keep it clean and focus on the page form.
-          // Otherwise, on the main home page/guest pages, show the authentication options.
           pathname !== "/login" && pathname !== "/register" && (
             <>
-              <Link href="/admin/login" style={{ display: "inline-flex", alignItems: "center", marginRight: "15px", fontSize: "0.9rem", fontWeight: "700", color: "var(--text-secondary)" }}>
-                Admin
-              </Link>
-
-              <Link href="/login" className="login-btn">
+              <Link 
+                href="/login" 
+                style={{ 
+                  fontSize: "0.88rem", 
+                  fontWeight: "600", 
+                  color: "var(--text-secondary)", 
+                  textDecoration: "none",
+                  transition: "color 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
+              >
                 Login
               </Link>
 
-              <Link href="/register" className="register-btn">
+              <Link 
+                href="/register" 
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  background: "var(--accent)",
+                  color: "#ffffff",
+                  fontSize: "0.88rem",
+                  fontWeight: "600",
+                  textDecoration: "none",
+                  boxShadow: "0 2px 8px rgba(49, 87, 213, 0.15)",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#2448b7";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--accent)";
+                  e.currentTarget.style.transform = "none";
+                }}
+              >
                 Get Started
               </Link>
             </>
@@ -378,14 +401,10 @@ export default function Navbar() {
       </div>
       
       <style jsx>{`
-        .bell-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-        .notif-item:hover {
-          background: rgba(255, 255, 255, 0.02);
+        .nav-link:hover {
+          color: var(--accent) !important;
         }
       `}</style>
     </header>
   );
 }
-

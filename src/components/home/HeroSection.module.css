@@ -1,11 +1,17 @@
+.heroSection {
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
 .heroContainer {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 40px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 50px;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px;
+  padding: 100px 24px;
   min-height: calc(100vh - 80px);
 }
 
@@ -14,6 +20,7 @@
     grid-template-columns: 1fr;
     padding: 60px 24px;
     text-align: center;
+    gap: 40px;
   }
 }
 
@@ -38,21 +45,21 @@
   color: var(--accent);
   text-transform: uppercase;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .headline {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 3.8rem);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 20px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .description {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: var(--text-secondary);
   margin-bottom: 36px;
@@ -72,38 +79,47 @@
   }
 }
 
-.ctaPrimary, .ctaSecondary {
+/* Polished Button Styles */
+.ctaPrimary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 14px 28px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.ctaPrimary {
-  background: var(--gradient-cta);
+  background: #3157D5;
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(49, 87, 213, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(49, 87, 213, 0.12);
 }
 
 .ctaPrimary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(49, 87, 213, 0.35);
+  background: #2448B7;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(49, 87, 213, 0.2);
 }
 
 .ctaSecondary {
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #ffffff;
+  border: 1px solid #3157D5;
+  color: #3157D5;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
 }
 
 .ctaSecondary:hover {
-  border-color: var(--accent);
-  background: var(--bg-card-hover);
+  background: rgba(49, 87, 213, 0.03);
+  border-color: #2448B7;
+  color: #2448B7;
+  transform: translateY(-1px);
 }
 
 .trustPoints {
@@ -135,22 +151,22 @@
 /* Right Side: Dashboard Preview */
 .dashboardPreview {
   width: 100%;
-  max-width: 500px;
+  max-width: 440px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(23, 32, 51, 0.06), 0 0 1px rgba(23, 32, 51, 0.1);
+  box-shadow: 0 15px 35px rgba(23, 32, 51, 0.04), 0 0 1px rgba(23, 32, 51, 0.08);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   animation: floatPanel 6s ease-in-out infinite;
   margin: 0 auto;
 }
 
 @keyframes floatPanel {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 .panelHeader {
@@ -162,103 +178,128 @@
 }
 
 .panelTitle {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .panelBadge {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 6px;
   background: var(--accent-soft);
   color: var(--accent);
-  text-transform: uppercase;
 }
 
+/* Realistic Console Cards */
 .previewCard {
   background: var(--bg-primary);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.cardMeta {
+.cardHeaderFlex {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.78rem;
-  font-weight: 600;
+  align-items: flex-start;
+}
+
+.cardEyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   color: var(--text-secondary);
 }
 
 .cardTitle {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+
+.cardActionLink {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.cardActionBtn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--accent);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cardActionBtn:hover {
+  background: #2448B7;
+}
+
+.progressFlex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .progressBar {
+  flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: rgba(23, 32, 51, 0.05);
+  background: rgba(23, 32, 51, 0.04);
   overflow: hidden;
   position: relative;
 }
 
 .progressFill {
   height: 100%;
-  background: var(--gradient-accent);
+  background: var(--accent);
   border-radius: 3px;
 }
 
-.streakGrid {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.streakDot {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: rgba(23, 32, 51, 0.05);
-}
-
-.streakDotActive {
-  background: var(--success);
-  box-shadow: 0 0 8px rgba(22, 163, 106, 0.3);
-}
-
-.upcomingTask {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.taskIndicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--warning);
-}
-
-.taskDetail {
-  display: flex;
-  flex-direction: column;
-}
-
-.taskName {
-  font-size: 0.88rem;
+.progressPercent {
+  font-family: monospace;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.taskTime {
-  font-size: 0.75rem;
+.cardBadgeWarning {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(229, 154, 34, 0.08);
+  color: var(--warning);
+  width: fit-content;
+}
+
+.cardBadgeSuccess {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.cardProgressCount {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardSubText {
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }

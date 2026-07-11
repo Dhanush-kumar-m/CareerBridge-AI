@@ -2,36 +2,33 @@
 
 import React from "react";
 import Link from "next/link";
-import { FiArrowRight } from "react-icons/fi";
+import { FiArrowRight, FiCheck } from "react-icons/fi";
 import styles from "./CompanyPreparationSection.module.css";
 
 const COMPANIES = [
   {
     name: "TCS",
     category: "Mass Recruiter",
-    aptitude: "Numerical, Verbal & Logical",
-    coding: "Standard arrays & string iterations",
-    technical: "Data Structures, Database Basics",
-    progress: 75,
-    link: "/companies/tcs"
+    coverage: ["Aptitude", "Coding", "Technical", "HR"],
+    questionCount: "140+ Questions",
+    progress: 72,
+    link: "/companies"
   },
   {
     name: "Accenture",
     category: "Systems Consultant",
-    aptitude: "Cognitive assessment, English",
-    coding: "Pseudocode debugging & binary logic",
-    technical: "Networking basics, Security basics",
+    coverage: ["Aptitude", "Coding", "Technical", "HR"],
+    questionCount: "95+ Questions",
     progress: 45,
-    link: "/companies/accenture"
+    link: "/companies"
   },
   {
     name: "Amazon",
     category: "Product Giant",
-    aptitude: "Online Assessment (OA), Work Styles",
-    coding: "Graphs, Trees & Dynamic Programming",
-    technical: "System Design, Object Oriented Design",
-    progress: 10,
-    link: "/companies/amazon"
+    coverage: ["Aptitude", "Coding", "Technical", "HR"],
+    questionCount: "180+ Questions",
+    progress: 12,
+    link: "/companies"
   }
 ];
 
@@ -50,39 +47,41 @@ export default function CompanyPreparationSection() {
         {COMPANIES.map((company, index) => (
           <div key={index} className={styles.companyCard}>
             <div className={styles.cardHeader}>
-              <span className={company.name === "Amazon" ? styles.companyName : styles.companyName}>
+              <span className={styles.companyName}>
                 {company.name}
               </span>
               <span className={styles.categoryBadge}>{company.category}</span>
             </div>
 
-            <div className={styles.prepTopics}>
-              <div className={styles.prepTopic}>
-                <span>Aptitude patterns:</span>
-                <span className={styles.topicVal}>{company.aptitude}</span>
+            <div className={styles.coverageSection}>
+              <span className={styles.sectionLabel}>Preparation Coverage</span>
+              <div className={styles.coverageGrid}>
+                {company.coverage.map((cov, i) => (
+                  <div key={i} className={styles.coverageItem}>
+                    <FiCheck size={14} className={styles.checkIcon} />
+                    <span>{cov}</span>
+                  </div>
+                ))}
               </div>
-              <div className={styles.prepTopic}>
-                <span>Coding focus:</span>
-                <span className={styles.topicVal}>{company.coding}</span>
-              </div>
-              <div className={styles.prepTopic}>
-                <span>Technical focus:</span>
-                <span className={styles.topicVal}>{company.technical}</span>
-              </div>
+            </div>
+
+            <div className={styles.questionSection}>
+              <span className={styles.sectionLabel}>Question Count</span>
+              <span className={styles.questionVal}>{company.questionCount}</span>
             </div>
 
             <div className={styles.progressBarArea}>
               <div className={styles.progressBarLabel}>
-                <span>My Prep Status</span>
-                <span>{company.progress}% ready</span>
+                <span>Preparation Progress</span>
+                <span>{company.progress}% Complete</span>
               </div>
               <div className={styles.progressBar}>
                 <div className={styles.progressFill} style={{ width: `${company.progress}%` }} />
               </div>
             </div>
 
-            <Link href="/companies" className={styles.exploreBtn}>
-              <span>Explore Preparation</span>
+            <Link href={company.link} className={styles.exploreBtn}>
+              <span>Continue Preparation</span>
               <FiArrowRight size={16} />
             </Link>
           </div>
