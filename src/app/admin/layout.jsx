@@ -15,7 +15,8 @@ import {
   FiSettings,
   FiLogOut,
   FiChevronRight,
-  FiAward
+  FiAward,
+  FiActivity
 } from "react-icons/fi";
 
 export default function AdminLayout({ children }) {
@@ -54,6 +55,7 @@ export default function AdminLayout({ children }) {
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: FiGrid },
     { name: "Students", path: "/admin/students", icon: FiUser },
+    { name: "User Activities", path: "/admin/new-users", icon: FiActivity },
     { name: "Companies", path: "/admin/companies", icon: FiBriefcase },
     { name: "Mock Interviews", path: "/admin/interviews", icon: FiMic },
     { name: "Resume Review", path: "/admin/resumes", icon: FiFileText },

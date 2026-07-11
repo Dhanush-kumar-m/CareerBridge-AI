@@ -33,6 +33,19 @@ export function AuthProvider({ children }) {
     return { ...u, role: isMatchedAdmin ? "admin" : "student" };
   };
 
+  const logActivity = async (u, type) => {
+    if (!u || !u.email) return;
+    try {
+      await supabase.from("user_activity").insert({
+        user_id: u.id,
+        email: u.email,
+        activity_type: type
+      });
+    } catch (err) {
+      console.warn("Failed to log user activity:", err);
+    }
+  };
+
   useEffect(() => {
     // 1. Get initial session and fetch role
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -47,12 +60,20 @@ export function AuthProvider({ children }) {
 
     // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         if (session?.user) {
           const userWithRole = await fetchUserRole(session.user);
           setUser(userWithRole);
+          if (event === "SIGNED_IN") {
+            logActivity(session.user, "login");
+          }
         } else {
-          setUser(null);
+          setUser(prev => {
+            if (prev) {
+              logActivity(prev, "logout");
+            }
+            return null;
+          });
         }
         setLoading(false);
       }
