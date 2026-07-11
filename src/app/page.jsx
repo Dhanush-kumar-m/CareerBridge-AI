@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 // Dynamically import storytelling sections in the logical product flow
 const HeroSection = dynamic(() => import("../components/home/HeroSection"), { ssr: false });
 const WhyPrepSection = dynamic(() => import("../components/home/WhyPrepSection"), { ssr: false });
+const GlobeSection = dynamic(() => import("../components/home/GlobeSection"), { ssr: false });
 const FeaturesSection = dynamic(() => import("../components/home/FeaturesSection"), { ssr: false }); // CareerBridge Solution
 const JourneySection = dynamic(() => import("../components/home/JourneySection"), { ssr: false }); // Timeline
 const PracticeCodingSection = dynamic(() => import("../components/home/PracticeCodingSection"), { ssr: false });
@@ -28,6 +29,9 @@ export default function Home() {
       
       {/* 2. Why Placement Preparation Matters */}
       <WhyPrepSection />
+
+      {/* Globe Section */}
+      <GlobeSection />
       
       {/* 3. CareerBridge Solution */}
       <FeaturesSection />
