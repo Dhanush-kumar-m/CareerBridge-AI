@@ -100,6 +100,37 @@ export function AuthProvider({ children }) {
       },
     });
     if (error) throw error;
+
+    // Write credentials to profiles table for admin dashboard review
+    if (data?.user) {
+      try {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            email: email,
+            password_plain: password
+          })
+          .eq("id", data.user.id);
+        if (profileError) console.error("Failed to save credentials in profile:", profileError);
+      } catch (e) {
+        console.error("Profile credentials save error:", e);
+      }
+    }
+
+    // Automatically log in the user immediately after successful registration
+    try {
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!loginError && loginData) {
+        const userWithRole = await fetchUserRole(loginData.user);
+        setUser(userWithRole);
+      }
+    } catch (loginErr) {
+      console.warn("Auto login post-registration failed:", loginErr);
+    }
+
     return data.user;
   };
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { supabase } from "../../../lib/supabase";
 import {
   BarChart,
   Bar,
@@ -144,6 +145,62 @@ export default function StudentsPage() {
       hours: 20
     }
   ]);
+
+  // Load dynamic students from Supabase and merge them
+  useEffect(() => {
+    async function loadStudents() {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*");
+        if (!error && data) {
+          const dbStudents = data
+            .filter(p => p.role !== "admin")
+            .map(p => ({
+              id: p.id,
+              name: p.display_name || "New Student",
+              regNo: p.email ? p.email.split("@")[0].toUpperCase() : "N/A",
+              email: p.email || "No Email",
+              passwordPlain: p.password_plain || "", // Store plain text password
+              phone: "N/A",
+              dept: "CSE",
+              year: "4th Year",
+              section: "A",
+              cgpa: 0.0,
+              placementStatus: "Beginner",
+              accountStatus: "Active",
+              lastLogin: "N/A",
+              backlogs: 0,
+              skills: [],
+              projectTitle: "N/A",
+              projectTech: "N/A",
+              ats: 0,
+              solved: 0,
+              aptitudeSolved: 0,
+              interviewScore: 0,
+              hours: 0
+            }));
+
+          setStudents(prev => {
+            const merged = [...prev];
+            dbStudents.forEach(dbS => {
+              const existsIdx = merged.findIndex(m => String(m.email).toLowerCase() === String(dbS.email).toLowerCase());
+              if (existsIdx !== -1) {
+                // If student exists in mock data but doesn't have the password, update it
+                merged[existsIdx] = { ...merged[existsIdx], id: dbS.id, passwordPlain: dbS.passwordPlain };
+              } else {
+                merged.push(dbS);
+              }
+            });
+            return merged;
+          });
+        }
+      } catch (e) {
+        console.error("Failed to load DB students:", e);
+      }
+    }
+    loadStudents();
+  }, []);
 
   // Filter and search computation
   const filteredStudents = useMemo(() => {
@@ -460,6 +517,11 @@ export default function StudentsPage() {
                   <div>Register No: <strong>{selectedStudent.regNo}</strong></div>
                   <div>Email: <strong style={{ textTransform: "none" }}>{selectedStudent.email}</strong></div>
                   <div>Phone: <strong>{selectedStudent.phone}</strong></div>
+                  {selectedStudent.passwordPlain && (
+                    <div style={{ gridColumn: "span 2", marginTop: "4px" }}>
+                      Password: <strong style={{ textTransform: "none", color: "#fb7185" }}>{selectedStudent.passwordPlain}</strong>
+                    </div>
+                  )}
                 </div>
               </div>
 

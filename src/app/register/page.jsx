@@ -38,7 +38,6 @@ export default function RegisterPage() {
 
     try {
       await signupUser(formData.email, formData.password, formData.name);
-      alert("Account created successfully! Check email (if confirmation enabled) or continue.");
       router.push("/");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
