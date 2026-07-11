@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
 import styles from "./FinalCTASection.module.css";
+import AnimatedContent from "../reactbits/AnimatedContent";
 
 export default function FinalCTASection() {
   const { isAuthenticated } = useAuth();
@@ -12,7 +13,7 @@ export default function FinalCTASection() {
   return (
     <section className={styles.sectionWrapper}>
       <div className={styles.bgText}>READY</div>
-      <div className={styles.contentArea}>
+      <AnimatedContent delay={0.1} yOffset={30} className={styles.contentArea}>
         <h2>Start building your placement readiness today</h2>
         <p className={styles.description}>
           Follow a structured path, practice consistently and understand exactly where you need to improve.
@@ -26,7 +27,7 @@ export default function FinalCTASection() {
             <span>Explore Practice Modules</span>
           </Link>
         </div>
-      </div>
+      </AnimatedContent>
     </section>
   );
 }

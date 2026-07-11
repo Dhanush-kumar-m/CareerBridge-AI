@@ -179,6 +179,6 @@
 }
 
 .cellActive1 { background: rgba(49, 87, 213, 0.15); }
-.cellActive2 { background: rgba(49, 87, 213, 0.4); }
-.cellActive3 { background: rgba(49, 87, 213, 0.7); }
+.cellActive2 { background: rgba(49, 87, 213, 0.45); }
+.cellActive3 { background: rgba(49, 87, 213, 0.75); }
 .cellActive4 { background: var(--accent); }

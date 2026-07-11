@@ -1,10 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import './ScrollReveal.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const ScrollReveal = ({
   children,
@@ -37,57 +33,47 @@ const ScrollReveal = ({
     const el = containerRef.current;
     if (!el) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      return;
-    }
+    let activeCtx = null;
 
-    const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
-    const wordElements = el.querySelectorAll('.word');
+    Promise.all([
+      import('gsap'),
+      import('gsap/ScrollTrigger')
+    ]).then(([{ gsap }, { ScrollTrigger }]) => {
+      gsap.registerPlugin(ScrollTrigger);
 
-    const ctx = gsap.context(() => {
-      if (baseRotation !== 0) {
-        gsap.fromTo(
-          el,
-          { transformOrigin: '0% 50%', rotate: baseRotation },
-          {
-            ease: 'none',
-            rotate: 0,
-            scrollTrigger: {
-              trigger: el,
-              scroller,
-              start: 'top bottom',
-              end: rotationEnd,
-              scrub: true
-            }
-          }
-        );
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) {
+        return;
       }
 
-      gsap.fromTo(
-        wordElements,
-        { opacity: baseOpacity, willChange: 'opacity, filter' },
-        {
-          ease: 'none',
-          opacity: 1,
-          stagger: 0.05,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: 'top bottom-=20%',
-            end: wordAnimationEnd,
-            scrub: true
-          }
-        }
-      );
+      const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
+      const wordElements = el.querySelectorAll('.word');
 
-      if (enableBlur) {
+      const ctx = gsap.context(() => {
+        if (baseRotation !== 0) {
+          gsap.fromTo(
+            el,
+            { transformOrigin: '0% 50%', rotate: baseRotation },
+            {
+              ease: 'none',
+              rotate: 0,
+              scrollTrigger: {
+                trigger: el,
+                scroller,
+                start: 'top bottom',
+                end: rotationEnd,
+                scrub: true
+              }
+            }
+          );
+        }
+
         gsap.fromTo(
           wordElements,
-          { filter: `blur(${blurStrength}px)` },
+          { opacity: baseOpacity, willChange: 'opacity, filter' },
           {
             ease: 'none',
-            filter: 'blur(0px)',
+            opacity: 1,
             stagger: 0.05,
             scrollTrigger: {
               trigger: el,
@@ -98,11 +84,34 @@ const ScrollReveal = ({
             }
           }
         );
-      }
-    }, el);
+
+        if (enableBlur) {
+          gsap.fromTo(
+            wordElements,
+            { filter: `blur(${blurStrength}px)` },
+            {
+              ease: 'none',
+              filter: 'blur(0px)',
+              stagger: 0.05,
+              scrollTrigger: {
+                trigger: el,
+                scroller,
+                start: 'top bottom-=20%',
+                end: wordAnimationEnd,
+                scrub: true
+              }
+            }
+          );
+        }
+      }, el);
+
+      activeCtx = ctx;
+    });
 
     return () => {
-      ctx.revert();
+      if (activeCtx) {
+        activeCtx.revert();
+      }
     };
   }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
 

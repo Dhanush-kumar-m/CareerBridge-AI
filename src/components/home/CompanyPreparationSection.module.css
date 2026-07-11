@@ -167,17 +167,17 @@
   padding: 12px;
   border-radius: 8px;
   background: #ffffff;
-  border: 1px solid #3157D5;
+  border: 1px solid var(--accent);
   font-weight: 600;
   font-size: 0.9rem;
-  color: #3157D5;
+  color: var(--accent);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .exploreBtn:hover {
-  background: rgba(49, 87, 213, 0.03);
-  border-color: #2448B7;
-  color: #2448B7;
+  background: rgba(31, 111, 95, 0.03);
+  border-color: var(--accent-light);
+  color: var(--accent-light);
   transform: translateY(-1px);
 }

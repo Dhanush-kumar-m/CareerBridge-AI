@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="home-page" style={{ padding: "0" }}>
+    <main className="homePage" style={{ padding: "0" }}>
       {/* 1. Hero Section */}
       <HeroSection />
 

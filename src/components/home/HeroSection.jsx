@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
 import styles from "./HeroSection.module.css";
+import AnimatedContent from "../reactbits/AnimatedContent";
 
 export default function HeroSection() {
   const { isAuthenticated } = useAuth();
@@ -13,7 +14,7 @@ export default function HeroSection() {
     <section className={styles.heroSection}>
       <div className={styles.heroContainer}>
         {/* Left Column: Copywriting */}
-        <div className={styles.heroContent}>
+        <AnimatedContent delay={0.1} yOffset={25} className={styles.heroContent}>
           <span className={styles.eyebrow}>
             Placement Preparation Platform
           </span>
@@ -48,10 +49,10 @@ export default function HeroSection() {
               <span>Progress tracking</span>
             </div>
           </div>
-        </div>
+        </AnimatedContent>
 
         {/* Right Column: Polished Realistic Dashboard Preview */}
-        <div className={styles.dashboardPreview}>
+        <AnimatedContent delay={0.25} yOffset={25} className={styles.dashboardPreview}>
           <div className={styles.panelHeader}>
             <span className={styles.panelTitle}>Student Console</span>
             <span className={styles.panelBadge}>Level 4</span>
@@ -111,7 +112,7 @@ export default function HeroSection() {
             </div>
             <p className={styles.cardSubText}>2 Suggestions Remaining</p>
           </div>
-        </div>
+        </AnimatedContent>
       </div>
     </section>
   );

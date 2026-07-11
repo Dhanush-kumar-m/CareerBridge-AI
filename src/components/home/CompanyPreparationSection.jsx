@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { FiArrowRight, FiCheck } from "react-icons/fi";
 import styles from "./CompanyPreparationSection.module.css";
+import AnimatedContent from "../reactbits/AnimatedContent";
 
 const COMPANIES = [
   {
@@ -45,7 +46,7 @@ export default function CompanyPreparationSection() {
 
       <div className={styles.cardsGrid}>
         {COMPANIES.map((company, index) => (
-          <div key={index} className={styles.companyCard}>
+          <AnimatedContent key={index} delay={index * 0.1} yOffset={20} className={styles.companyCard}>
             <div className={styles.cardHeader}>
               <span className={styles.companyName}>
                 {company.name}
@@ -84,7 +85,7 @@ export default function CompanyPreparationSection() {
               <span>Continue Preparation</span>
               <FiArrowRight size={16} />
             </Link>
-          </div>
+          </AnimatedContent>
         ))}
       </div>
     </section>

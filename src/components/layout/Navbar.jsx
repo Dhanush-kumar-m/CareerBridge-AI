@@ -81,9 +81,13 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const headerPosition = isHome ? "fixed" : "sticky";
   
-  // High polish light navbar style configurations
-  const headerBg = scrolled ? "rgba(255, 255, 255, 0.82)" : "transparent";
-  const headerBorder = scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent";
+  // High polish dark navbar style configurations for home, light for elsewhere
+  const headerBg = isHome 
+    ? (scrolled ? "rgba(18, 24, 22, 0.94)" : "transparent")
+    : (scrolled ? "rgba(248, 247, 243, 0.85)" : "transparent");
+  const headerBorder = isHome
+    ? (scrolled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent")
+    : (scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent");
   const headerBlur = scrolled ? "blur(16px)" : "none";
 
   return (
@@ -104,8 +108,8 @@ export default function Navbar() {
     >
       <div className="navbar-left">
         <Link href="/" className="logo" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-          <FiBriefcase className="logo-icon" style={{ color: "var(--accent)", fontSize: "1.2rem" }} />
-          <span style={{ fontFamily: "var(--font-display)", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+          <FiBriefcase className="logo-icon" style={{ color: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)", fontSize: "1.2rem" }} />
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: "800", color: isHome ? "#ffffff" : "var(--text-primary)", letterSpacing: "-0.01em" }}>
             CareerBridge AI
           </span>
         </Link>
@@ -120,7 +124,9 @@ export default function Navbar() {
             style={{
               fontSize: "0.9rem",
               fontWeight: "600",
-              color: pathname === item.path ? "var(--accent)" : "var(--text-secondary)",
+              color: pathname === item.path 
+                ? (isHome ? "#ffffff" : "var(--accent)") 
+                : (isHome ? "#B8C0BB" : "var(--text-secondary)"),
               transition: "color 0.2s ease"
             }}
           >
@@ -139,7 +145,7 @@ export default function Navbar() {
               style={{
                 background: "none",
                 border: "none",
-                color: "var(--text-secondary)",
+                color: isHome ? "#B8C0BB" : "var(--text-secondary)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -199,33 +205,31 @@ export default function Navbar() {
                     Mark all as read
                   </button>
                 </div>
-                <div style={{ maxHeight: "280px", overflowY: "auto" }}>
+                <div style={{ maxHeight: "250px", overflowY: "auto" }}>
                   {notifications.length === 0 ? (
-                    <div style={{ padding: "20px", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.82rem" }}>
-                      No notifications yet.
+                    <div style={{ padding: "30px 15px", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                      No announcements
                     </div>
                   ) : (
-                    notifications.map((n, idx) => (
-                      <div key={idx} style={{ 
-                        padding: "12px 15px", 
-                        borderBottom: "1px solid var(--border-subtle)", 
-                        background: n.isRead ? "transparent" : "var(--bg-card-hover)"
-                      }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          <h4 style={{ margin: "0 0 4px", fontSize: "0.85rem", fontWeight: "700", color: "var(--text-primary)" }}>{n.title}</h4>
-                          {!n.isRead && (
-                            <span style={{
-                              width: "6px",
-                              height: "6px",
-                              borderRadius: "50%",
-                              background: "var(--accent)",
-                              display: "inline-block",
-                              marginTop: "5px"
-                            }} />
-                          )}
-                        </div>
-                        <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>{n.content}</p>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-faint)" }}>{n.date}</span>
+                    notifications.map((notif) => (
+                      <div 
+                        key={notif.id} 
+                        style={{ 
+                          padding: "12px 15px", 
+                          borderBottom: "1px solid var(--border-subtle)", 
+                          background: notif.read ? "transparent" : "var(--bg-primary)",
+                          transition: "background 0.2s"
+                        }}
+                      >
+                        <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: notif.read ? "500" : "600", margin: "0 0 4px" }}>
+                          {notif.title}
+                        </p>
+                        <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", margin: "0 0 6px", lineHeight: "1.4" }}>
+                          {notif.message}
+                        </p>
+                        <span style={{ fontSize: "0.7rem", color: "var(--text-faint)" }}>
+                          {new Date(notif.created_at).toLocaleDateString()}
+                        </span>
                       </div>
                     ))
                   )}
@@ -235,27 +239,44 @@ export default function Navbar() {
           </div>
         )}
 
+        {/* User profile / Auth buttons */}
         {isAuthenticated ? (
           <div style={{ position: "relative" }} ref={profileDropdownRef}>
             <button
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               style={{
-                background: "var(--bg-card-hover)",
-                border: "1px solid var(--border-subtle)",
-                color: "var(--text-primary)",
-                cursor: "pointer",
-                display: "inline-flex",
+                display: "flex",
                 alignItems: "center",
                 gap: "8px",
-                padding: "8px 16px",
-                borderRadius: "20px",
+                background: "none",
+                border: "none",
+                color: isHome ? "#ffffff" : "var(--text-primary)",
                 fontWeight: "600",
                 fontSize: "0.88rem",
-                transition: "all 0.2s"
+                cursor: "pointer",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                transition: "background 0.2s"
               }}
+              className="user-profile-btn"
             >
-              <FiUser size={14} />
-              <span>{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Profile"}</span>
+              <div style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                background: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)",
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "800",
+                fontSize: "0.8rem"
+              }}>
+                {user?.email ? user.email.substring(0, 2).toUpperCase() : "U"}
+              </div>
+              <span style={{ maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {user?.email?.split('@')[0]}
+              </span>
             </button>
 
             {showProfileDropdown && (
@@ -263,40 +284,23 @@ export default function Navbar() {
                 position: "absolute",
                 top: "45px",
                 right: "0",
-                width: "240px",
+                width: "180px",
                 background: "var(--bg-secondary)",
                 border: "1px solid var(--border-subtle)",
-                borderRadius: "12px",
+                borderRadius: "10px",
                 boxShadow: "0 10px 25px rgba(23, 32, 51, 0.08)",
-                padding: "16px",
-                zIndex: 1000,
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                textAlign: "left"
+                padding: "6px",
+                zIndex: 1000
               }}>
-                <div>
-                  <h4 style={{ margin: "0", fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User"}
-                  </h4>
-                  <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--text-secondary)", wordBreak: "break-all" }}>
-                    {user?.email}
-                  </p>
-                </div>
-                
-                <div style={{ height: "1px", background: "var(--border-subtle)" }} />
-                
                 {user?.role === "admin" && (
                   <Link
-                    href="/admin"
+                    href="/admin/students"
                     onClick={() => setShowProfileDropdown(false)}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: "10px",
-                      background: "var(--accent-soft)",
-                      color: "var(--accent)",
-                      border: "1px solid var(--accent-border)",
+                      color: "var(--text-primary)",
                       borderRadius: "8px",
                       padding: "10px 14px",
                       fontWeight: "700",
@@ -304,7 +308,7 @@ export default function Navbar() {
                       textDecoration: "none"
                     }}
                   >
-                    <span>🛡️ Admin dashboard</span>
+                    <span>🛡️ Admin</span>
                   </Link>
                 )}
                 
@@ -317,7 +321,7 @@ export default function Navbar() {
                     gap: "10px",
                     color: "var(--text-primary)",
                     borderRadius: "8px",
-                    padding: "8px 10px",
+                    padding: "10px 14px",
                     fontWeight: "600",
                     fontSize: "0.85rem",
                     textDecoration: "none"
@@ -340,7 +344,7 @@ export default function Navbar() {
                     border: "none",
                     color: "var(--danger)",
                     cursor: "pointer",
-                    padding: "8px 10px",
+                    padding: "10px 14px",
                     width: "100%",
                     textAlign: "left",
                     fontWeight: "600",
@@ -361,12 +365,12 @@ export default function Navbar() {
                 style={{ 
                   fontSize: "0.88rem", 
                   fontWeight: "600", 
-                  color: "var(--text-secondary)", 
+                  color: isHome ? "#B8C0BB" : "var(--text-secondary)", 
                   textDecoration: "none",
                   transition: "color 0.2s"
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
-                onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
+                onMouseEnter={(e) => e.currentTarget.style.color = isHome ? "#ffffff" : "var(--text-primary)"}
+                onMouseLeave={(e) => e.currentTarget.style.color = isHome ? "#B8C0BB" : "var(--text-secondary)"}
               >
                 Login
               </Link>
@@ -376,20 +380,20 @@ export default function Navbar() {
                 style={{
                   padding: "10px 20px",
                   borderRadius: "10px",
-                  background: "var(--accent)",
+                  background: isHome ? "var(--home-accent, #3157D5)" : "var(--accent)",
                   color: "#ffffff",
                   fontSize: "0.88rem",
                   fontWeight: "600",
                   textDecoration: "none",
-                  boxShadow: "0 2px 8px rgba(49, 87, 213, 0.15)",
+                  boxShadow: isHome ? "0 2px 8px rgba(49, 87, 213, 0.15)" : "0 2px 8px rgba(49, 87, 213, 0.15)",
                   transition: "all 0.2s"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#2448b7";
+                  e.currentTarget.style.background = isHome ? "var(--home-accent-hover, #2448B7)" : "#2448b7";
                   e.currentTarget.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "var(--accent)";
+                  e.currentTarget.style.background = isHome ? "var(--home-accent, #3157D5)" : "var(--accent)";
                   e.currentTarget.style.transform = "none";
                 }}
               >
@@ -402,7 +406,7 @@ export default function Navbar() {
       
       <style jsx>{`
         .nav-link:hover {
-          color: var(--accent) !important;
+          color: ${isHome ? '#ffffff' : 'var(--accent)'} !important;
         }
       `}</style>
     </header>

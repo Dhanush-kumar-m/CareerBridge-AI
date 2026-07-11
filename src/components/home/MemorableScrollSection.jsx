@@ -8,7 +8,7 @@ const STEPS = [
   { id: 0, label: "Coding Skill", desc: "Build code accuracy in Python, C++, and Java." },
   { id: 1, label: "Resume ATS", desc: "Optimize formats and keywords for target filters." },
   { id: 2, label: "Interview Prep", desc: "Refine behavioral responses with pace metrics." },
-  { id: 3, label: "Placement Readiness", desc: "Unlock profile visibility to hiring partners." }
+  { id: 3, label: "Placement Readiness", desc: "Build a comprehensive profile to prove your subject mastery." }
 ];
 
 export default function MemorableScrollSection() {
@@ -46,7 +46,7 @@ export default function MemorableScrollSection() {
             <span className={styles.eyebrow}>Integrated Prep Console</span>
             <h2>Everything you need.<br />One profile.</h2>
             <p className={styles.subHeading}>
-              Your practice across all modules aggregates into a single placement readiness profile shared with campus hiring partners.
+              Your practice across all modules aggregates into a single placement readiness profile to track your growth.
             </p>
           </div>
           <div className={styles.scrollList}>

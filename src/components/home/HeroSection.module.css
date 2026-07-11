@@ -88,17 +88,17 @@
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.95rem;
-  background: #3157D5;
+  background: var(--accent);
   color: #ffffff;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(49, 87, 213, 0.12);
+  box-shadow: 0 4px 12px rgba(31, 111, 95, 0.12);
 }
 
 .ctaPrimary:hover {
-  background: #2448B7;
+  background: var(--accent-light);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(49, 87, 213, 0.2);
+  box-shadow: 0 6px 16px rgba(31, 111, 95, 0.2);
 }
 
 .ctaSecondary {
@@ -109,16 +109,16 @@
   font-weight: 600;
   font-size: 0.95rem;
   background: #ffffff;
-  border: 1px solid #3157D5;
-  color: #3157D5;
+  border: 1px solid var(--accent);
+  color: var(--accent);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 }
 
 .ctaSecondary:hover {
-  background: rgba(49, 87, 213, 0.03);
-  border-color: #2448B7;
-  color: #2448B7;
+  background: rgba(31, 111, 95, 0.03);
+  border-color: var(--accent-light);
+  color: var(--accent-light);
   transform: translateY(-1px);
 }
 
@@ -152,7 +152,7 @@
 .dashboardPreview {
   width: 100%;
   max-width: 440px;
-  background: var(--bg-secondary);
+  background: #FBFAF7;
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(23, 32, 51, 0.04), 0 0 1px rgba(23, 32, 51, 0.08);
@@ -195,7 +195,7 @@
 
 /* Realistic Console Cards */
 .previewCard {
-  background: var(--bg-primary);
+  background: #F2F3EF;
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 16px;
@@ -244,7 +244,7 @@
 }
 
 .cardActionBtn:hover {
-  background: #2448B7;
+  background: var(--accent-light);
 }
 
 .progressFlex {

@@ -41,6 +41,32 @@
   /* Fonts */
   --font-body: 'Inter', sans-serif;
   --font-display: 'Plus Jakarta Sans', sans-serif;
+
+  /* CareerBridge AI Home redesign tokens */
+  --home-bg: #F3F1EB;
+  --home-bg-soft: #ECEAE4;
+  --home-surface: #FAF8F5;
+  --home-surface-raised: #FFFFFF;
+
+  --home-text: #1A1F1D;
+  --home-text-strong: #1A1F1D;
+  --home-text-secondary: #66706B;
+  --home-text-muted: #808985;
+
+  --home-border: #D7DAD5;
+  --home-border-strong: #C4C9C3;
+
+  --home-accent: #3157D5;
+  --home-accent-hover: #2448B7;
+  --home-accent-soft: rgba(49, 87, 213, 0.08);
+
+  --home-highlight: #C58A43;
+  --home-success: #2E8B6D;
+
+  --home-dark: #121816;
+  --home-dark-soft: #18211E;
+  --home-dark-text: #F5F4EE;
+  --home-dark-muted: #AEB8B2;
 }
 
 /* =========================
@@ -1403,7 +1429,7 @@ text-align:center;
    HOME PAGE
 =================================== */
 
-.home-page{
+.homePage{
   max-width:1400px;
   margin:0 auto;
 }
@@ -1723,7 +1749,7 @@ a{
    CONTAINER
 =================================== */
 
-.home-page,
+.homePage,
 .companies-page,
 .analytics-container,
 .mock-interview-page,
@@ -1954,7 +1980,7 @@ a{
     align-items:center;
   }
 
-  .home-page,
+  .homePage,
   .companies-page,
   .analytics-container,
   .mock-interview-page,
@@ -8515,6 +8541,173 @@ body[data-theme="light"] .ai-assistant-input {
   font-weight: 700 !important;
   color: #a78bfa !important;
   text-align: center !important;
+}
+
+/* ========================================================
+   CareerBridge AI — Homepage Soft-Neutral Theme Mapping
+   ======================================================== */
+
+body:has(.homePage) {
+  background: var(--home-bg) !important;
+  color: var(--home-text) !important;
+  --bg-main: var(--home-bg) !important;
+  --bg-primary: var(--home-bg) !important;
+  --bg-secondary: var(--home-surface) !important;
+  --bg-card: var(--home-surface-raised) !important;
+  --bg-card-hover: var(--home-bg-soft) !important;
+
+  --text-primary: var(--home-text-strong) !important;
+  --text-secondary: var(--home-text-secondary) !important;
+  --text-faint: var(--home-text-muted) !important;
+
+  --border-subtle: var(--home-border) !important;
+  --border-strong: var(--home-border-strong) !important;
+
+  --accent: var(--home-accent) !important;
+  --accent-light: var(--home-accent-hover) !important;
+  --accent-soft: var(--home-accent-soft) !important;
+  --accent-border: var(--home-border-strong) !important;
+  --accent-glow: var(--home-accent-soft) !important;
+
+  --success: var(--home-success) !important;
+}
+
+/* Override the white ScrollReveal title overrides specifically for the homepage */
+body:has(.homePage) .section-title {
+  color: var(--home-text-strong) !important;
+}
+
+body:has(.homePage) .section-subtitle {
+  color: var(--home-text-secondary) !important;
+}
+
+/* Body pseudo elements glow override for home page */
+body:has(.homePage)::before,
+body:has(.homePage)::after {
+  display: none !important;
+}
+
+/* Custom interactive styling for home page cards and elements */
+.homePage {
+  background-color: var(--home-bg);
+  color: var(--home-text);
+  overflow-x: hidden;
+}
+
+/* Force solid high-contrast text color on headings and prevent transparent/gradient text on home page */
+.homePage h1, .homePage h2, .homePage h3, .homePage h4, .homePage h5, .homePage h6,
+.homePage [class*="headline"],
+.homePage [class*="titleArea"] h2,
+.homePage [class*="headingArea"] h2 {
+  background: none !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  opacity: 1 !important;
+}
+
+/* Section Background Rhythm and Separation */
+.homePage [class*="HeroSection_heroSection"] {
+  background-color: #F3F1EB !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+.homePage [class*="ModuleMarquee_marqueeContainer"] {
+  background-color: #ECEAE4 !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+.homePage [class*="StickyModulesSection_sectionWrapper"] {
+  background-color: #FAF8F5 !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+.homePage [class*="CompanyPreparationSection_sectionWrapper"] {
+  background-color: #ECEAE4 !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+.homePage [class*="PreparationJourneySection_sectionWrapper"] {
+  background-color: #F7F6F2 !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+.homePage [class*="StudentProgressSection_sectionWrapper"] {
+  background-color: #EEF2ED !important;
+  border-bottom: 1px solid var(--home-border) !important;
+}
+
+/* Dark Slate Green Section overrides for Memorable Scroll */
+.homePage [class*="MemorableScrollSection_sectionWrapper"] {
+  background-color: #18211E !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  --text-primary: var(--home-dark-text) !important;
+  --text-secondary: var(--home-dark-muted) !important;
+  --bg-secondary: var(--home-dark-soft) !important;
+  --bg-primary: var(--home-dark) !important;
+  --border-subtle: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Final CTA Section background override */
+.homePage [class*="FinalCTASection_sectionWrapper"] {
+  background-color: #121816 !important;
+  border-bottom: none !important;
+}
+
+/* Hover transitions and states for home page cards */
+.homePage [class*="companyCard"],
+.homePage [class*="stepCard"],
+.homePage [class*="previewCard"],
+.homePage [class*="profileCard"],
+.homePage [class*="chartCard"],
+.homePage [class*="circleCard"],
+.homePage [class*="heatmapCard"] {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background-color: var(--home-surface) !important;
+  border: 1px solid var(--home-border) !important;
+  border-radius: 16px !important;
+}
+
+.homePage [class*="companyCard"]:hover,
+.homePage [class*="stepCard"]:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 24px rgba(49, 87, 213, 0.05) !important;
+  border-color: var(--home-border-strong) !important;
+}
+
+/* Primary & Secondary Buttons overrides */
+.homePage [class*="ctaPrimary"] {
+  background: var(--home-accent) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--home-accent) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-radius: 10px !important;
+}
+
+.homePage [class*="ctaPrimary"]:hover {
+  background: var(--home-accent-hover) !important;
+  border-color: var(--home-accent-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(49, 87, 213, 0.12) !important;
+}
+
+.homePage [class*="ctaSecondary"],
+.homePage [class*="exploreBtn"] {
+  background: #FFFFFF !important;
+  color: var(--home-accent) !important;
+  border: 1px solid var(--home-border-strong) !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+}
+
+.homePage [class*="ctaSecondary"]:hover,
+.homePage [class*="exploreBtn"]:hover {
+  background: var(--home-bg-soft) !important;
+  border-color: var(--home-border-strong) !important;
+  color: var(--home-accent-hover) !important;
+  transform: translateY(-1px) !important;
 }
 
 

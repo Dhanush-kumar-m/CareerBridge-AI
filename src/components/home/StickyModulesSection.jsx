@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { FiCheck, FiCpu, FiFileText, FiMessageSquare, FiArrowRight } from "react-icons/fi";
 import styles from "./StickyModulesSection.module.css";
+import AnimatedContent from "../reactbits/AnimatedContent";
 
 const MODULES = [
   {
@@ -68,26 +69,27 @@ export default function StickyModulesSection() {
       <div className={styles.stickyContainer}>
         {/* Left Column: List of Sticky Storytelling Tabs */}
         <div className={styles.leftColumn}>
-          {MODULES.map((mod) => (
-            <div
-              key={mod.id}
-              className={`${styles.moduleTab} ${activeModule === mod.id ? styles.moduleTabActive : ""}`}
-              onClick={() => setActiveModule(mod.id)}
-            >
-              <div className={styles.tabHeader}>
-                <span className={styles.tabTitle}>{mod.title}</span>
-                <span className={styles.tabNumber}>{mod.number}</span>
+          {MODULES.map((mod, index) => (
+            <AnimatedContent key={mod.id} delay={index * 0.08} yOffset={20}>
+              <div
+                className={`${styles.moduleTab} ${activeModule === mod.id ? styles.moduleTabActive : ""}`}
+                onClick={() => setActiveModule(mod.id)}
+              >
+                <div className={styles.tabHeader}>
+                  <span className={styles.tabTitle}>{mod.title}</span>
+                  <span className={styles.tabNumber}>{mod.number}</span>
+                </div>
+                <p className={styles.tabDesc}>{mod.description}</p>
+                <ul className={styles.tabPoints}>
+                  {mod.points.map((pt, index) => (
+                    <li key={index}>
+                      <span className={styles.tabPointIcon}>{mod.icon}</span>
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p className={styles.tabDesc}>{mod.description}</p>
-              <ul className={styles.tabPoints}>
-                {mod.points.map((pt, index) => (
-                  <li key={index}>
-                    <span className={styles.tabPointIcon}>{mod.icon}</span>
-                    <span>{pt}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            </AnimatedContent>
           ))}
         </div>
 
@@ -136,11 +138,11 @@ export default function StickyModulesSection() {
                     <span>C++17</span>
                   </div>
                   <div className={styles.editorBody}>
-                    <span style={{ color: "#3157d5" }}>int</span> <span style={{ color: "#090d2e" }}>findMaxProduct</span>(<span style={{ color: "#3157d5" }}>vector</span>&lt;<span style={{ color: "#3157d5" }}>int</span>&gt;&amp; nums) &#123;<br />
-                    &nbsp;&nbsp;<span style={{ color: "#854d0e" }}>// Sort to find the largest elements</span><br />
-                    &nbsp;&nbsp;<span style={{ color: "#000" }}>sort(nums.begin(), nums.end());</span><br />
-                    &nbsp;&nbsp;<span style={{ color: "#3157d5" }}>int</span> n = nums.size();<br />
-                    &nbsp;&nbsp;<span style={{ color: "#3157d5" }}>return</span> max(nums[n-1] * nums[n-2], nums[0] * nums[1]);<br />
+                    <span style={{ color: "#60a5fa" }}>int</span> <span style={{ color: "#fbbf24" }}>findMaxProduct</span>(<span style={{ color: "#34d399" }}>vector</span>&lt;<span style={{ color: "#60a5fa" }}>int</span>&gt;&amp; nums) &#123;<br />
+                    &nbsp;&nbsp;<span style={{ color: "#8b8b90" }}>// Sort to find the largest elements</span><br />
+                    &nbsp;&nbsp;<span style={{ color: "#f3f2ed" }}>sort(nums.begin(), nums.end());</span><br />
+                    &nbsp;&nbsp;<span style={{ color: "#60a5fa" }}>int</span> n = nums.size();<br />
+                    &nbsp;&nbsp;<span style={{ color: "#60a5fa" }}>return</span> max(nums[n-1] * nums[n-2], nums[0] * nums[1]);<br />
                     &#125;
                   </div>
                   <div className={styles.testResult}>
