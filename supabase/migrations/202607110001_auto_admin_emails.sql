@@ -32,7 +32,7 @@ BEGIN
     NEW.raw_user_meta_data->>'avatar_url',
     0,
     CASE 
-      WHEN LOWER(NEW.email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com', 'cheappcgamesrake@gmail.com') THEN 'admin'
+      WHEN LOWER(NEW.email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com') THEN 'admin'
       ELSE 'student'
     END
   );
@@ -45,49 +45,11 @@ UPDATE public.profiles
 SET role = 'admin'
 WHERE id IN (
   SELECT id FROM auth.users
-  WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com', 'cheappcgamesrake@gmail.com')
+  WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com')
 );
 
 -- Enable pgcrypto extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
-
--- Seed 'cheappcgamesrake@gmail.com' into auth.users if not exists
-INSERT INTO auth.users (
-  instance_id,
-  id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-)
-SELECT
-  '00000000-0000-0000-0000-000000000000',
-  gen_random_uuid(),
-  'authenticated',
-  'authenticated',
-  'cheappcgamesrake@gmail.com',
-  extensions.crypt('Dhanush@1417', extensions.gen_salt('bf', 10)),
-  now(),
-  '{"provider":"email","providers":["email"]}'::jsonb,
-  '{"full_name":"Admin Rakesh"}'::jsonb,
-  now(),
-  now(),
-  '',
-  '',
-  '',
-  ''
-WHERE NOT EXISTS (
-  SELECT 1 FROM auth.users WHERE email = 'cheappcgamesrake@gmail.com'
-);
 
 -- Seed 'admin@careerbridge.com' into auth.users if not exists
 INSERT INTO auth.users (
@@ -203,7 +165,7 @@ WHERE NOT EXISTS (
   SELECT 1 FROM auth.users WHERE email = 'kumardhanush6494@gmail.com'
 );
 
--- Ensure all four admin passwords are set to 'Dhanush@1417' even if they already exist
+-- Ensure all three admin passwords are set to 'Dhanush@1417' even if they already exist
 UPDATE auth.users
 SET encrypted_password = extensions.crypt('Dhanush@1417', extensions.gen_salt('bf', 10))
-WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com', 'cheappcgamesrake@gmail.com');
+WHERE LOWER(email) IN ('12k21rakeshkannam@gmail.com', 'admin@careerbridge.com', 'kumardhanush6494@gmail.com');

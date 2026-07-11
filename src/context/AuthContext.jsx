@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
     if (!u) return null;
     
     // Auto-detect admin emails for instant local client representation and secure fallback
-    const adminEmails = ["12k21rakeshkannam@gmail.com", "admin@careerbridge.com", "kumardhanush6494@gmail.com", "cheappcgamesrake@gmail.com"];
+    const adminEmails = ["12k21rakeshkannam@gmail.com", "admin@careerbridge.com", "kumardhanush6494@gmail.com"];
     const isMatchedAdmin = u.email && adminEmails.includes(u.email.toLowerCase());
     
     try {

@@ -38,7 +38,7 @@ export default function AuthGuard({ children }) {
         const role = user?.role;
         if (role === "admin") {
           if (isStudentPublic) {
-            logoutUser(pathname); // Clear admin session if visiting student logins
+            router.push("/dashboard"); // Redirect to student portal instead of logging out
           } else if (isAdminPublic) {
             router.push("/admin");
           }
