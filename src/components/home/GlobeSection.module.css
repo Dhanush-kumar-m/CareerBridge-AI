@@ -28,13 +28,17 @@
 }
 
 .canvasWrap {
+  position: relative;
   height: 560px;
   max-width: 900px;
   margin: 0 auto;
-  cursor: grab;
+  overflow: hidden;
+  border-radius: 16px;
 }
-.canvasWrap:active {
-  cursor: grabbing;
+
+.canvasWrap :global(canvas) {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (max-width: 640px) {

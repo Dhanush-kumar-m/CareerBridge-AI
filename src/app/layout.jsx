@@ -3,6 +3,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import Providers from "./providers";
 import AIAssistant from "../components/common/AIAssistant";
+import SmoothScrollProvider from "../components/common/SmoothScrollProvider";
 
 export const metadata = {
   title: "CareerBridge AI",
@@ -75,14 +76,16 @@ export default function RootLayout({ children }) {
       </head>
       <body suppressHydrationWarning>
         <Providers>
-          <Navbar />
+          <SmoothScrollProvider>
+            <Navbar />
 
-          <main className="min-h-screen">
-            {children}
-          </main>
+            <main className="min-h-screen">
+              {children}
+            </main>
 
-          <Footer />
-          <AIAssistant />
+            <Footer />
+            <AIAssistant />
+          </SmoothScrollProvider>
         </Providers>
       </body>
     </html>
