@@ -21,6 +21,8 @@ DROP POLICY IF EXISTS "Allow all users to delete notifications" ON public.notifi
 DROP POLICY IF EXISTS "Allow users to insert own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Allow users to delete own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Users can view relevant notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow admin or user to insert notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow admin or user to delete notifications" ON public.notifications;
 
 -- Enforce secure Select: Users see global (user_id is null) or their own personal notifications
 CREATE POLICY "Users can view relevant notifications"

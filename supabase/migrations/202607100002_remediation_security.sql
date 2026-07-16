@@ -6,6 +6,7 @@ ALTER TABLE public.profiles ADD CONSTRAINT check_role CHECK (role IN ('student',
 
 -- 2. Restrict profiles selection to owner only (protects user privacy)
 DROP POLICY IF EXISTS "Allow public read of profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Allow users to read own profile" ON public.profiles;
 CREATE POLICY "Allow users to read own profile" 
   ON public.profiles FOR SELECT 
   USING (auth.uid() = id);
@@ -51,6 +52,8 @@ DROP POLICY IF EXISTS "Allow admin or user to delete notifications" ON public.no
 DROP POLICY IF EXISTS "Users can view relevant notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Allow users to insert own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Allow users to delete own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow admin and users to insert notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow admin and users to delete notifications" ON public.notifications;
 
 CREATE POLICY "Users can view relevant notifications"
   ON public.notifications FOR SELECT

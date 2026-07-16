@@ -10,10 +10,12 @@ CREATE TABLE IF NOT EXISTS public.user_activity (
 ALTER TABLE public.user_activity ENABLE ROW LEVEL SECURITY;
 
 -- Policies for user_activity
+DROP POLICY IF EXISTS "Allow public inserts of user activities" ON public.user_activity;
 CREATE POLICY "Allow public inserts of user activities"
   ON public.user_activity FOR INSERT
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow admins to read all activities" ON public.user_activity;
 CREATE POLICY "Allow admins to read all activities"
   ON public.user_activity FOR SELECT
   USING (
