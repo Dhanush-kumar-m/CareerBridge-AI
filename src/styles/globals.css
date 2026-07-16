@@ -4586,7 +4586,8 @@ body[data-theme="light"] .ai-assistant-input {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
   border-radius: 10px !important;
   padding: 24px !important;
-  height: 680px !important;
+  height: 100% !important;
+  min-height: 680px !important;
   overflow-y: auto !important;
   box-shadow: none !important;
   position: sticky !important;

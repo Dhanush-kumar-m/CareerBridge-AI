@@ -108,508 +108,65 @@ const getLineNumberFromError = (error, code) => {
 };
 
 const getDefaultCodeForQuestion = (question, language) => {
-  const lang = language.toLowerCase();
-  if (lang === "python") {
-    return `# Write your Python code here\n`;
-  }
-  return `// Write your ${language} code here\n`;
+  return "";
 };
 
-// Python/Java/C/C++ to Javascript Transpiler for client-side execution
-const transpileToJS = (code, language) => {
+const runCompilerTestCases = async (code, language, question) => {
   const lang = language.toLowerCase();
-  if (lang === "javascript") return code;
   
-  let jsCode = code;
-  
-  if (lang === "python") {
-    // Normalize tabs to 4 spaces to prevent indentation errors
-    const normalizedCode = code.replace(/\t/g, "    ");
-    const lines = normalizedCode.split("\n");
-    let indentLevels = [];
-    let resultLines = [];
-    const hasClass = /\bclass\b/.test(normalizedCode);
-    
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i];
-      const spaceMatch = line.match(/^\s*/);
-      const spaces = spaceMatch ? spaceMatch[0].length : 0;
-      let trimmed = line.trim();
-      
-      // Keep comments but replace # with //
-      if (trimmed.startsWith("#")) {
-        resultLines.push(" ".repeat(spaces) + "//" + trimmed.substring(1));
-        continue;
-      }
-      
-      if (!trimmed) {
-        resultLines.push("");
-        continue;
-      }
-      
-      // Close indent blocks
-      while (indentLevels.length > 0 && spaces < indentLevels[indentLevels.length - 1]) {
-        indentLevels.pop();
-        resultLines.push(" ".repeat(spaces) + "}");
-      }
-      
-      let jsLine = trimmed;
-      
-      // Translate def function with parameter cleaning
-      if (jsLine.startsWith("def ")) {
-        // Match: def name(params) -> returnType:
-        const defMatch = jsLine.match(/def\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*[^:]+)?\s*:/);
-        if (defMatch) {
-          const name = defMatch[1];
-          const rawParams = defMatch[2];
-          
-          // Clean parameters
-          const cleanedParams = rawParams.split(",")
-            .map(p => p.trim())
-            .filter(p => p && p !== "self" && !p.startsWith("self:")) // strip self
-            .map(p => p.split(":")[0].trim()) // strip type annotations (e.g. nums: List[int] -> nums)
-            .join(", ");
-            
-          if (hasClass) {
-            jsLine = `${name}(${cleanedParams}) {`;
-          } else {
-            jsLine = `function ${name}(${cleanedParams}) {`;
-          }
-          indentLevels.push(spaces + 4);
-        }
-      }
-      // Translate class
-      else if (jsLine.startsWith("class ")) {
-        const classMatch = jsLine.match(/class\s+(\w+)/);
-        if (classMatch) {
-          jsLine = `class ${classMatch[1]} {`;
-          indentLevels.push(spaces + 4);
-        }
-      }
-      // Translate loops
-      else if (jsLine.startsWith("for ") && jsLine.includes(" in ")) {
-        const forRangeMatch = jsLine.match(/for\s+(\w+)\s+in\s+range\(([^)]+)\):/);
-        if (forRangeMatch) {
-          const varName = forRangeMatch[1];
-          const argsStr = forRangeMatch[2].trim();
-          
-          const resolvedArgs = argsStr.replace(/len\(([^)]+)\)/g, "$1.length");
-          const args = resolvedArgs.split(",").map(s => s.trim());
-          
-          let start = "0";
-          let end = args[0];
-          let step = "1";
-          if (args.length === 2) {
-            start = args[0];
-            end = args[1];
-          } else if (args.length === 3) {
-            start = args[0];
-            end = args[1];
-            step = args[2];
-          }
-          jsLine = `for (let ${varName} = ${start}; ${varName} < ${end}; ${varName} += ${step}) {`;
-          indentLevels.push(spaces + 4);
-        } else {
-          // Standard for x in y:
-          const forInMatch = jsLine.match(/for\s+(\w+)\s+in\s+([^:]+):/);
-          if (forInMatch) {
-            const varName = forInMatch[1];
-            const arrName = forInMatch[2].trim();
-            jsLine = `for (let ${varName} of ${arrName}) {`;
-            indentLevels.push(spaces + 4);
-          }
-        }
-      }
-      // Translate conditions
-      else if (jsLine.startsWith("if ") || jsLine.startsWith("elif ") || jsLine.startsWith("while ") || jsLine.startsWith("else:")) {
-        if (jsLine.startsWith("elif ")) {
-          jsLine = jsLine.replace("elif ", "else if ");
-        }
-        
-        if (jsLine.endsWith(":")) {
-          jsLine = jsLine.slice(0, -1);
-        }
-        
-        if (jsLine.startsWith("if ") && !jsLine.startsWith("if (")) {
-          jsLine = "if (" + jsLine.substring(3).trim() + ")";
-        } else if (jsLine.startsWith("else if ") && !jsLine.startsWith("else if (")) {
-          jsLine = "else if (" + jsLine.substring(8).trim() + ")";
-        } else if (jsLine.startsWith("while ") && !jsLine.startsWith("while (")) {
-          jsLine = "while (" + jsLine.substring(6).trim() + ")";
-        }
-        
-        jsLine = jsLine + " {";
-        indentLevels.push(spaces + 4);
-      }
-      
-      // General expressions translations
-      jsLine = jsLine
-        .replace(/(\w+)\s+not\s+in\s+(\w+)/g, "!($1 in $2)")
-        .replace(/(\w+)\s+in\s+(\w+)/g, "($1 in $2)")
-        .replace(/\band\b/g, "&&")
-        .replace(/\bor\b/g, "||")
-        .replace(/\bnot\b/g, "!")
-        .replace(/\bTrue\b/g, "true")
-        .replace(/\bFalse\b/g, "false")
-        .replace(/\bNone\b/g, "null")
-        .replace(/\blen\(([^)]+)\)/g, "$1.length")
-        .replace(/\bint\(([^)]+)\)/g, "parseInt($1, 10)")
-        .replace(/\bfloat\(([^)]+)\)/g, "parseFloat($1)")
-        .replace(/\bstr\(([^)]+)\)/g, "String($1)")
-        .replace(/list\(map\(int,\s*([^)]+)\)\)/g, "$1.map(x => parseInt(x, 10))")
-        .replace(/map\(int,\s*([^)]+)\)/g, "$1.map(x => parseInt(x, 10))")
-        .replace(/list\(([^)]+)\)/g, "$1")
-        .replace(/\.split\(\)/g, ".trim().split(/\\s+/)")
-        .replace(/\.append\(/g, ".push(")
-        .replace(/print\(/g, "console.log(")
-        .replace(/\bpass\b/g, "");
-        
-      resultLines.push(" ".repeat(spaces) + jsLine);
-    }
-    
-    while (indentLevels.length > 0) {
-      indentLevels.pop();
-      resultLines.push("}");
-    }
-    
-    return resultLines.join("\n");
-  }
-  
-  if (["java", "cpp", "c"].includes(lang)) {
-    // 1. Remove header imports, standard namespaces, packages
-    jsCode = jsCode
-      .replace(/#include\s+<[^>]+>/g, "")
-      .replace(/using\s+namespace\s+\w+;/g, "")
-      .replace(/import\s+[\w.]+;/g, "")
-      .replace(/package\s+[\w.]+;/g, "");
-      
-    jsCode = jsCode.replace(/\bstd::/g, "");
-    jsCode = jsCode.replace(/\bSystem\.in\b/g, "__input__");
-    
-    // 2. Transpile class name
-    jsCode = jsCode.replace(/\bpublic class Solution\b/g, "class Solution");
-    
-    const hasClass = /\bclass\b/.test(jsCode);
-    
-    // 3. Transpile functions signature
-    const fnNames = [
-      "helloWorld", "evenOrOdd", "twoSum", "reverseString", "isPalindrome",
-      "findLargest", "fizzBuzz", "isAnagram", "factorial", "fibonacci",
-      "isPrime", "isValid", "maxArea", "mergeSortedArrays", "binarySearch",
-      "longestPalindrome", "main"
-    ];
-    
-    fnNames.forEach(fn => {
-      // Matches returnType name(parameters)
-      const regex = new RegExp(`(?:(?:public\\s+|private\\s+|protected\\s+|static\\s+|virtual\\s+|const\\s+|inline\\s+|(?:\\w+[*&<>\\s\\[\\]]+))\\s+)+${fn}\\s*\\(([^)]*)\\)[^{;]*`, "g");
-      jsCode = jsCode.replace(regex, (match, argsStr) => {
-        const cleanedParams = argsStr.split(",")
-          .map(p => p.trim())
-          .filter(p => p)
-          .map(p => {
-            const parts = p.split(/\s+/);
-            const name = parts[parts.length - 1];
-            return name.replace(/[*&[\]]/g, ""); // Strip pointers/references and array brackets
-          })
-          .join(", ");
-          
-        if (hasClass) {
-          return ` ${fn}(${cleanedParams}) `;
-        } else {
-          return ` function ${fn}(${cleanedParams}) `;
-        }
-      });
-    });
-    
-    // 4. Translate output prints
-    jsCode = jsCode
-      .replace(/\bSystem\.out\.println\(/g, "console.log(")
-      .replace(/\bSystem\.out\.print\(/g, "console.log(")
-      .replace(/\bprintf\(/g, "console.log(")
-      .replace(/\bcout\s*<<\s*([^;]+);/g, (match, body) => {
-        const expr = body.replace(/<<\s*endl/g, "").replace(/<</g, "+");
-        return `console.log(${expr});`;
+  const LANGUAGE_IDS = {
+    c: 50,
+    cpp: 54,
+    java: 62,
+    javascript: 63,
+    python: 71,
+    csharp: 51,
+    go: 60,
+    kotlin: 78,
+    php: 68,
+    ruby: 72,
+    rust: 73,
+    swift: 83,
+    typescript: 74
+  };
+
+  const languageId = LANGUAGE_IDS[lang] || 63;
+
+  try {
+    const res = await fetch("/api/compile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source_code: code,
+        language_id: languageId,
+        test_cases: question.testCases.map(tc => ({
+          input: tc.input,
+          expected: tc.expected
+        }))
       })
-      .replace(/\s*<<\s*endl/g, "");
-      
-    // 5. Replace C++ standard vector/array/map initialization braces
-    jsCode = jsCode
-      .replace(/=\s*\{([^}]+)\};/g, "= [$1];")
-      .replace(/return\s*\{([^}]+)\};/g, "return [$1];")
-      .replace(/new\s+\w+\[\]\s*\{([^}]+)\}/g, "[$1]")
-      .replace(/\w+<[^>]+>\s*\{([^}]+)\}/g, "[$1]");
-      
-    // 6. Map size()/length() to length
-    jsCode = jsCode
-      .replace(/\.length\(\)/g, ".length")
-      .replace(/\.size\(\)/g, ".length");
-
-    // 7. Replace C++ cin >>
-    jsCode = jsCode.replace(/\bcin\s*>>\s*([^;]+);/g, (match, body) => {
-      const vars = body.split(">>").map(v => v.trim());
-      return vars.map(v => `${v} = input();`).join(" ");
     });
 
-    // 8. Replace type specifiers in variable declarations with 'let'
-    const typeRegex = /\b(?:int|double|float|char|boolean|String|auto|vector<\w+>|Map<\w+,\s*\w+>|HashMap<\w+,\s*\w+>|bool|string|Scanner|BufferedReader|InputStreamReader)\b(?![\s*&]*\()(?:\s+[*&]*|\s+)([a-zA-Z_]\w*)/g;
-    jsCode = jsCode.replace(typeRegex, "let $1");
+    if (!res.ok) {
+      throw new Error(`API compilation failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const results = data.results || [];
     
-    // Cleanup any lingering type keywords used in declarations
-    jsCode = jsCode
-      .replace(/\bint\[\]\b/g, "")
-      .replace(/\bint\b/g, "")
-      .replace(/\bbool\b/g, "")
-      .replace(/\bchar\*\b/g, "")
-      .replace(/\bchar\b/g, "")
-      .replace(/\bstring\b/g, "")
-      .replace(/\bString\b/g, "")
-      .replace(/\bvoid\b/g, "")
-      .replace(/\bdouble\b/g, "")
-      .replace(/\bfloat\b/g, "")
-      .replace(/\bpublic\b/g, "")
-      .replace(/\bprivate\b/g, "")
-      .replace(/\bprotected\b/g, "")
-      .replace(/\bstatic\b/g, "");
-  }
-  
-  return jsCode;
-};
-
-const runCompilerTestCases = (code, language, question) => {
-  const lang = language.toLowerCase();
-  
-  // 1. Logic checking of tokens to display EXACT coding mistakes (fallbacks)
-  const lowerCode = code.toLowerCase();
-  let logicError = "";
-  switch (question.id) {
-    case 1:
-      if (!lowerCode.includes("hello") && !lowerCode.includes("world")) {
-        logicError = "❌ Logic Error: Missing expected text output 'Hello World'. Check your spelling.";
-      }
-      break;
-    case 2:
-      if (!lowerCode.includes("%")) {
-        logicError = "❌ Logic Error: Missing modulo operator (%) to perform even/odd checks.";
-      }
-      break;
-    case 3:
-      if (!lowerCode.includes("for") && !lowerCode.includes("while")) {
-        logicError = "❌ Logic Error: Missing loop control structures ('for' or 'while') to traverse numbers.";
-      } else if (!lowerCode.includes("map") && !lowerCode.includes("dict") && !lowerCode.includes("hash") && !lowerCode.includes("complement")) {
-        logicError = "❌ Logic Error: Missing complements lookup table (HashMap/Dictionary) to search complement index in O(N).";
-      }
-      break;
-    case 4:
-      if (!lowerCode.includes("reverse") && !lowerCode.includes("swap") && !lowerCode.includes("[::-1]")) {
-        logicError = "❌ Logic Error: Missing string reversal helper, manual character swaps, or reverse slice indexing.";
-      }
-      break;
-    case 5:
-      if (!lowerCode.includes("==") && !lowerCode.includes("equals") && !lowerCode.includes("compare")) {
-        logicError = "❌ Logic Error: Missing equality comparison check (== or equals) to validate front and back character symmetry.";
-      }
-      break;
-    case 6:
-      if (!lowerCode.includes(">") && !lowerCode.includes("max")) {
-        logicError = "❌ Logic Error: Missing iteration variable comparison (>) or max check statement.";
-      }
-      break;
-    case 7:
-      if (!lowerCode.includes("%")) {
-        logicError = "❌ Logic Error: Missing modulo checks (%) to verify numbers divisibility.";
-      } else if (!lowerCode.includes("fizz") || !lowerCode.includes("buzz")) {
-        logicError = "❌ Logic Error: Missing conditional results for 'Fizz' or 'Buzz' outputs.";
-      }
-      break;
-    case 8:
-      if (!lowerCode.includes("sort") && !lowerCode.includes("count") && !lowerCode.includes("map") && !lowerCode.includes("dict")) {
-        logicError = "❌ Logic Error: Missing character sorting or frequency count comparison structures.";
-      }
-      break;
-    case 9:
-      if (!lowerCode.includes("*")) {
-        logicError = "❌ Logic Error: Missing multiplication operator (*) or recursive multiply step.";
-      }
-      break;
-    case 10:
-      if (!lowerCode.includes("+")) {
-        logicError = "❌ Logic Error: Missing summation logic (e.g., prev1 + prev2) or loop arrays.";
-      }
-      break;
-    case 11:
-      if (!lowerCode.includes("%") && !lowerCode.includes("isprime")) {
-        logicError = "❌ Logic Error: Missing factor division checks (modulo % check) to locate prime divisibility.";
-      }
-      break;
-    case 12:
-      if (!lowerCode.includes("stack") && !lowerCode.includes("push") && !lowerCode.includes("pop") && !lowerCode.includes("list")) {
-        logicError = "❌ Logic Error: Missing Stack declarations or matching bracket push/pop array logic.";
-      }
-      break;
-    case 13:
-      if (!lowerCode.includes("pointer") && !lowerCode.includes("left") && !lowerCode.includes("right") && !lowerCode.includes("while")) {
-        logicError = "❌ Logic Error: Missing two-pointer index indicators ('left', 'right') or pointers convergence loop.";
-      } else if (!lowerCode.includes("max") && !lowerCode.includes("area")) {
-        logicError = "❌ Logic Error: Missing container area capacity comparisons (e.g. area check or Math.max).";
-      }
-      break;
-    case 14:
-      if (!lowerCode.includes("while") && !lowerCode.includes("for") && !lowerCode.includes("sort")) {
-        logicError = "❌ Logic Error: Missing array iteration pointers or merging sort logic.";
-      }
-      break;
-    case 15:
-      if (!lowerCode.includes("mid") || (!lowerCode.includes("low") && !lowerCode.includes("high"))) {
-        logicError = "❌ Logic Error: Missing binary search boundaries ('low', 'high') or midpoint division ('mid = low + (high - low)/2') inside your loop.";
-      }
-      break;
-    case 16:
-      if (!lowerCode.includes("expand") && !lowerCode.includes("center") && !lowerCode.includes("for") && !lowerCode.includes("while")) {
-        logicError = "❌ Logic Error: Missing substring palindrome validation or center-expansion iterations.";
-      }
-      break;
-  }
-
-  // Transpile to JS
-  let transpiledCode = code;
-  try {
-    transpiledCode = transpileToJS(code, language);
-  } catch (e) {
-    return {
-      error: `Transpilation Error: ${e.message}`,
-      line: null,
-      success: false,
-      passedCount: 0,
-      totalCount: question.testCases.length
-    };
-  }
-
-  try {
-    const funcName = getExpectedFuncName(question.id);
     let passedCount = 0;
     const testCaseResults = [];
-    
-    for (let i = 0; i < question.testCases.length; i++) {
-      const tc = question.testCases[i];
-      let logs = [];
-      const customConsole = {
-        log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')),
-        error: (...args) => logs.push("[ERROR] " + args.join(' ')),
-        warn: (...args) => logs.push("[WARN] " + args.join(' '))
-      };
-      
-      // Mocks construction for STDIN reading
-      const rawInputStr = String(tc.input);
-      const cleanedInputStr = rawInputStr.replace(/[\[\]]/g, " ").replace(/,\s*/g, " ").replace(/["']/g, "").trim();
-      const tokens = cleanedInputStr.split(/\s+/).filter(Boolean);
-      
-      let tokenIdx = 0;
-      const inputMock = () => {
-        if (tokenIdx >= tokens.length) return "";
-        const token = tokens[tokenIdx++];
-        if (/^-?\d+$/.test(token)) return parseInt(token, 10);
-        if (/^-?\d+\.\d+$/.test(token)) return parseFloat(token);
-        return token;
-      };
-      
-      class ScannerMock {
-        constructor() {
-          this.tokens = tokens;
-          this.tokenIdx = 0;
-        }
-        hasNext() {
-          return this.tokenIdx < this.tokens.length;
-        }
-        next() {
-          if (!this.hasNext()) return null;
-          const token = this.tokens[this.tokenIdx++];
-          if (/^-?\d+$/.test(token)) return parseInt(token, 10);
-          if (/^-?\d+\.\d+$/.test(token)) return parseFloat(token);
-          return token;
-        }
-        nextInt() {
-          const val = this.next();
-          return val !== null ? parseInt(val, 10) : 0;
-        }
-        nextDouble() {
-          const val = this.next();
-          return val !== null ? parseFloat(val) : 0.0;
-        }
-        nextLine() {
-          return this.tokens.slice(this.tokenIdx).join(" ");
-        }
+    let compilationError = "";
+    let runtimeError = "";
+
+    results.forEach((resItem) => {
+      if (resItem.status === "Compilation Error") {
+        compilationError = resItem.compile_output;
+      } else if (resItem.status === "Runtime Error") {
+        runtimeError = resItem.stderr;
       }
 
-      // Wrapped execution function matching closures
-      const wrapperFunc = new Function('console', 'Scanner', 'input', '__input__', `
-        return function executeProgram() {
-          ${transpiledCode}
-          
-          // Check for main method execution
-          if (typeof main !== 'undefined') {
-            if (typeof main.main === 'function') {
-              return main.main([]);
-            }
-            try {
-              const instance = new main();
-              if (typeof instance.main === 'function') {
-                return instance.main([]);
-              }
-            } catch(e) {}
-          }
-          if (typeof Main !== 'undefined') {
-            if (typeof Main.main === 'function') {
-              return Main.main([]);
-            }
-            try {
-              const instance = new Main();
-              if (typeof instance.main === 'function') {
-                return instance.main([]);
-              }
-            } catch(e) {}
-          }
-          if (typeof main === 'function') {
-            return main([]);
-          }
-          
-          // Otherwise look for method name
-          if (typeof ${funcName} !== 'undefined') return ${funcName};
-          if (typeof Solution !== 'undefined') {
-            try {
-              const instance = new Solution();
-              if (typeof instance.${funcName} === 'function') {
-                return (...args) => instance.${funcName}(...args);
-              }
-            } catch(e) {}
-          }
-          return null;
-        };
-      `);
-      
-      const programExecutor = wrapperFunc(customConsole, ScannerMock, inputMock, cleanedInputStr);
-      const executionResult = programExecutor();
-      
-      let actualValue;
-      if (typeof executionResult === 'function') {
-        const args = parseInput(tc.input, question.id);
-        const retVal = executionResult(...args);
-        if (retVal !== undefined && retVal !== null) {
-          actualValue = retVal;
-        } else if (logs.length > 0) {
-          actualValue = logs.join("\n").trim();
-        } else {
-          actualValue = retVal;
-        }
-      } else {
-        if (logs.length > 0) {
-          actualValue = logs.join("\n").trim();
-        } else {
-          actualValue = executionResult;
-        }
-      }
-      
-      let actualStr = typeof actualValue === "object" ? JSON.stringify(actualValue) : String(actualValue).trim();
-      let expectedStr = tc.expected.trim();
+      let actualStr = String(resItem.stdout || resItem.stderr || "").trim();
+      let expectedStr = String(resItem.expected || "").trim();
       
       const cleanStringForComparison = (str) => {
         if (typeof str !== "string") return String(str);
@@ -626,51 +183,53 @@ const runCompilerTestCases = (code, language, question) => {
       const normActual = cleanStringForComparison(actualStr);
       const normExpected = cleanStringForComparison(expectedStr);
       
-      const passed = normActual === normExpected;
+      const passed = resItem.status === "Accepted" && normActual === normExpected;
       if (passed) passedCount++;
-      
+
       testCaseResults.push({
-        input: tc.input,
+        input: resItem.input,
         expected: expectedStr,
-        actual: actualStr,
+        actual: resItem.status === "Compilation Error" ? "Compilation Error" : (resItem.status === "Runtime Error" ? "Runtime Error" : actualStr),
         passed
       });
+    });
+
+    if (compilationError) {
+      return {
+        error: `Compilation Error:\n${compilationError}`,
+        success: false,
+        passedCount: 0,
+        totalCount: question.testCases.length,
+        results: testCaseResults
+      };
     }
-    
+
+    if (runtimeError && passedCount === 0) {
+      return {
+        error: `Runtime Error:\n${runtimeError}`,
+        success: false,
+        passedCount: 0,
+        totalCount: question.testCases.length,
+        results: testCaseResults
+      };
+    }
+
     const success = passedCount === question.testCases.length;
-    let errText = "";
-    if (!success && logicError) {
-      errText = logicError;
-    }
-    
     return {
       success,
       passedCount,
       totalCount: question.testCases.length,
       results: testCaseResults,
-      logs: [],
-      error: errText
+      logs: []
     };
-    
+
   } catch (err) {
-    if (logicError) {
-      return {
-        error: `${err.toString()}\n\n💡 Suggestion: ${logicError}`,
-        line: getLineNumberFromError(err, code),
-        success: false,
-        passedCount: 0,
-        totalCount: question.testCases.length,
-        logs: []
-      };
-    }
-    const lineNum = getLineNumberFromError(err, code);
     return {
-      error: err.toString(),
-      line: lineNum,
+      error: err.message || "Failed to execute code",
       success: false,
       passedCount: 0,
       totalCount: question.testCases.length,
-      logs: []
+      results: []
     };
   }
 };
@@ -700,13 +259,33 @@ export default function CompilerPage() {
   const [showCorrectPopup, setShowCorrectPopup] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [useCustomInput, setUseCustomInput] = useState(false);
+  const [customInput, setCustomInput] = useState("");
   // Filter codingQuestions by selected difficulty
   const questionsOfLevel = codingQuestions.filter(
     (q) => q.difficulty.toLowerCase() === level.toLowerCase()
   );
 
   const question = questionsOfLevel[currentQuestionIndex] || questionsOfLevel[0] || codingQuestions[0];
+
+  // Save code to local storage when changed
+  useEffect(() => {
+    if (code && question && language) {
+      localStorage.setItem(`code_${question.id}_${language}`, code);
+    }
+  }, [code, question, language]);
+
+  // Load code from local storage when question or language changes
+  useEffect(() => {
+    if (question && language) {
+      const saved = localStorage.getItem(`code_${question.id}_${language}`);
+      if (saved) {
+        setCode(saved);
+      } else {
+        setCode("");
+      }
+    }
+  }, [question, language]);
 
   // Load question ID from URL if provided
   useEffect(() => {
@@ -827,150 +406,295 @@ export default function CompilerPage() {
     }
   };
 
-  const runCode = () => {
+  const downloadCode = () => {
+    const extMap = {
+      c: "c",
+      cpp: "cpp",
+      java: "java",
+      javascript: "js",
+      python: "py",
+      csharp: "cs",
+      go: "go",
+      kotlin: "kt",
+      php: "php",
+      ruby: "rb",
+      rust: "rs",
+      swift: "swift",
+      typescript: "ts"
+    };
+    const ext = extMap[language.toLowerCase()] || "txt";
+    const userCode = code || getDefaultCodeForQuestion(question, language);
+    const blob = new Blob([userCode], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `solution_${question.id}.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const clearEditor = () => {
+    if (window.confirm("Are you sure you want to reset the editor? This will clear your current code.")) {
+      setCode("");
+      localStorage.removeItem(`code_${question.id}_${language}`);
+    }
+  };
+
+  const copyOutput = () => {
+    if (output) {
+      navigator.clipboard.writeText(output);
+      alert("Output copied to clipboard!");
+    }
+  };
+
+  const handleCorrectSolution = (userCode, evaluation) => {
+    setOutput(`✅ Solution Accepted!\nPassed all ${evaluation.passedCount} test cases.`);
+    setShowCorrectPopup(true);
+    setPassed(true);
+    setHasSubmitted(true);
+    setPassedCount(evaluation.passedCount);
+    setTotalCount(evaluation.totalCount);
+    
+    // Save solved question ID to Supabase/localStorage
+    const updatedSolvedList = solvedIds.includes(question.id) ? solvedIds : [...solvedIds, question.id];
+    markAsSolved(question.id, question.difficulty);
+
+    // Record Submission History in Supabase/localStorage
+    addSubmission({
+      questionId: question.id,
+      questionTitle: question.title,
+      code: userCode,
+      language: language,
+      status: "Accepted",
+      difficulty: question.difficulty,
+      passedCount: evaluation.passedCount || 0,
+      totalCount: evaluation.totalCount || question.testCases.length
+    });
+
+    // Auto-route to next session/question after 2.5 seconds
+    setTimeout(() => {
+      setShowCorrectPopup(false);
+      
+      // Check if all questions in the current level are solved
+      const levelQuestions = codingQuestions.filter(
+        (q) => q.difficulty.toLowerCase() === level.toLowerCase()
+      );
+      const unsolvedInLevel = levelQuestions.filter(
+        (q) => !updatedSolvedList.includes(q.id)
+      );
+      
+      if (unsolvedInLevel.length === 0) {
+        // All solved in this level! Move to next level automatically
+        if (level.toLowerCase() === "easy") {
+          setLevel("Medium");
+          setCurrentQuestionIndex(0);
+          const nextLevelQuestions = codingQuestions.filter(q => q.difficulty === "Medium");
+          if (nextLevelQuestions.length > 0) {
+            window.history.pushState(null, "", `/coding/compiler?id=${nextLevelQuestions[0].id}`);
+          }
+        } else if (level.toLowerCase() === "medium") {
+          setLevel("Hard");
+          setCurrentQuestionIndex(0);
+          const nextLevelQuestions = codingQuestions.filter(q => q.difficulty === "Hard");
+          if (nextLevelQuestions.length > 0) {
+            window.history.pushState(null, "", `/coding/compiler?id=${nextLevelQuestions[0].id}`);
+          }
+        } else {
+          // Completed Hard!
+          setOutput("🎉 CONGRATULATIONS! You have successfully completed all coding practice sessions!");
+          setTimeout(() => {
+            router.push("/coding/practice");
+          }, 1500);
+        }
+      } else {
+        // Move to the next unsolved question in this level
+        const nextUnsolvedIdx = levelQuestions.findIndex(
+          (q) => !updatedSolvedList.includes(q.id)
+        );
+        if (nextUnsolvedIdx !== -1) {
+          setCurrentQuestionIndex(nextUnsolvedIdx);
+          window.history.pushState(null, "", `/coding/compiler?id=${levelQuestions[nextUnsolvedIdx].id}`);
+        } else {
+          // Fallback: move index forward if within range
+          if (currentQuestionIndex < levelQuestions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
+            window.history.pushState(null, "", `/coding/compiler?id=${levelQuestions[currentQuestionIndex + 1].id}`);
+          }
+        }
+      }
+    }, 2500);
+  };
+
+  const handleWrongSolution = (userCode, evaluation) => {
+    setPassed(false);
+    setHasSubmitted(true);
+    setPassedCount(evaluation.passedCount);
+    setTotalCount(evaluation.totalCount);
+
+    let outputText = `❌ Solution Rejected.\n`;
+    outputText += `Passed ${evaluation.passedCount}/${evaluation.totalCount} Test Cases.\n\n`;
+    
+    if (evaluation.results) {
+      evaluation.results.forEach((res, i) => {
+        outputText += `Test Case ${i + 1}: ${res.passed ? 'PASSED ✅' : 'FAILED ❌'}\n`;
+        outputText += `  Input:    ${res.input}\n`;
+        outputText += `  Expected: ${res.expected}\n`;
+        outputText += `  Actual:   ${res.actual}\n\n`;
+      });
+    }
+
+    outputText += `💡 Hint: ${question.hint || "Review your solution logic and check variable definitions."}\n`;
+    setOutput(outputText);
+
+    // Record Submission History in Supabase/localStorage
+    addSubmission({
+      questionId: question.id,
+      questionTitle: question.title,
+      code: userCode,
+      language: language,
+      status: "Wrong Answer",
+      difficulty: question.difficulty,
+      passedCount: evaluation.passedCount || 0,
+      totalCount: evaluation.totalCount || question.testCases.length
+    });
+  };
+
+  const runCode = async () => {
     setIsRunning(true);
     setHasSubmitted(false);
     setErrorDetails("");
     setErrorLine(null);
+
+    const userCode = code ? code.trim() : "";
+    if (!userCode) {
+      setIsRunning(false);
+      setOutput("❌ Error: Code cannot be empty. Please write your solution logic in the editor.");
+      return;
+    }
+
+    if (useCustomInput) {
+      setOutput(`Compiling & Executing ${language} code with Custom Input...\n\n`);
+
+      const lang = language.toLowerCase();
+      const LANGUAGE_IDS = {
+        c: 50,
+        cpp: 54,
+        java: 62,
+        javascript: 63,
+        python: 71,
+        csharp: 51,
+        go: 60,
+        kotlin: 78,
+        php: 68,
+        ruby: 72,
+        rust: 73,
+        swift: 83,
+        typescript: 74
+      };
+
+      const languageId = LANGUAGE_IDS[lang] || 63;
+
+      try {
+        const res = await fetch("/api/compile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            source_code: userCode,
+            language_id: languageId,
+            stdin: customInput
+          })
+        });
+
+        setIsRunning(false);
+
+        if (!res.ok) {
+          throw new Error(`API compilation failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (data.status === "Compilation Error") {
+          setOutput(`❌ Compilation Error:\n${data.compile_output}`);
+          setErrorDetails(data.compile_output);
+        } else if (data.status === "Runtime Error") {
+          setOutput(`❌ Runtime Error:\n${data.stderr}`);
+          setErrorDetails(data.stderr);
+        } else {
+          let outputText = `✅ Custom Input Execution Completed.\n`;
+          outputText += `Status: ${data.status}\n`;
+          outputText += `Time:   ${data.time} sec\n`;
+          outputText += `Memory: ${data.memory} MB\n\n`;
+          outputText += `Output:\n${data.stdout || "(No Output)"}\n`;
+          setOutput(outputText);
+        }
+      } catch (err) {
+        setIsRunning(false);
+        setErrorDetails(err.message);
+        setOutput(`❌ Error: ${err.message}`);
+      }
+      return;
+    }
+
     setOutput(`Compiling & Executing ${language} code...\n\n`);
 
-    const userCode = code || getDefaultCodeForQuestion(question, language);
-
-    setTimeout(() => {
-      const evaluation = runCompilerTestCases(userCode, language, question);
+    try {
+      const evaluation = await runCompilerTestCases(userCode, language, question);
       setIsRunning(false);
 
       if (evaluation.error) {
         setErrorDetails(evaluation.error);
         setErrorLine(evaluation.line);
-        setOutput(`❌ Compilation/Runtime Error:\n${evaluation.error}${evaluation.line ? ` on Line ${evaluation.line}` : ''}`);
+        setOutput(`❌ Compilation/Runtime Error:\n${evaluation.error}`);
       } else {
-        setPassedCount(evaluation.passedCount);
-        setTotalCount(evaluation.totalCount);
-        
-        let outputText = `✅ Execution Completed.\n`;
-        outputText += `Passed ${evaluation.passedCount}/${evaluation.totalCount} Test Cases.\n\n`;
-        
-        if (evaluation.results) {
-          evaluation.results.forEach((res, i) => {
-            outputText += `Test Case ${i + 1}: ${res.passed ? 'PASSED ✅' : 'FAILED ❌'}\n`;
-            outputText += `  Input:    ${res.input}\n`;
-            outputText += `  Expected: ${res.expected}\n`;
-            outputText += `  Actual:   ${res.actual}\n\n`;
-          });
+        if (evaluation.success) {
+          handleCorrectSolution(userCode, evaluation);
+        } else {
+          handleWrongSolution(userCode, evaluation);
         }
-        
-        if (evaluation.logs && evaluation.logs.length > 0) {
-          outputText += `Console Output:\n${evaluation.logs.join('\n')}\n`;
-        }
-        
-        setOutput(outputText);
       }
-    }, 1000);
+    } catch (err) {
+      setIsRunning(false);
+      setErrorDetails(err.message);
+      setOutput(`❌ Error: ${err.message}`);
+    }
   };
 
-  const submitCode = () => {
+  const submitCode = async () => {
     setIsSubmitting(true);
     setHasSubmitted(false);
     setErrorDetails("");
     setErrorLine(null);
     setOutput(`Submitting solution for target evaluation...\n`);
 
-    const userCode = code || getDefaultCodeForQuestion(question, language);
+    const userCode = code ? code.trim() : "";
+    if (!userCode) {
+      setIsSubmitting(false);
+      setOutput("❌ Error: Code cannot be empty. Please write your solution logic in the editor.");
+      return;
+    }
 
-    setTimeout(() => {
-      const evaluation = runCompilerTestCases(userCode, language, question);
+    try {
+      const evaluation = await runCompilerTestCases(userCode, language, question);
       setIsSubmitting(false);
 
       setSubmissions(prev => prev + 1);
-      setPassed(evaluation.success);
-      setPassedCount(evaluation.passedCount);
-      setTotalCount(evaluation.totalCount);
-      setHasSubmitted(true);
 
-      // Record Submission History in Supabase/localStorage
-      addSubmission({
-        questionId: question.id,
-        questionTitle: question.title,
-        code: userCode,
-        language: language,
-        status: evaluation.error ? "Compilation Error" : (evaluation.success ? "Accepted" : "Wrong Answer"),
-        difficulty: question.difficulty,
-        passedCount: evaluation.passedCount || 0,
-        totalCount: evaluation.totalCount || question.testCases.length
-      });
-
-      if (evaluation.error && !evaluation.success) {
+      if (evaluation.error) {
         setErrorDetails(evaluation.error);
         setErrorLine(evaluation.line);
         setOutput(`❌ Submission Failed due to Compilation/Runtime Error:\n${evaluation.error}`);
       } else {
         if (evaluation.success) {
-          setOutput(`✅ Solution Accepted!\nPassed all ${evaluation.passedCount} test cases.`);
-          setShowCorrectPopup(true); // Large rocking success overlay popup
-          
-          // Save solved question ID to Supabase/localStorage
-          const updatedSolvedList = solvedIds.includes(question.id) ? solvedIds : [...solvedIds, question.id];
-          markAsSolved(question.id, question.difficulty);
-
-          // Auto-route to next session/question after 2.5 seconds
-          setTimeout(() => {
-            setShowCorrectPopup(false);
-            
-            // Check if all questions in the current level are solved
-            const levelQuestions = codingQuestions.filter(
-              (q) => q.difficulty.toLowerCase() === level.toLowerCase()
-            );
-            const unsolvedInLevel = levelQuestions.filter(
-              (q) => !updatedSolvedList.includes(q.id)
-            );
-            
-            if (unsolvedInLevel.length === 0) {
-              // All solved in this level! Move to next level automatically
-              if (level.toLowerCase() === "easy") {
-                setLevel("Medium");
-                setCurrentQuestionIndex(0);
-                const nextLevelQuestions = codingQuestions.filter(q => q.difficulty === "Medium");
-                if (nextLevelQuestions.length > 0) {
-                  window.history.pushState(null, "", `/coding/compiler?id=${nextLevelQuestions[0].id}`);
-                }
-              } else if (level.toLowerCase() === "medium") {
-                setLevel("Hard");
-                setCurrentQuestionIndex(0);
-                const nextLevelQuestions = codingQuestions.filter(q => q.difficulty === "Hard");
-                if (nextLevelQuestions.length > 0) {
-                  window.history.pushState(null, "", `/coding/compiler?id=${nextLevelQuestions[0].id}`);
-                }
-              } else {
-                // Completed Hard!
-                setOutput("🎉 CONGRATULATIONS! You have successfully completed all coding practice sessions!");
-                setTimeout(() => {
-                  router.push("/coding/practice");
-                }, 1500);
-              }
-            } else {
-              // Move to the next unsolved question in this level
-              const nextUnsolvedIdx = levelQuestions.findIndex(
-                (q) => !updatedSolvedList.includes(q.id)
-              );
-              if (nextUnsolvedIdx !== -1) {
-                setCurrentQuestionIndex(nextUnsolvedIdx);
-                window.history.pushState(null, "", `/coding/compiler?id=${levelQuestions[nextUnsolvedIdx].id}`);
-              } else {
-                // Fallback: move index forward if within range
-                if (currentQuestionIndex < levelQuestions.length - 1) {
-                  setCurrentQuestionIndex(currentQuestionIndex + 1);
-                  window.history.pushState(null, "", `/coding/compiler?id=${levelQuestions[currentQuestionIndex + 1].id}`);
-                }
-              }
-            }
-          }, 2500);
-
+          handleCorrectSolution(userCode, evaluation);
         } else {
-          setOutput(`❌ Submission Rejected.\nPassed ${evaluation.passedCount}/${evaluation.totalCount} test cases. Review the solution hint and fix errors.`);
+          handleWrongSolution(userCode, evaluation);
         }
       }
-    }, 1200);
+    } catch (err) {
+      setIsSubmitting(false);
+      setErrorDetails(err.message);
+      setOutput(`❌ Error: ${err.message}`);
+    }
   };
 
   const questionSpecificDefaultCode = getDefaultCodeForQuestion(question, language);
@@ -1167,11 +891,27 @@ export default function CompilerPage() {
             {question.description}
           </p>
 
-          <div style={{ margin: "16px 0", padding: "12px", backgroundColor: "#1e1e24", borderRadius: "8px" }}>
-            <h4 style={{ margin: "0 0 6px 0", color: "#888" }}>Sample Input</h4>
-            <pre style={{ margin: 0, fontFamily: "monospace" }}>{question.sampleInput}</pre>
-            <h4 style={{ margin: "12px 0 6px 0", color: "#888" }}>Sample Output</h4>
-            <pre style={{ margin: 0, fontFamily: "monospace" }}>{question.sampleOutput}</pre>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", margin: "16px 0" }}>
+            <div className="testcase-card" style={{ padding: "12px", display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div className="testcase-section" style={{ margin: 0 }}>
+                <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: "600" }}>
+                  Sample Input
+                </label>
+                <pre style={{ overflowX: "auto" }}>
+                  {question.sampleInput}
+                </pre>
+              </div>
+            </div>
+            <div className="testcase-card" style={{ padding: "12px", display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div className="testcase-section" style={{ margin: 0 }}>
+                <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: "600" }}>
+                  Sample Output
+                </label>
+                <pre style={{ overflowX: "auto" }}>
+                  {question.sampleOutput}
+                </pre>
+              </div>
+            </div>
           </div>
 
           <TestCases testCases={question.testCases} />
@@ -1182,6 +922,8 @@ export default function CompilerPage() {
           <LanguageSelector
             language={language}
             setLanguage={handleLanguageChange}
+            onDownload={downloadCode}
+            onReset={clearEditor}
           />
 
           <CodeEditor
@@ -1190,6 +932,41 @@ export default function CompilerPage() {
             language={language}
             defaultCode={questionSpecificDefaultCode}
           />
+
+          {/* Custom Input Section */}
+          <div style={{ margin: "15px 0", background: "#0d0e12", padding: "16px", borderRadius: "10px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", fontWeight: "600", color: "var(--text-secondary)", cursor: "pointer", fontSize: "0.85rem" }}>
+              <input 
+                type="checkbox" 
+                checked={useCustomInput} 
+                onChange={(e) => setUseCustomInput(e.target.checked)} 
+                style={{ cursor: "pointer" }}
+              />
+              <span>Use Custom Input</span>
+            </label>
+            {useCustomInput && (
+              <textarea
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                placeholder="Type your custom program inputs here..."
+                rows={3}
+                style={{
+                  width: "100%",
+                  background: "#1e1e24",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: "6px",
+                  color: "#f3f4f6",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "0.9rem",
+                  resize: "vertical",
+                  outline: "none"
+                }}
+                onFocus={(e) => e.target.style.borderColor = "#4caf50"}
+                onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.08)"}
+              />
+            )}
+          </div>
 
           <div className="editor-actions">
             <button
@@ -1209,7 +986,30 @@ export default function CompilerPage() {
             </button>
           </div>
 
-          <OutputPanel output={output} />
+          <div style={{ position: "relative" }}>
+            <OutputPanel output={output} />
+            {output && (
+              <button 
+                onClick={copyOutput}
+                style={{
+                  position: "absolute",
+                  top: "12px",
+                  right: "12px",
+                  background: "#374151",
+                  border: "none",
+                  color: "#ffffff",
+                  padding: "4px 10px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "0.8rem",
+                  fontWeight: "600",
+                  zIndex: 10
+                }}
+              >
+                📋 Copy Output
+              </button>
+            )}
+          </div>
 
           {hasSubmitted && (
             <>

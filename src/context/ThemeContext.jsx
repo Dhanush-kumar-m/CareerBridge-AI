@@ -13,38 +13,23 @@ const ThemeContext =
 export function ThemeProvider({
   children,
 }) {
-  const [theme, setTheme] =
-    useState("dark");
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
-    const savedTheme =
-      localStorage.getItem(
-        "careerbridge_theme"
-      );
-
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
+    // Force dark theme on load
+    setTheme("dark");
+    document.body.setAttribute("data-theme", "dark");
+    localStorage.setItem("careerbridge_theme", "dark");
   }, []);
 
   useEffect(() => {
-    document.body.setAttribute(
-      "data-theme",
-      theme
-    );
-
-    localStorage.setItem(
-      "careerbridge_theme",
-      theme
-    );
+    // Keep theme attribute locked to dark
+    document.body.setAttribute("data-theme", "dark");
+    localStorage.setItem("careerbridge_theme", "dark");
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) =>
-      prev === "dark"
-        ? "light"
-        : "dark"
-    );
+    // No-op to remove support for light theme
   };
 
   return (

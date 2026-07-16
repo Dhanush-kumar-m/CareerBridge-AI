@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Editor, { loader } from "@monaco-editor/react";
+import { useState, useEffect, useRef } from "react";
+import { loader } from "@monaco-editor/react";
 
 // Configure Monaco loader to use the local self-hosted assets in the public directory (completely offline-compatible and immune to CDN blockages)
 loader.config({
@@ -18,10 +18,14 @@ export default function CodeEditor({
 }) {
   const [editorError, setEditorError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [monacoInstance, setMonacoInstance] = useState(null);
+  const containerRef = useRef(null);
+  const editorRef = useRef(null);
 
   useEffect(() => {
     loader.init()
-      .then(() => {
+      .then((monaco) => {
+        setMonacoInstance(monaco);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -102,7 +106,66 @@ int main() {
     }
   };
 
-  const currentValue = code || defaultCode || getDefaultCode();
+  const currentValue = code || "";
+
+  // Initialize and manage Editor lifecycle
+  useEffect(() => {
+    if (isLoading || editorError || !containerRef.current || !monacoInstance) {
+      return;
+    }
+
+    // Create the editor instance
+    const editor = monacoInstance.editor.create(containerRef.current, {
+      value: currentValue,
+      language: language.toLowerCase(),
+      theme: "vs-dark",
+      fontSize: 15,
+      minimap: {
+        enabled: false,
+      },
+      wordWrap: "on",
+      automaticLayout: true,
+      scrollBeyondLastLine: false,
+      tabSize: 2,
+      formatOnPaste: true,
+      formatOnType: true,
+      suggestOnTriggerCharacters: true,
+    });
+
+    editorRef.current = editor;
+
+    // Handle change events
+    const changeListener = editor.onDidChangeModelContent(() => {
+      setCode(editor.getValue());
+    });
+
+    // Cleanup on unmount
+    return () => {
+      changeListener.dispose();
+      editor.dispose();
+      editorRef.current = null;
+    };
+  }, [isLoading, editorError, monacoInstance]);
+
+  // Update value and language reactively
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || !monacoInstance) return;
+
+    const model = editor.getModel();
+    if (model) {
+      // Update language if it changed
+      const currentLanguage = model.getLanguageId ? model.getLanguageId() : model.getModeId?.();
+      if (currentLanguage !== language.toLowerCase()) {
+        monacoInstance.editor.setModelLanguage(model, language.toLowerCase());
+      }
+
+      // Update value if it's different from the current editor content
+      if (editor.getValue() !== currentValue) {
+        editor.setValue(currentValue);
+      }
+    }
+  }, [language, currentValue, monacoInstance]);
 
   if (editorError) {
     return (
@@ -140,25 +203,19 @@ int main() {
         <span>{language}</span>
       </div>
 
-      <Editor
-        height="550px"
-        language={language.toLowerCase()}
-        theme="vs-dark"
-        value={currentValue}
-        loading="Loading Editor..."
-        onChange={(value) => setCode(value || "")}
-        options={{
-          fontSize: 15,
-          minimap: {
-            enabled: false,
-          },
-          wordWrap: "on",
-          automaticLayout: true,
-          scrollBeyondLastLine: false,
-          tabSize: 2,
-          formatOnPaste: true,
-          formatOnType: true,
-          suggestOnTriggerCharacters: true,
+      {isLoading ? (
+        <div style={{ height: "550px", display: "flex", alignItems: "center", justifyContent: "center", background: "#1e1e1e", color: "#d4d4d4", borderRadius: "0 0 8px 8px" }}>
+          Loading Editor...
+        </div>
+      ) : null}
+      <div
+        ref={containerRef}
+        style={{
+          height: "550px",
+          width: "100%",
+          display: isLoading ? "none" : "block",
+          borderRadius: "0 0 8px 8px",
+          overflow: "hidden",
         }}
       />
     </div>

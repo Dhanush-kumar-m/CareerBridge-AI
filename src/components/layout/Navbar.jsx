@@ -150,31 +150,7 @@ export default function Navbar() {
 
       <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         
-        {/* Theme Toggle Button */}
-        {mounted ? (
-          <button
-            onClick={toggleTheme}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-secondary)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "8px",
-              borderRadius: "50%",
-              transition: "background 0.2s, color 0.2s"
-            }}
-            className="theme-toggle-btn"
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          >
-            {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
-          </button>
-        ) : (
-          <div style={{ width: 34, height: 34 }} />
-        )}
+        {/* Theme Toggle disabled to lock default dark theme */}
 
         {/* Notification Bell Section */}
         {isAuthenticated && (
