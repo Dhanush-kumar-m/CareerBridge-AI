@@ -179,23 +179,11 @@ export default function ResumeAnalyzerPage() {
         reject(new Error("PDF parser loading timed out"));
       }, 3000);
       const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js";
-      script.onload = async () => {
-        try {
-          // Bypass CORS restrictions for loading worker scripts from foreign CDNs by building a local Blob URL
-          const workerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-          const res = await fetch(workerUrl);
-          const code = await res.text();
-          const blob = new Blob([code], { type: "application/javascript" });
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
-          clearTimeout(timeout);
-          resolve(window.pdfjsLib);
-        } catch (e) {
-          console.warn("Failed to load PDF worker via Blob, falling back to static URL:", e);
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-          clearTimeout(timeout);
-          resolve(window.pdfjsLib);
-        }
+      script.src = "/pdf.min.js";
+      script.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+        clearTimeout(timeout);
+        resolve(window.pdfjsLib);
       };
       script.onerror = () => {
         clearTimeout(timeout);
@@ -215,7 +203,7 @@ export default function ResumeAnalyzerPage() {
         reject(new Error("DOCX parser loading timed out"));
       }, 3000);
       const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      script.src = "/jszip.min.js";
       script.onload = () => {
         clearTimeout(timeout);
         resolve(window.JSZip);
@@ -238,9 +226,26 @@ export default function ResumeAnalyzerPage() {
       
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
+        
+        // Extract visible text
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map(item => item.str).join(" ");
         fullText += pageText + "\n";
+        
+        // Extract embedded hyperlink URLs (for resumes using social icons/links)
+        try {
+          const annotations = await page.getAnnotations();
+          if (annotations && Array.isArray(annotations)) {
+            const urls = annotations
+              .filter(anno => anno.subtype === "Link" && (anno.url || anno.unsafeUrl))
+              .map(anno => anno.url || anno.unsafeUrl);
+            if (urls.length > 0) {
+              fullText += " " + urls.join(" ") + "\n";
+            }
+          }
+        } catch (annoErr) {
+          console.warn("Failed to extract annotations for page", i, annoErr);
+        }
       }
       return fullText;
     } catch (err) {
@@ -345,13 +350,13 @@ export default function ResumeAnalyzerPage() {
       if (!validResume) {
         setTimeout(() => {
           setIsAnalyzing(false);
-          setError("Pls upload the resume my friend 🥺📄✨");
+          setError("Please upload the correct resume my friend! 🥺📄✨ (LinkedIn & GitHub profile links required)");
           setIsResume(false);
           setFileName("");
           setTimeout(() => {
             setError("");
           }, 4000);
-        }, 1200);
+        }, 300);
         return;
       }
 
@@ -500,12 +505,12 @@ export default function ResumeAnalyzerPage() {
           resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 150);
 
-      }, 1500);
+      }, 400);
 
     } catch (err) {
       console.error("Critical upload processing error:", err);
       setIsAnalyzing(false);
-      setError("Pls upload the resume my friend 🥺📄✨");
+      setError("Please upload the correct resume my friend! 🥺📄✨");
       setFileName("");
       setTimeout(() => {
         setError("");
