@@ -331,22 +331,62 @@ export default function NewUsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
-        <div className="stat-pill" style={{ padding: "18px" }}>
-          <span className="stat-label">Total Registered Students</span>
-          <span className="stat-value">{stats.totalUsers} Users</span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
+        {/* Total registered */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          borderRadius: "16px",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15)"
+        }}>
+          <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Registered Students</span>
+          <span style={{ fontSize: "2rem", fontWeight: "800", color: "#ffffff" }}>{stats.totalUsers} Users</span>
         </div>
-        <div className="stat-pill" style={{ padding: "18px" }}>
-          <span className="stat-label">Logins Today (Unique)</span>
-          <span className="stat-value">{stats.loginsToday} Active</span>
+        {/* Unique Logins Today */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          borderRadius: "16px",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15)"
+        }}>
+          <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Logins Today (Unique)</span>
+          <span style={{ fontSize: "2rem", fontWeight: "800", color: "#ffffff" }}>{stats.loginsToday} Active</span>
         </div>
-        <div className="stat-pill" style={{ padding: "18px" }}>
-          <span className="stat-label">Total Login Audits</span>
-          <span className="stat-value">{stats.totalLogins} Logins</span>
+        {/* Total Logins */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          borderRadius: "16px",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15)"
+        }}>
+          <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Login Audits</span>
+          <span style={{ fontSize: "2rem", fontWeight: "800", color: "#6366f1" }}>{stats.totalLogins} Logins</span>
         </div>
-        <div className="stat-pill" style={{ padding: "18px" }}>
-          <span className="stat-label">Total Logout Audits</span>
-          <span className="stat-value">{stats.totalLogouts} Logouts</span>
+        {/* Total Logouts */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          borderRadius: "16px",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15)"
+        }}>
+          <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Logout Audits</span>
+          <span style={{ fontSize: "2rem", fontWeight: "800", color: "#ef4444" }}>{stats.totalLogouts} Logouts</span>
         </div>
       </div>
 
@@ -357,14 +397,18 @@ export default function NewUsersPage() {
         borderRadius: "16px",
         padding: "24px"
       }}>
-        <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0" }}>7-Day Portal Engagement & Growth Trends</h3>
-        <div style={{ width: "100%", height: 300 }}>
+        <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0", fontWeight: "700" }}>7-Day Portal Engagement & Activity Trends</h3>
+        <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer>
-            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorLogins" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorLogouts" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorRegs" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
@@ -377,6 +421,7 @@ export default function NewUsersPage() {
               <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#ffffff" }} />
               <Legend wrapperStyle={{ fontSize: "0.85rem", marginTop: "10px" }} />
               <Area type="monotone" name="Logins" dataKey="Logins" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorLogins)" isAnimationActive={true} />
+              <Area type="monotone" name="Logouts" dataKey="Logouts" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorLogouts)" isAnimationActive={true} />
               <Area type="monotone" name="Registrations" dataKey="Registrations" stroke="#ec4899" strokeWidth={2} fillOpacity={1} fill="url(#colorRegs)" isAnimationActive={true} />
             </AreaChart>
           </ResponsiveContainer>
@@ -466,32 +511,32 @@ export default function NewUsersPage() {
           <div className="spin-loader" style={{ width: "35px", height: "35px", border: "3px solid rgba(255,255,255,0.05)", borderTop: "3px solid var(--primary)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
         </div>
       ) : (
-        <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "20px" }}>
+        <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px" }}>
           {activeTab === "registrations" ? (
             <div>
-              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0" }}>New User Registration Audits</h3>
+              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 16px 0", fontWeight: "700" }}>New User Registration Audits</h3>
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", textAlign: "left" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem", textAlign: "left" }}>
                   <thead>
-                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }}>
-                      <th style={{ padding: "12px" }}>UUID / Student ID</th>
-                      <th style={{ padding: "12px" }}>Full Name</th>
-                      <th style={{ padding: "12px" }}>Registered Email</th>
-                      <th style={{ padding: "12px" }}>Date Joined</th>
+                    <tr style={{ borderBottom: "2px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }}>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>UUID / Student ID</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Full Name</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Registered Email</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Date Joined</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredUsers.map((u) => (
-                      <tr key={u.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                        <td style={{ padding: "12px", color: "var(--text-secondary)", fontFamily: "monospace", fontSize: "0.8rem" }}>{u.id}</td>
-                        <td style={{ padding: "12px", fontWeight: "700", color: "#ffffff" }}>{u.display_name || "N/A"}</td>
-                        <td style={{ padding: "12px" }}>{u.email || "No Email"}</td>
-                        <td style={{ padding: "12px", color: "var(--text-secondary)" }}>{new Date(u.created_at).toLocaleString()}</td>
+                      <tr key={u.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.01)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                        <td style={{ padding: "14px 16px", color: "var(--text-secondary)", fontFamily: "monospace", fontSize: "0.8rem" }}>{u.id}</td>
+                        <td style={{ padding: "14px 16px", fontWeight: "600", color: "#ffffff" }}>{u.display_name || "N/A"}</td>
+                        <td style={{ padding: "14px 16px" }}>{u.email || "No Email"}</td>
+                        <td style={{ padding: "14px 16px", color: "var(--text-secondary)" }}>{new Date(u.created_at).toLocaleString()}</td>
                       </tr>
                     ))}
                     {filteredUsers.length === 0 && (
                       <tr>
-                        <td colSpan={4} style={{ padding: "30px", textAlign: "center", color: "var(--text-secondary)" }}>No new registration records found.</td>
+                        <td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--text-secondary)" }}>No new registration records found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -500,40 +545,42 @@ export default function NewUsersPage() {
             </div>
           ) : (
             <div>
-              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 15px 0" }}>Daily Login/Logout Timelines</h3>
+              <h3 style={{ color: "#ffffff", fontSize: "1.1rem", margin: "0 0 16px 0", fontWeight: "700" }}>Daily Login/Logout Timelines</h3>
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", textAlign: "left" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem", textAlign: "left" }}>
                   <thead>
-                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }}>
-                      <th style={{ padding: "12px" }}>Log ID</th>
-                      <th style={{ padding: "12px" }}>User Email</th>
-                      <th style={{ padding: "12px" }}>Activity Event</th>
-                      <th style={{ padding: "12px" }}>Time Recorded</th>
+                    <tr style={{ borderBottom: "2px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }}>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Log ID</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>User Email</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Activity Event</th>
+                      <th style={{ padding: "14px 16px", fontWeight: "600" }}>Time Recorded</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredActivities.map((a) => (
-                      <tr key={a.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                        <td style={{ padding: "12px", color: "var(--text-secondary)" }}>#{a.id}</td>
-                        <td style={{ padding: "12px", fontWeight: "700", color: "#ffffff" }}>{a.email}</td>
-                        <td style={{ padding: "12px" }}>
+                      <tr key={a.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.01)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                        <td style={{ padding: "14px 16px", color: "var(--text-secondary)" }}>#{a.id}</td>
+                        <td style={{ padding: "14px 16px", fontWeight: "600", color: "#ffffff" }}>{a.email}</td>
+                        <td style={{ padding: "14px 16px" }}>
                           <span style={{
-                            padding: "2px 8px",
-                            borderRadius: "4px",
+                            padding: "4px 12px",
+                            borderRadius: "6px",
                             fontSize: "0.75rem",
                             fontWeight: "700",
-                            background: a.activity_type === "login" ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)",
+                            letterSpacing: "0.5px",
+                            background: a.activity_type === "login" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
                             color: a.activity_type === "login" ? "#10b981" : "#ef4444",
+                            border: a.activity_type === "login" ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)"
                           }}>
                             {a.activity_type.toUpperCase()}
                           </span>
                         </td>
-                        <td style={{ padding: "12px", color: "var(--text-secondary)" }}>{new Date(a.timestamp).toLocaleString()}</td>
+                        <td style={{ padding: "14px 16px", color: "var(--text-secondary)" }}>{new Date(a.timestamp).toLocaleString()}</td>
                       </tr>
                     ))}
                     {filteredActivities.length === 0 && (
                       <tr>
-                        <td colSpan={4} style={{ padding: "30px", textAlign: "center", color: "var(--text-secondary)" }}>No daily activity logs recorded.</td>
+                        <td colSpan={4} style={{ padding: "40px", textAlign: "center", color: "var(--text-secondary)" }}>No daily activity logs recorded.</td>
                       </tr>
                     )}
                   </tbody>

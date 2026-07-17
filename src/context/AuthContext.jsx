@@ -47,6 +47,23 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    const isPlaceholder = !supabaseUrl || supabaseUrl.includes("placeholder");
+
+    if (isPlaceholder) {
+      // Offline/Local Dev Mode Bypass: Auto-login mock student
+      setUser({
+        id: "mock-student-id",
+        email: "student@careerbridge.com",
+        role: "student",
+        user_metadata: {
+          full_name: "Local Student"
+        }
+      });
+      setLoading(false);
+      return;
+    }
+
     // 1. Get initial session and fetch role
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {

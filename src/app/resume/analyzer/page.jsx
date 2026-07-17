@@ -171,19 +171,38 @@ export default function ResumeAnalyzerPage() {
   // Dynamic loading of CDN helper scripts with load timeouts for resilient parsing
   const loadPdfJS = () => {
     return new Promise((resolve, reject) => {
-      if (window.pdfjsLib) {
-        resolve(window.pdfjsLib);
+      const getPdfjs = () => window.pdfjsLib || window['pdfjs-dist/build/pdf'] || window.pdfjs;
+      const activeLib = getPdfjs();
+      if (activeLib) {
+        resolve(activeLib);
         return;
       }
       const timeout = setTimeout(() => {
         reject(new Error("PDF parser loading timed out"));
-      }, 3000);
+      }, 5000);
       const script = document.createElement("script");
       script.src = "/pdf.min.js";
       script.onload = () => {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
-        clearTimeout(timeout);
-        resolve(window.pdfjsLib);
+        const checkLibrary = () => {
+          const lib = getPdfjs();
+          if (lib) {
+            lib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+            clearTimeout(timeout);
+            resolve(lib);
+            return true;
+          }
+          return false;
+        };
+
+        if (!checkLibrary()) {
+          // Retry checking after 100ms in case script execution is slightly deferred
+          setTimeout(() => {
+            if (!checkLibrary()) {
+              clearTimeout(timeout);
+              reject(new Error("PDF.js library loaded but pdfjsLib global is missing"));
+            }
+          }, 100);
+        }
       };
       script.onerror = () => {
         clearTimeout(timeout);

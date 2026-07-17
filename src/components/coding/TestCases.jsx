@@ -29,28 +29,15 @@ export default function TestCases({
                 Test Case {index + 1}
               </h4>
 
-              <div className="testcase-section">
-
-                <label>
-                  Input
-                </label>
-
-                <pre>
-                  {tc.input}
-                </pre>
-
-              </div>
-
-              <div className="testcase-section">
-
-                <label>
-                  Expected Output
-                </label>
-
-                <pre>
-                  {tc.expected}
-                </pre>
-
+              <div className="testcase-grid">
+                <div className="testcase-section">
+                  <label>Input</label>
+                  <pre>{tc.input}</pre>
+                </div>
+                <div className="testcase-section">
+                  <label>Expected Output</label>
+                  <pre>{tc.expected}</pre>
+                </div>
               </div>
 
             </div>
