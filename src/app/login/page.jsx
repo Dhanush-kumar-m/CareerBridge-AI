@@ -5,7 +5,7 @@ import Link from "next/link";
 import useAuth from "../../hooks/useAuth";
 
 export default function LoginPage() {
-  const { loginWithGoogle, loginWithOutlook } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const [error, setError] = useState("");
 
   const handleGoogleLogin = async () => {
@@ -14,15 +14,6 @@ export default function LoginPage() {
       await loginWithGoogle();
     } catch (err) {
       setError(err.message || "Google Sign-in failed.");
-    }
-  };
-
-  const handleOutlookLogin = async () => {
-    setError("");
-    try {
-      await loginWithOutlook();
-    } catch (err) {
-      setError(err.message || "Outlook Sign-in failed.");
     }
   };
 
@@ -68,37 +59,6 @@ export default function LoginPage() {
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
             Sign in with Google
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOutlookLogin}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px",
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
-              width: "100%",
-              padding: "12px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600",
-              fontSize: "0.95rem",
-              transition: "all 0.2s"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)"}
-          >
-            <svg width="18" height="18" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="11" height="11" fill="#F25022"/>
-              <rect x="12" y="0" width="11" height="11" fill="#7FBA00"/>
-              <rect x="0" y="12" width="11" height="11" fill="#00A4EF"/>
-              <rect x="12" y="12" width="11" height="11" fill="#FFB900"/>
-            </svg>
-            Sign in with Outlook
           </button>
         </div>
 
