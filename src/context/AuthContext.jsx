@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
         .single();
       if (!error && data) {
         // Enforce admin email restriction: if email doesn't match list, they cannot have the admin role
-        const finalRole = isMatchedAdmin ? "admin" : (data.role === "admin" ? "student" : data.role);
+        const finalRole = isMatchedAdmin ? "admin" : (data.role === "admin" ? "student" : (data.role || "student"));
         return { ...u, role: finalRole };
       }
     } catch (e) {

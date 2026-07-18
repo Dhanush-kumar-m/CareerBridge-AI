@@ -53,40 +53,95 @@ export default function StudentsPage() {
   // Real student profiles fetched from the database
   const [students, setStudents] = useState([]);
 
-  // Load dynamic students from Supabase
+  // Load dynamic students & activity logs from Supabase
   useEffect(() => {
     async function loadStudents() {
       try {
-        const { data, error } = await supabase
+        const { data: profiles, error: err1 } = await supabase
           .from("profiles")
           .select("*");
-        if (!error && data) {
-          const dbStudents = data
+        
+        const { data: activities, error: err2 } = await supabase
+          .from("user_activity")
+          .select("*")
+          .order("timestamp", { ascending: true });
+
+        // Map logs by user email to compute status and total hours logged in
+        const activityMap = {};
+        if (activities) {
+          activities.forEach(log => {
+            if (!log.email) return;
+            const emailKey = log.email.toLowerCase();
+            if (!activityMap[emailKey]) {
+              activityMap[emailKey] = { logs: [] };
+            }
+            activityMap[emailKey].logs.push(log);
+          });
+        }
+
+        if (!err1 && profiles) {
+          const dbStudents = profiles
             .filter(p => p.role !== "admin")
-            .map(p => ({
-              id: p.id,
-              name: p.display_name || "New Student",
-              regNo: p.email ? p.email.split("@")[0].toUpperCase() : "N/A",
-              email: p.email || "No Email",
-              passwordPlain: p.password_plain || "", // Store plain text password
-              phone: "N/A",
-              dept: "CSE",
-              year: "4th Year",
-              section: "A",
-              cgpa: 0.0,
-              placementStatus: "Beginner",
-              accountStatus: "Active",
-              lastLogin: "N/A",
-              backlogs: 0,
-              skills: [],
-              projectTitle: "N/A",
-              projectTech: "N/A",
-              ats: 0,
-              solved: 0,
-              aptitudeSolved: 0,
-              interviewScore: 0,
-              hours: 0
-            }));
+            .map(p => {
+              const emailKey = (p.email || "").toLowerCase();
+              const userLogs = activityMap[emailKey]?.logs || [];
+              
+              let isCurrentlyActive = false;
+              let totalMs = 0;
+              let currentLoginTime = null;
+              let lastLoginTime = null;
+
+              userLogs.forEach(log => {
+                const time = new Date(log.timestamp).getTime();
+                if (log.activity_type === "login") {
+                  currentLoginTime = time;
+                  lastLoginTime = new Date(log.timestamp).toLocaleString();
+                } else if (log.activity_type === "logout" && currentLoginTime) {
+                  totalMs += Math.max(0, time - currentLoginTime);
+                  currentLoginTime = null;
+                }
+              });
+
+              if (userLogs.length > 0) {
+                const latestLog = userLogs[userLogs.length - 1];
+                isCurrentlyActive = latestLog.activity_type === "login";
+              }
+
+              if (isCurrentlyActive && currentLoginTime) {
+                totalMs += Math.max(0, Date.now() - currentLoginTime);
+              }
+
+              const totalMins = Math.floor(totalMs / (1000 * 60));
+              const totalHoursNum = (totalMs / (1000 * 60 * 60)).toFixed(1);
+              const formattedHours = totalMins < 60 ? `${totalMins} mins` : `${totalHoursNum} hrs`;
+
+              return {
+                id: p.id,
+                name: p.display_name || "New Student",
+                regNo: p.email ? p.email.split("@")[0].toUpperCase() : "N/A",
+                email: p.email || "No Email",
+                passwordPlain: p.password_plain || "", // Store plain text password
+                phone: "N/A",
+                dept: "CSE",
+                year: "4th Year",
+                section: "A",
+                cgpa: 0.0,
+                placementStatus: "Beginner",
+                accountStatus: "Active",
+                sessionStatus: isCurrentlyActive ? "Active" : "Inactive",
+                lastLogin: lastLoginTime || "Never",
+                backlogs: 0,
+                skills: [],
+                projectTitle: "N/A",
+                projectTech: "N/A",
+                ats: 0,
+                solved: 0,
+                aptitudeSolved: 0,
+                interviewScore: 0,
+                hours: parseFloat(totalHoursNum) || 0,
+                formattedHours: formattedHours
+              };
+            });
 
           setStudents(dbStudents);
         }
@@ -350,8 +405,8 @@ export default function StudentsPage() {
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)", textAlign: "left" }}>
                   <th style={{ padding: "12px" }}>ID</th>
                   <th style={{ padding: "12px" }}>Name / Reg</th>
-                  <th style={{ padding: "12px" }}>Dept</th>
-                  <th style={{ padding: "12px" }}>CGPA</th>
+                  <th style={{ padding: "12px" }}>Session Status</th>
+                  <th style={{ padding: "12px" }}>Logged In Time</th>
                   <th style={{ padding: "12px" }}>Readiness</th>
                   <th style={{ padding: "12px" }}>Actions</th>
                 </tr>
@@ -364,8 +419,26 @@ export default function StudentsPage() {
                       <strong style={{ color: "#ffffff" }}>{s.name}</strong><br />
                       <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>{s.regNo}</span>
                     </td>
-                    <td style={{ padding: "12px" }}>{s.dept}</td>
-                    <td style={{ padding: "12px", fontWeight: "700" }}>{s.cgpa}</td>
+                    <td style={{ padding: "12px" }}>
+                      <span style={{
+                        padding: "3px 10px",
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        background: s.sessionStatus === "Active" ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                        color: s.sessionStatus === "Active" ? "#10b981" : "#ef4444",
+                        border: s.sessionStatus === "Active" ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)"
+                      }}>
+                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: s.sessionStatus === "Active" ? "#10b981" : "#ef4444", boxShadow: s.sessionStatus === "Active" ? "0 0 6px #10b981" : "none" }}></span>
+                        {s.sessionStatus === "Active" ? "ACTIVE" : "INACTIVE"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px", fontWeight: "700", color: "#6366f1" }}>
+                      {s.formattedHours || "0 mins"}
+                    </td>
                     <td style={{ padding: "12px" }}>
                       <span style={{
                         padding: "2px 8px",
@@ -406,12 +479,14 @@ export default function StudentsPage() {
               
               {/* Personal Details */}
               <div>
-                <strong style={{ display: "block", fontSize: "0.8rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "8px" }}>Personal details</strong>
+                <strong style={{ display: "block", fontSize: "0.8rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "8px" }}>Personal & Session details</strong>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "0.86rem", background: "rgba(255,255,255,0.02)", padding: "12px 16px", borderRadius: "8px" }}>
                   <div>Name: <strong>{selectedStudent.name}</strong></div>
                   <div>Register No: <strong>{selectedStudent.regNo}</strong></div>
                   <div>Email: <strong style={{ textTransform: "none" }}>{selectedStudent.email}</strong></div>
-                  <div>Phone: <strong>{selectedStudent.phone}</strong></div>
+                  <div>Session Status: <strong style={{ color: selectedStudent.sessionStatus === "Active" ? "#10b981" : "#ef4444" }}>{selectedStudent.sessionStatus === "Active" ? "🟢 ACTIVE" : "🔴 INACTIVE"}</strong></div>
+                  <div>Time Logged In: <strong style={{ color: "#6366f1" }}>{selectedStudent.formattedHours || "0 mins"}</strong></div>
+                  <div>Last Login: <strong>{selectedStudent.lastLogin}</strong></div>
                   {selectedStudent.passwordPlain && (
                     <div style={{ gridColumn: "span 2", marginTop: "4px" }}>
                       Password: <strong style={{ textTransform: "none", color: "#fb7185" }}>{selectedStudent.passwordPlain}</strong>

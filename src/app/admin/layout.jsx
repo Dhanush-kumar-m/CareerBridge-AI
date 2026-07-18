@@ -217,7 +217,7 @@ export default function AdminLayout({ children }) {
           <div>
             <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: "600" }}>MANAGEMENT PANEL</span>
             <h1 style={{ fontSize: "1.2rem", fontWeight: "700", margin: "2px 0 0", textTransform: "capitalize" }}>
-              {pathname.split("/").pop().replace("-", " ") || "Dashboard"}
+              {pathname.replace(/\/$/, "") === "/admin" ? "Dashboard" : pathname.split("/").pop().replace(/-/g, " ")}
             </h1>
           </div>
           
