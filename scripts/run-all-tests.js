@@ -2,19 +2,31 @@ import { spawn } from "child_process";
 
 console.log("⚡ Starting Unified Verification & Performance Testing Suite...");
 
-const nextProcess = spawn("npx", ["next", "start", "-p", "3002"], {
-  shell: true,
-  env: { ...process.env, PORT: "3002", TESTING: "true" }
-});
+let nextProcess = null;
 
-nextProcess.stdout.on("data", (data) => console.log(`[Next.js stdout] ${data}`));
-nextProcess.stderr.on("data", (data) => console.error(`[Next.js stderr] ${data}`));
+// Check if server is already running on port 3002
+try {
+  const checkRes = await fetch("http://localhost:3002/api/status");
+  if (checkRes.ok) {
+    console.log("📡 Active Next.js server detected on port 3002. Reusing instance...");
+  }
+} catch (e) {
+  console.log("🚀 Starting Next.js production server on port 3002...");
+  nextProcess = spawn("npx", ["next", "start", "-p", "3002"], {
+    shell: true,
+    cwd: process.cwd(),
+    env: { ...process.env, PORT: "3002", TESTING: "true" }
+  });
+
+  nextProcess.stdout.on("data", (data) => console.log(`[Next.js stdout] ${data}`));
+  nextProcess.stderr.on("data", (data) => console.error(`[Next.js stderr] ${data}`));
+}
 
 let testTimeout = setTimeout(() => {
   console.error("❌ Orchestrator timeout: Server did not respond.");
-  nextProcess.kill("SIGTERM");
+  if (nextProcess) nextProcess.kill("SIGTERM");
   process.exit(1);
-}, 30000); // 30 seconds limit
+}, 35000);
 
 const runAll = async () => {
   try {
@@ -43,12 +55,12 @@ const runAll = async () => {
     console.log("==================================================");
     
     clearTimeout(testTimeout);
-    nextProcess.kill("SIGTERM");
+    if (nextProcess) nextProcess.kill("SIGTERM");
     process.exit(0);
   } catch (err) {
     console.error("\n❌ Test runner orchestration failed:", err.message);
     clearTimeout(testTimeout);
-    nextProcess.kill("SIGTERM");
+    if (nextProcess) nextProcess.kill("SIGTERM");
     process.exit(1);
   }
 };
