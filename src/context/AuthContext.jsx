@@ -172,11 +172,18 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  const getRedirectUrl = () => {
+    if (typeof window !== "undefined" && window.location.origin) {
+      return `${window.location.origin}/`;
+    }
+    return process.env.NEXT_PUBLIC_SITE_URL || "https://career-bridge-ai-chi.vercel.app/";
+  };
+
   const loginWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: getRedirectUrl(),
       },
     });
     if (error) throw error;
@@ -186,7 +193,7 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "azure",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: getRedirectUrl(),
         scopes: "openid profile email",
       },
     });
