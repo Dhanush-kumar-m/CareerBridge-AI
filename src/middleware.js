@@ -37,26 +37,37 @@ export async function middleware(request) {
 
   if (isApi || isAuth || isSensitivePage) {
     try {
-      const ip = request.ip || request.headers.get("x-forwarded-for") || "127.0.0.1";
-      const limit = isAuth ? 15 : 60;
+      const rawIp = request.ip || request.headers.get("x-forwarded-for") || "127.0.0.1";
+      const ip = rawIp.split(",")[0].trim();
+      const limit = isAuth ? 30 : 60;
       const windowSeconds = 60;
 
-      const hostname = request.nextUrl.hostname;
-      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
-
-      const limitResult = await rateLimit(ip, limit, windowSeconds, isLocalhost);
+      const limitResult = await rateLimit(ip, limit, windowSeconds);
 
       if (!limitResult.success) {
-        return new NextResponse(
-          JSON.stringify({ error: "Too many requests. Please try again later." }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-              "Retry-After": String(windowSeconds),
-            },
-          }
-        );
+        if (isApi) {
+          return new NextResponse(
+            JSON.stringify({ error: "Too many requests. Please try again later." }),
+            {
+              status: 429,
+              headers: {
+                "Content-Type": "application/json",
+                "Retry-After": String(windowSeconds),
+              },
+            }
+          );
+        } else {
+          return new NextResponse(
+            `<!DOCTYPE html><html><head><title>Too Many Requests</title></head><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;"><h1>429 - Too Many Requests</h1><p>You have made too many requests. Please wait a minute and try again.</p></body></html>`,
+            {
+              status: 429,
+              headers: {
+                "Content-Type": "text/html",
+                "Retry-After": String(windowSeconds),
+              },
+            }
+          );
+        }
       }
     } catch (err) {
       console.error("RATE LIMITER MIDDLEWARE CRASH:", err);

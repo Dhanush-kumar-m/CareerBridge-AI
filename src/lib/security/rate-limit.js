@@ -1,5 +1,5 @@
 // Distributed rate limiter abstraction supporting Upstash Redis REST API
-// Falls back to local in-memory Map in non-production/development environments
+// Falls back to local in-memory Map in non-production/development or when Upstash credentials are missing
 
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -11,22 +11,16 @@ const localCache = new Map();
  * @param {string} ip Client IP address
  * @param {number} limit Maximum requests allowed in the window
  * @param {number} windowSeconds Window duration in seconds
- * @param {boolean} allowLocalFallback Allow falling back to in-memory store in production (e.g. for localhost)
  * @returns {Promise<{success: boolean, limit: number, remaining: number}>}
  */
-export async function rateLimit(ip, limit = 20, windowSeconds = 60, allowLocalFallback = false) {
+export async function rateLimit(ip, limit = 20, windowSeconds = 60) {
   const now = Math.floor(Date.now() / 1000);
   const currentWindow = Math.floor(now / windowSeconds);
   const key = `rate_limit:${ip}:${currentWindow}`;
 
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-    if (process.env.NODE_ENV === "production" && process.env.TESTING !== "true" && !allowLocalFallback) {
-      console.error("CRITICAL ERROR: Upstash Redis credentials missing in production! Blocking request to prevent rate-limit bypass.");
-      return {
-        success: false,
-        limit,
-        remaining: 0,
-      };
+    if (process.env.NODE_ENV === "production" && process.env.TESTING !== "true") {
+      console.warn("Upstash Redis credentials missing in production. Falling back to local in-memory rate limiter.");
     }
   }
 
@@ -66,13 +60,13 @@ export async function rateLimit(ip, limit = 20, windowSeconds = 60, allowLocalFa
     }
   }
 
-  // Local development fallback
+  // Local development / fallback rate limiter
   // Prune expired entries to prevent memory growth
-  for (const [key] of localCache.entries()) {
-    const parts = key.split(":");
+  for (const [k] of localCache.entries()) {
+    const parts = k.split(":");
     const keyWindow = parseInt(parts[parts.length - 1], 10);
     if (isNaN(keyWindow) || keyWindow < currentWindow) {
-      localCache.delete(key);
+      localCache.delete(k);
     }
   }
 
